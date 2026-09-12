@@ -163,14 +163,33 @@
 }
 .client {
   display: flex; align-items: center; justify-content: center; text-align: center;
-  min-height: 88px; padding: 16px 10px;
+  min-height: 88px; padding: 16px 14px;
   border: 1px solid var(--border-card); border-radius: var(--radius-md);
   background: var(--surface-page);
-  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 16px;
-  color: var(--color-green-deep); letter-spacing: -0.01em;
   transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
 .client:hover { border-color: var(--color-sage); box-shadow: var(--shadow-air); }
+
+/* Optical normalisation. The marks have very different proportions — Super-Pharm
+   is a wide filled box, BioGaia a tall wordmark — so capping height alone would
+   let the wide ones dominate. Capping BOTH axes evens out their visual weight. */
+.client__logo {
+  max-height: var(--logo-h, 30px); max-width: 100%; width: auto; height: auto;
+  object-fit: contain; display: block;
+  /* Muted to a common tone so mixed sources read as one row; true colour on hover. */
+  filter: grayscale(1); opacity: 0.7;
+  transition: filter var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.client:hover .client__logo { filter: none; opacity: 1; }
+
+/* Fallback for clients whose official logo we do not have yet. Same neutral ink
+   as the desaturated logos, so the row still reads as one treatment. */
+.client__name {
+  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 17px;
+  color: var(--color-ink-soft); letter-spacing: -0.01em; opacity: 0.75;
+  transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.client:hover .client__name { opacity: 1; color: var(--color-green-deep); }
 
 /* ==========================================================================
    Block 5 — Import route
