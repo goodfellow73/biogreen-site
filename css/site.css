@@ -468,54 +468,46 @@
   .mobile-bar { display: grid; }
   body { padding-bottom: 76px; }
 
-  /* Import route on phones: a stack of full-width green plates, each with its
-     icon and label centred in white, and a chevron dropping to the next one. */
+  /* Import route on phones: the node circle keeps its design-system look —
+     green with a white check, and a white circle for the current step — with
+     the label beside it and a chevron dropping to the next step. */
   .bg-route {
     display: flex; flex-direction: column; align-items: stretch;
-    gap: 26px;
+    gap: 30px;
+    /* Shrink to the widest row and centre the whole chain, so it does not sit
+       hard against the right edge with the left half empty. The steps still
+       stretch to a common width, keeping the nodes on one axis. */
+    width: fit-content; max-width: 100%; margin-inline: auto;
   }
   .bg-route__step {
     flex: none;
-    flex-direction: row; align-items: center; justify-content: center;
-    gap: 12px;
-    min-height: 72px; padding: 14px 20px;
-    background: var(--color-green); border-radius: var(--radius-form);
-    box-shadow: var(--shadow-air);
-    text-align: center;
+    flex-direction: row; align-items: center; justify-content: flex-start;
+    gap: 14px; padding: 0; text-align: start;
   }
-
-  /* The node stops being a circle here — it is just the white glyph. Covers the
-     done / active variants too, which otherwise repaint the background. */
-  .bg-route__node,
-  .bg-route__step--done .bg-route__node,
-  .bg-route__step--active .bg-route__node {
-    width: auto; height: auto; flex: none;
-    background: none; border: 0; box-shadow: none;
-    color: #fff; font-size: 17px;
-  }
-
   .bg-route__label {
     max-width: none;
-    font-family: var(--font-display); font-weight: var(--fw-semibold);
-    font-size: 18px; line-height: 1.3; color: #fff;
+    font-family: var(--font-display); font-weight: var(--fw-medium);
+    font-size: 17px; line-height: 1.35; color: var(--color-green-deep);
   }
 
-  /* Chevron in the gap below each plate: a square with two borders, turned 45°.
-     The --done / --active selectors are listed explicitly because the design
-     system paints the line's background through them, at a specificity this
-     rule would otherwise lose to — leaving a filled diamond instead. */
+  /* Chevron under the node, continuing the chain: a square with two borders
+     turned 45°. Its background must be cleared through the --done / --active
+     selectors too, which the design system uses to paint the line and which
+     outrank a plain .bg-route__line override — otherwise it fills as a diamond.
+     inset-inline-start:22px puts the box edge on the node's centre line;
+     translateX(50%) then centres the box itself on that line. */
   .bg-route__line,
   .bg-route__step--done .bg-route__line,
   .bg-route__step--active .bg-route__line {
-    inset-inline-start: auto; inset-inline-end: auto;
-    top: auto; bottom: -22px; left: 50%;
-    width: 12px; height: 12px;
+    inset-inline-start: 22px; inset-inline-end: auto;
+    top: auto; bottom: -22px; left: auto;
+    width: 11px; height: 11px;
     background: none;
     border: 0;
     border-right: 2px solid var(--color-green);
     border-bottom: 2px solid var(--color-green);
     border-radius: 0 0 2px 0;
-    transform: translateX(-50%) rotate(45deg);
+    transform: translateX(50%) rotate(45deg);
   }
   .bg-route__step:last-child .bg-route__line { display: none; }
 }
