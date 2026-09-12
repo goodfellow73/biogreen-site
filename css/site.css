@@ -468,13 +468,58 @@
   .mobile-bar { display: grid; }
   body { padding-bottom: 76px; }
 
-  /* Import route turns vertical */
-  .bg-route { flex-direction: column; align-items: stretch; gap: 0; }
-  .bg-route__step { flex-direction: row; align-items: center; gap: 14px; text-align: start; padding-block: 6px; }
-  .bg-route__label { max-width: none; font-size: 15px; }
-  .bg-route__line {
-    top: 44px; inset-inline-start: 21px; width: 2px; height: 100%;
+  /* Import route becomes a boustrophedon "snake": two steps per row, running
+     right-to-left, straight down, then left-to-right, and so on.
+     Nodes hug the outer edge of each cell and the labels sit inside them, so
+     neither the horizontal runs nor the vertical drops cross any text. */
+  .bg-route {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 104px;
+    /* Dense packing is required: the steps set an explicit column, and the
+       default sparse cursor never moves backwards, so every other step would
+       be pushed onto a row of its own. */
+    grid-auto-flow: row dense;
+    gap: 0;
+    /* The design system sets align-items:flex-start for the desktop flex row.
+       In grid that stops the steps stretching to the row height, and the
+       vertical drops (height:100%) would then stop short of the next node. */
+    align-items: stretch;
   }
+  .bg-route__step {
+    flex-direction: column; justify-content: flex-start;
+    gap: 8px; padding: 0; text-align: start;
+  }
+
+  /* Column order: right, left | left, right | right, left | … */
+  .bg-route__step:nth-child(4n+1),
+  .bg-route__step:nth-child(4n+4) { grid-column: 1; align-items: flex-start; }
+  .bg-route__step:nth-child(4n+2),
+  .bg-route__step:nth-child(4n+3) { grid-column: 2; align-items: flex-end; }
+
+  /* Labels are pushed past the node so the connector never runs through them. */
+  .bg-route__label { max-width: 120px; font-size: 13px; line-height: 1.35; }
+  .bg-route__step:nth-child(4n+1) .bg-route__label,
+  .bg-route__step:nth-child(4n+4) .bg-route__label { margin-inline-start: 52px; text-align: start; }
+  .bg-route__step:nth-child(4n+2) .bg-route__label,
+  .bg-route__step:nth-child(4n+3) .bg-route__label { margin-inline-end: 52px; text-align: end; }
+
+  /* Odd steps run sideways to their row partner; even steps drop to the row
+     below. Nodes sit above the line and cover each junction. */
+  .bg-route__line { top: 21px; }
+
+  .bg-route__step:nth-child(odd) .bg-route__line {
+    height: 2px; width: calc(200% - 44px);
+  }
+  .bg-route__step:nth-child(4n+1) .bg-route__line { inset-inline-start: 22px; inset-inline-end: auto; }
+  .bg-route__step:nth-child(4n+3) .bg-route__line { inset-inline-end: 22px; inset-inline-start: auto; }
+
+  .bg-route__step:nth-child(even) .bg-route__line {
+    width: 2px; height: 100%;
+  }
+  .bg-route__step:nth-child(4n+2) .bg-route__line { inset-inline-end: 21px; inset-inline-start: auto; }
+  .bg-route__step:nth-child(4n+4) .bg-route__line { inset-inline-start: 21px; inset-inline-end: auto; }
+
   .bg-route__step:last-child .bg-route__line { display: none; }
 }
 
