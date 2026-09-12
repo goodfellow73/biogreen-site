@@ -1,0 +1,178 @@
+/* BioGreen — component classes. Token-driven; gives components real hover / focus /
+   press states. Shipped to consumers via styles.css. JSX components emit these classNames. */
+
+/* ============================ Button ============================ */
+.bg-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--fs-button);
+  line-height: 1; white-space: nowrap; cursor: pointer; user-select: none;
+  border: var(--border-med) solid transparent; border-radius: var(--radius-pill);
+  padding: 14px 26px; text-decoration: none;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.bg-btn:active { transform: scale(0.98); }
+.bg-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.bg-btn--sm { padding: 9px 18px; font-size: var(--fs-small); }
+.bg-btn--lg { padding: 17px 34px; font-size: 19px; }
+.bg-btn--block { display: flex; width: 100%; }
+
+.bg-btn--primary { background: var(--action-primary); color: #fff; box-shadow: var(--shadow-air); }
+.bg-btn--primary:hover { background: var(--action-primary-hover); color: #fff; }
+
+.bg-btn--secondary { background: #fff; color: var(--color-green); border-color: var(--color-green); }
+.bg-btn--secondary:hover { background: var(--color-green-tint); color: var(--color-green-deep); }
+
+.bg-btn--dark { background: var(--color-green-deep); color: var(--color-paper); }
+.bg-btn--dark:hover { background: #053a2b; color: #fff; }
+
+.bg-btn--ghost { background: transparent; color: var(--color-green-deep); }
+.bg-btn--ghost:hover { background: var(--color-green-tint); }
+
+.bg-btn--whatsapp { background: #1FA855; color: #fff; }
+.bg-btn--whatsapp:hover { background: #178043; }
+
+.bg-btn[disabled], .bg-btn[aria-disabled="true"] {
+  opacity: 0.5; pointer-events: none; box-shadow: none;
+}
+
+/* ============================ Micro-label (evidence sticker) ============================ */
+.bg-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-weight: var(--fw-semibold); font-size: var(--fs-label);
+  letter-spacing: var(--ls-label); line-height: 1; padding: 6px 12px;
+  border-radius: var(--radius-pill); border: var(--border-hair) solid;
+  white-space: nowrap;
+}
+.bg-label--natural    { color: var(--color-green-deep); background: var(--color-green-tint); border-color: #BFE0CD; }
+.bg-label--reg        { color: #1B5E80; background: var(--color-sky); border-color: var(--border-reg); }
+.bg-label--commercial { color: var(--color-terracotta); background: var(--color-amber-tint); border-color: #EBC79B; }
+.bg-label--neutral    { color: var(--color-ink-soft); background: #fff; border-color: var(--color-sage); }
+.bg-label--sand       { color: #7A5A2B; background: var(--color-sand); border-color: #E0D2B3; }
+
+/* ============================ Badge (icon trust mark) ============================ */
+.bg-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 14px; line-height: 1;
+  padding: 8px 13px 8px 11px; border-radius: var(--radius-pill);
+  background: #fff; border: var(--border-hair) solid var(--border-card); color: var(--color-green-deep);
+}
+.bg-badge--reg { color: #1B5E80; background: var(--color-sky); border-color: var(--border-reg); }
+
+/* ============================ Card ============================ */
+.bg-card {
+  background: var(--surface-card); border: var(--border-hair) solid var(--border-card);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.bg-card--pad { padding: var(--space-6); }
+.bg-card--soft { background: var(--surface-soft); border-color: #C9DDD0; box-shadow: none; }
+.bg-card--reg  { background: var(--surface-reg); border-color: var(--border-reg); box-shadow: none; }
+.bg-card--product-zone { background: var(--surface-product); border-color: #E0D2B3; box-shadow: none; }
+.bg-card--interactive { cursor: pointer; }
+.bg-card--interactive:hover { box-shadow: var(--shadow-lift); transform: translateY(-3px); }
+
+/* ============================ Service / feature card ============================ */
+.bg-service { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-6); }
+.bg-service__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: var(--radius-md);
+  background: var(--color-green-tint); color: var(--color-green-deep); margin-bottom: var(--space-1);
+}
+.bg-service__icon--reg { background: var(--color-sky); color: #1B5E80; }
+.bg-service__icon--cta { background: var(--color-amber-tint); color: var(--color-terracotta); }
+.bg-service h4 { margin: 0; }
+.bg-service p { margin: 0; color: var(--text-muted); font-size: var(--fs-card); line-height: var(--lh-snug); }
+
+/* ============================ Doorway card (3 entries) ============================ */
+.bg-doorway {
+  display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5) var(--space-6);
+  background: var(--glass-white); -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: var(--border-hair) solid rgba(168,191,175,0.5); border-radius: var(--radius-md);
+  cursor: pointer; text-align: start; width: 100%;
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+.bg-doorway:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--color-green); }
+.bg-doorway__icon { display: inline-flex; color: var(--color-green); }
+.bg-doorway__title { font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 18px; color: var(--color-green-deep); }
+.bg-doorway__arrow { margin-inline-start: auto; color: var(--color-sage); transition: transform var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.bg-doorway:hover .bg-doorway__arrow { color: var(--color-green); transform: translateX(-4px); }
+
+/* ============================ Input / form field ============================ */
+.bg-field { display: flex; flex-direction: column; gap: 7px; }
+.bg-field__label { font-family: var(--font-display); font-weight: var(--fw-medium); font-size: var(--fs-small); color: var(--color-green-deep); }
+.bg-field__req { color: var(--color-amber); margin-inline-start: 2px; }
+.bg-input, .bg-textarea, .bg-select {
+  font-family: var(--font-body); font-size: var(--fs-small); color: var(--text-body);
+  background: #fff; border: var(--border-med) solid var(--border-card); border-radius: var(--radius-form);
+  padding: 13px 16px; width: 100%; line-height: 1.4;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.bg-textarea { resize: vertical; min-height: 96px; }
+.bg-input::placeholder, .bg-textarea::placeholder { color: var(--text-placeholder); }
+.bg-input:focus, .bg-textarea:focus, .bg-select:focus {
+  outline: none; border-color: var(--border-focus); box-shadow: var(--shadow-focus);
+}
+.bg-field--error .bg-input, .bg-field--error .bg-textarea, .bg-field--error .bg-select { border-color: var(--color-terracotta); }
+.bg-field__error { color: var(--color-terracotta); font-size: 13px; }
+.bg-select { appearance: none; background-image: none; cursor: pointer; }
+
+/* ============================ Tabs (medical folder) ============================ */
+.bg-tabs { display: flex; gap: 4px; border-bottom: var(--border-hair) solid var(--border-card); }
+.bg-tab {
+  font-family: var(--font-display); font-weight: var(--fw-medium); font-size: var(--fs-small);
+  color: var(--text-muted); background: transparent; border: none; cursor: pointer;
+  padding: 12px 18px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom: 2.5px solid transparent; margin-bottom: -1px;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.bg-tab:hover { color: var(--color-green-deep); background: var(--color-green-tint); }
+.bg-tab--active { color: var(--color-green-deep); border-bottom-color: var(--color-green); background: #fff; }
+
+/* ============================ FAQ accordion ============================ */
+.bg-faq { border: var(--border-hair) solid var(--border-card); border-radius: var(--radius-md); background: #fff; overflow: hidden; }
+.bg-faq__q {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  width: 100%; text-align: start; cursor: pointer; background: transparent; border: none;
+  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 18px; color: var(--color-green-deep);
+  padding: var(--space-5) var(--space-6);
+}
+.bg-faq__q:hover { background: var(--color-green-tint); }
+.bg-faq__icon { color: var(--color-green); transition: transform var(--dur-base) var(--ease-out); flex-shrink: 0; }
+.bg-faq--open .bg-faq__icon { transform: rotate(180deg); }
+.bg-faq__a { padding: 0 var(--space-6) var(--space-5); color: var(--text-muted); font-size: var(--fs-card); line-height: var(--lh-body); }
+
+/* ============================ Quote / expert note ============================ */
+.bg-quote {
+  font-family: var(--font-serif); font-size: var(--fs-quote); line-height: var(--lh-snug);
+  color: var(--color-green-deep); border-inline-start: 3px solid var(--color-blue);
+  padding-inline-start: var(--space-5); margin: 0;
+}
+.bg-quote__cite { display: block; margin-top: var(--space-3); font-family: var(--font-body); font-size: var(--fs-small); font-weight: var(--fw-semibold); color: var(--text-muted); }
+
+/* ============================ Section heading ============================ */
+.bg-eyebrow {
+  font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--fs-label);
+  letter-spacing: var(--ls-label); color: var(--color-green); text-transform: none;
+  display: inline-flex; align-items: center; gap: 7px; margin-bottom: var(--space-3);
+}
+.bg-eyebrow--reg { color: var(--color-blue); }
+.bg-eyebrow__dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+
+/* ============================ Process route (import path) ============================ */
+.bg-route { display: flex; align-items: flex-start; gap: 0; }
+.bg-route__step { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); flex: 1; text-align: center; position: relative; }
+.bg-route__node {
+  width: 44px; height: 44px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 17px;
+  background: #fff; border: 2px solid var(--color-sage); color: var(--color-sage); z-index: 1;
+}
+.bg-route__step--done .bg-route__node { background: var(--color-green); border-color: var(--color-green); color: #fff; }
+.bg-route__step--active .bg-route__node { border-color: var(--color-green); color: var(--color-green-deep); box-shadow: var(--shadow-focus); }
+.bg-route__label { font-size: 14px; color: var(--text-muted); max-width: 120px; }
+.bg-route__line { position: absolute; top: 22px; height: 2px; background: var(--color-sage); inset-inline-start: 50%; width: 100%; z-index: 0; }
+.bg-route__step--done .bg-route__line { background: var(--color-green); }
+.bg-route__step:last-child .bg-route__line { display: none; }

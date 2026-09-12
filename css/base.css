@@ -1,0 +1,87 @@
+/* BioGreen — base element defaults & brand utility motifs.
+   Light-touch: sets the paper background, RTL direction, type defaults, and the
+   signature motifs (lab grid, botanical-under-glass, glass plate, lab markers). */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  direction: rtl;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-body);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-heading);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-heading);
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--fs-h1); line-height: var(--lh-tight); letter-spacing: var(--ls-tight); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); font-weight: var(--fw-semibold); }
+h4 { font-size: var(--fs-h4); font-weight: var(--fw-semibold); }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+a:hover { color: var(--color-green-deep); }
+
+/* ---------- Brand motifs (opt-in utility classes) ---------- */
+
+/* Lab grid — 1px sage grid, barely visible. Apply to section backgrounds. */
+.bg-lab-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+/* Glass plate — semi-transparent white plate, the "trust" layer over product/leaf */
+.glass-plate {
+  background: var(--glass-white);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: var(--border-hair) solid rgba(168, 191, 175, 0.45);
+  border-radius: var(--radius-card);
+}
+
+/* Lab marker underline — slightly offset, like a hand mark in a professional doc */
+.mark-natural,
+.mark-reg,
+.mark-cta { position: relative; white-space: nowrap; }
+.mark-natural::after,
+.mark-reg::after,
+.mark-cta::after {
+  content: "";
+  position: absolute;
+  inset-inline: -2px;
+  bottom: 0.04em;
+  height: 0.28em;
+  border-radius: 2px;
+  z-index: -1;
+}
+.mark-natural::after { background: rgba(11, 143, 90, 0.22); }
+.mark-reg::after     { background: rgba(43, 120, 163, 0.22); }
+.mark-cta::after     { background: rgba(217, 130, 43, 0.28); }
+
+/* Section vertical rhythm helper */
+.ds-section { padding-block: var(--space-section); }
+.ds-container { max-width: var(--container-max); margin-inline: auto; padding-inline: var(--space-6); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

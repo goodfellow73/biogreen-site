@@ -1,0 +1,56 @@
+/* BioGreen — Spacing, radii, shadows, borders, motion
+   Form language: capsule, pill, lab label, soft pharmaceutical rectangles.
+   Shadows are "air between layers", almost invisible — never a drop-shadow card. */
+
+:root {
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-section: 96px;  /* vertical rhythm between page sections */
+  --space-gutter:  24px;   /* grid gutter */
+  --container-max: 1200px; /* content max width */
+
+  /* ---- Radii — pharmaceutical, not "cute" ---- */
+  --radius-container: 32px; /* large containers */
+  --radius-card:      24px; /* product cards */
+  --radius-form:      20px; /* forms, inputs, modals */
+  --radius-md:        16px;
+  --radius-sm:        10px;
+  --radius-pill:      999px; /* tags, buttons — capsule / tablet */
+
+  /* ---- Borders ---- */
+  --border-hair: 1px; /* @kind spacing */
+  --border-med:  1.5px; /* @kind spacing */
+  --bw-stroke:   1.5px; /* @kind spacing */  /* icon stroke weight */
+
+  /* ---- Shadows — soft, layered air ---- */
+  --shadow-air:   0 1px 2px rgba(6, 79, 58, 0.04), 0 2px 8px rgba(6, 79, 58, 0.05);
+  --shadow-card:  0 2px 4px rgba(6, 79, 58, 0.04), 0 8px 24px rgba(6, 79, 58, 0.07);
+  --shadow-lift:  0 6px 12px rgba(6, 79, 58, 0.06), 0 16px 40px rgba(6, 79, 58, 0.10);
+  --shadow-focus: 0 0 0 3px rgba(43, 120, 163, 0.22); /* blue focus ring */
+
+  /* ---- Transparency (trust language) ---- */
+  --glass-white:  rgba(255, 255, 255, 0.82); /* @kind color */ /* 78–88% white plates */
+  --glass-blur:   10px; /* @kind other */
+
+  /* ---- Motion — dosed, no bounce, "not a sock sale" ---- */
+  --ease-out:   cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-soft:  cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --dur-fast:   140ms; /* @kind other */
+  --dur-base:   240ms; /* @kind other */
+  --dur-slow:   420ms; /* @kind other */
+
+  /* ---- Lab grid (background motif) ---- */
+  --grid-line:  rgba(168, 191, 175, 0.18); /* @kind color */ /* 1px sage grid */
+  --grid-size:  28px; /* @kind spacing */
+}

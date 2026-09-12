@@ -1,0 +1,58 @@
+/* BioGreen — Typography tokens (RTL Hebrew first, Latin second)
+   Heebo      → headings, navigation, buttons (collected, B2B character)
+   Assistant  → body, forms, cards, FAQ (calm, airy, holds long Hebrew)
+   Frank Ruhl Libre → quotes, expert notes (classical Hebrew print, cultural layer) */
+
+:root {
+  /* ---- Families ---- */
+  --font-display: 'Heebo', 'Segoe UI', system-ui, sans-serif;       /* headings, nav, buttons */
+  --font-body:    'Assistant', 'Segoe UI', system-ui, sans-serif;   /* body, forms, cards */
+  --font-serif:   'Frank Ruhl Libre', 'Times New Roman', Georgia, serif; /* quotes, expert */
+
+  /* ---- Weights ---- */
+  --fw-regular:  400; /* @kind font */
+  --fw-medium:   500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold:     700; /* @kind font */
+
+  /* ---- Desktop type scale (px) ---- */
+  --fs-h1:   52px;  /* Heebo 700 / lh 1.15 */
+  --fs-h2:   40px;  /* Heebo 700 / lh 1.2  */
+  --fs-h3:   28px;  /* Heebo 600 / lh 1.25 */
+  --fs-h4:   22px;  /* Heebo 600 / lh 1.3  */
+  --fs-lead: 24px;  /* Assistant 400 hero subtitle / lh 1.45 */
+  --fs-subtitle: 21px; /* Assistant 400 section subtitle / lh 1.45 */
+  --fs-body: 18px;  /* Assistant 400 / lh 1.65 */
+  --fs-card: 17px;  /* Assistant 400 card text / lh 1.55 */
+  --fs-small:16px;  /* Assistant 400 small body / lh 1.55 */
+  --fs-quote:28px;  /* Frank Ruhl Libre 400 / lh 1.45 */
+  --fs-label:13px;  /* micro-labels, eyebrows, tags */
+  --fs-button:17px; /* Heebo 600 */
+  --fs-nav:  16px;  /* Heebo 500 */
+
+  /* ---- Line heights ---- */
+  --lh-tight:  1.15; /* @kind font */
+  --lh-heading:1.25; /* @kind font */
+  --lh-snug:   1.45; /* @kind font */
+  --lh-body:   1.65; /* @kind font */
+
+  /* ---- Tracking ---- */
+  --ls-label:  0.06em; /* @kind font */  /* eyebrows / micro-labels */
+  --ls-tight: -0.01em; /* @kind font */  /* large display */
+}
+
+/* Mobile scale */
+@media (max-width: 768px) {
+  :root {
+    --fs-h1:   38px;
+    --fs-h2:   30px;
+    --fs-h3:   23px;
+    --fs-h4:   20px;
+    --fs-lead: 20px;
+    --fs-subtitle: 19px;
+    --fs-body: 17px;
+    --fs-card: 16px;
+    --fs-small:15px;
+    --fs-quote:23px;
+  }
+}

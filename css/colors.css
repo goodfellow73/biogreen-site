@@ -1,0 +1,74 @@
+/* BioGreen — Color tokens
+   Logic: green = "natural", blue = "trust the documents", amber = "take the next step".
+   Green is the brand's STRUCTURE, never a full-bleed fill. */
+
+:root {
+  /* ---- Brand / logo ---- */
+  --color-logo-green:        #0B8F5A; /* primary wordmark */
+  --color-logo-light-green:  #7FC241; /* the living "natural" symbol — used in measured doses */
+  --color-logo-blue:         #2B78A3; /* Hebrew tagline */
+  --color-logo-dark-green:   #066B45; /* small-size / high-contrast logo */
+
+  /* ---- Primary ---- */
+  --color-green:        #0B8F5A; /* botanical green: header, accents, icons, links, active states */
+  --color-green-deep:   #064F3A; /* dark medical green: headings, footer, trust blocks, hover */
+  --color-blue:         #2B78A3; /* professional blue: regulation, documents, B2B trust */
+  --color-paper:        #F7F8F3; /* warm white site background */
+
+  /* ---- Secondary (soft expert backgrounds) ---- */
+  --color-eucalyptus:   #DDEBE2; /* card / FAQ / soft-divider backgrounds, "למי מתאים" */
+  --color-sky:          #D7EAF2; /* regulation / documents / approvals blocks */
+
+  /* ---- Nuance ---- */
+  --color-sand:         #EFE6D3; /* human touch: packaging, ingredients, organics, product zones */
+  --color-sage:         #A8BFAF; /* secondary icons, borders, quiet UI details */
+
+  /* ---- CTA / commercial ---- */
+  --color-amber:        #D9822B; /* primary CTA "קבל הצעת מחיר" */
+  --color-terracotta:   #B85A2A; /* CTA hover, secondary urgent CTA */
+
+  /* ---- Ink ---- */
+  --color-ink:          #1E2B25; /* body text */
+  --color-ink-soft:     #4A5852; /* secondary text, captions */
+  --color-ink-faint:    #8A9690; /* placeholders, disabled, hints (sage-ish) */
+  --color-white:        #FFFFFF;
+
+  /* ---- Tints (derived, for fills & states) ---- */
+  --color-green-tint:   #E7F3EC;
+  --color-blue-tint:    #EAF3F8;
+  --color-amber-tint:   #FBEEDD;
+
+  /* ======================================================
+     Semantic aliases — reference these in components
+     ====================================================== */
+  --surface-page:        var(--color-paper);
+  --surface-card:        var(--color-white);
+  --surface-soft:        var(--color-eucalyptus);   /* expert / FAQ blocks */
+  --surface-reg:         var(--color-sky);          /* regulatory / docs blocks */
+  --surface-product:     var(--color-sand);         /* product / ingredient zones */
+  --surface-inverse:     var(--color-green-deep);   /* footer, dark trust blocks */
+
+  --text-heading:        var(--color-green-deep);
+  --text-body:           var(--color-ink);
+  --text-muted:          var(--color-ink-soft);
+  --text-placeholder:    var(--color-ink-faint);
+  --text-link:           var(--color-blue);
+  --text-on-dark:        var(--color-paper);
+  --text-brand:          var(--color-green);
+
+  --border-soft:         var(--color-sage);         /* quiet borders, dividers */
+  --border-card:         #E4EBE4;                   /* hairline card border */
+  --border-reg:          #BCD9E8;                   /* regulatory block border */
+  --border-focus:        var(--color-blue);         /* form focus ring */
+
+  --accent-natural:      var(--color-green);        /* underline under natural keywords */
+  --accent-regulatory:   var(--color-blue);         /* underline under regulatory terms */
+  --accent-commercial:   var(--color-amber);        /* underline under CTA meaning */
+
+  --action-primary:      var(--color-amber);
+  --action-primary-hover:var(--color-terracotta);
+  --action-secondary:    var(--color-green);
+
+  --state-success:       var(--color-green);
+  --state-error:         var(--color-terracotta);   /* calm, never red panic */
+}
