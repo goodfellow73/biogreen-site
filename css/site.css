@@ -114,9 +114,7 @@
   position: relative;
   display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center;
 }
-/* .mark-* underlines draw at z-index:-1, so the heading needs its own stacking
-   context — otherwise the marker falls behind the section background. */
-.hero h1 { margin-bottom: 18px; position: relative; z-index: 0; }
+.hero h1 { margin-bottom: 18px; }
 .hero__lead {
   font-size: var(--fs-lead); color: var(--color-green-deep);
   font-weight: var(--fw-medium); line-height: var(--lh-snug);
