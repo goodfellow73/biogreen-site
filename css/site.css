@@ -473,7 +473,7 @@
      the label beside it and a chevron dropping to the next step. */
   .bg-route {
     display: flex; flex-direction: column; align-items: stretch;
-    gap: 30px;
+    gap: 38px;
     /* Shrink to the widest row and centre the whole chain, so it does not sit
        hard against the right edge with the left half empty. The steps still
        stretch to a common width, keeping the nodes on one axis. */
@@ -500,7 +500,7 @@
   .bg-route__step--done .bg-route__line,
   .bg-route__step--active .bg-route__line {
     inset-inline-start: 22px; inset-inline-end: auto;
-    top: auto; bottom: -22px; left: auto;
+    top: auto; bottom: -24px; left: auto;
     width: 11px; height: 11px;
     background: none;
     border: 0;
