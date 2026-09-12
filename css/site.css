@@ -468,58 +468,55 @@
   .mobile-bar { display: grid; }
   body { padding-bottom: 76px; }
 
-  /* Import route becomes a boustrophedon "snake": two steps per row, running
-     right-to-left, straight down, then left-to-right, and so on.
-     Nodes hug the outer edge of each cell and the labels sit inside them, so
-     neither the horizontal runs nor the vertical drops cross any text. */
+  /* Import route on phones: a stack of full-width green plates, each with its
+     icon and label centred in white, and a chevron dropping to the next one. */
   .bg-route {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 104px;
-    /* Dense packing is required: the steps set an explicit column, and the
-       default sparse cursor never moves backwards, so every other step would
-       be pushed onto a row of its own. */
-    grid-auto-flow: row dense;
-    gap: 0;
-    /* The design system sets align-items:flex-start for the desktop flex row.
-       In grid that stops the steps stretching to the row height, and the
-       vertical drops (height:100%) would then stop short of the next node. */
-    align-items: stretch;
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: 26px;
   }
   .bg-route__step {
-    flex-direction: column; justify-content: flex-start;
-    gap: 8px; padding: 0; text-align: start;
+    flex: none;
+    flex-direction: row; align-items: center; justify-content: center;
+    gap: 12px;
+    min-height: 72px; padding: 14px 20px;
+    background: var(--color-green); border-radius: var(--radius-form);
+    box-shadow: var(--shadow-air);
+    text-align: center;
   }
 
-  /* Column order: right, left | left, right | right, left | … */
-  .bg-route__step:nth-child(4n+1),
-  .bg-route__step:nth-child(4n+4) { grid-column: 1; align-items: flex-start; }
-  .bg-route__step:nth-child(4n+2),
-  .bg-route__step:nth-child(4n+3) { grid-column: 2; align-items: flex-end; }
-
-  /* Labels are pushed past the node so the connector never runs through them. */
-  .bg-route__label { max-width: 120px; font-size: 13px; line-height: 1.35; }
-  .bg-route__step:nth-child(4n+1) .bg-route__label,
-  .bg-route__step:nth-child(4n+4) .bg-route__label { margin-inline-start: 52px; text-align: start; }
-  .bg-route__step:nth-child(4n+2) .bg-route__label,
-  .bg-route__step:nth-child(4n+3) .bg-route__label { margin-inline-end: 52px; text-align: end; }
-
-  /* Odd steps run sideways to their row partner; even steps drop to the row
-     below. Nodes sit above the line and cover each junction. */
-  .bg-route__line { top: 21px; }
-
-  .bg-route__step:nth-child(odd) .bg-route__line {
-    height: 2px; width: calc(200% - 44px);
+  /* The node stops being a circle here — it is just the white glyph. Covers the
+     done / active variants too, which otherwise repaint the background. */
+  .bg-route__node,
+  .bg-route__step--done .bg-route__node,
+  .bg-route__step--active .bg-route__node {
+    width: auto; height: auto; flex: none;
+    background: none; border: 0; box-shadow: none;
+    color: #fff; font-size: 17px;
   }
-  .bg-route__step:nth-child(4n+1) .bg-route__line { inset-inline-start: 22px; inset-inline-end: auto; }
-  .bg-route__step:nth-child(4n+3) .bg-route__line { inset-inline-end: 22px; inset-inline-start: auto; }
 
-  .bg-route__step:nth-child(even) .bg-route__line {
-    width: 2px; height: 100%;
+  .bg-route__label {
+    max-width: none;
+    font-family: var(--font-display); font-weight: var(--fw-semibold);
+    font-size: 18px; line-height: 1.3; color: #fff;
   }
-  .bg-route__step:nth-child(4n+2) .bg-route__line { inset-inline-end: 21px; inset-inline-start: auto; }
-  .bg-route__step:nth-child(4n+4) .bg-route__line { inset-inline-start: 21px; inset-inline-end: auto; }
 
+  /* Chevron in the gap below each plate: a square with two borders, turned 45°.
+     The --done / --active selectors are listed explicitly because the design
+     system paints the line's background through them, at a specificity this
+     rule would otherwise lose to — leaving a filled diamond instead. */
+  .bg-route__line,
+  .bg-route__step--done .bg-route__line,
+  .bg-route__step--active .bg-route__line {
+    inset-inline-start: auto; inset-inline-end: auto;
+    top: auto; bottom: -22px; left: 50%;
+    width: 12px; height: 12px;
+    background: none;
+    border: 0;
+    border-right: 2px solid var(--color-green);
+    border-bottom: 2px solid var(--color-green);
+    border-radius: 0 0 2px 0;
+    transform: translateX(-50%) rotate(45deg);
+  }
   .bg-route__step:last-child .bg-route__line { display: none; }
 }
 
