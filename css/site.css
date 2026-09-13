@@ -305,6 +305,64 @@
 .final-cta p { font-size: 19px; color: var(--text-muted); margin: 0; }
 
 /* ==========================================================================
+   Inner pages — shared section patterns
+   (import & regulation; reused by the pages that follow)
+   ========================================================================== */
+
+/* Page hero: single column, text at the start edge, botanical plate behind. */
+.page-hero {
+  position: relative; overflow: hidden;
+  padding-block: 64px 56px;
+  background-color: var(--surface-page);
+  background-image:
+    radial-gradient(120% 90% at 88% -10%, rgba(127, 194, 65, 0.10), transparent 60%),
+    radial-gradient(80% 70% at 8% 8%, rgba(43, 120, 163, 0.06), transparent 55%);
+}
+.page-hero__bg {
+  position: absolute; inset-inline-end: 0; top: 0;
+  width: 42%; height: 100%; object-fit: cover; opacity: 0.42;
+  mask-image: linear-gradient(to left, transparent, #000 70%);
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 70%);
+  pointer-events: none;
+}
+.page-hero__inner { position: relative; }
+.page-hero h1 { font-size: 48px; max-width: 760px; margin-bottom: 18px; }
+.page-hero__sub {
+  font-size: var(--fs-subtitle); color: var(--text-muted);
+  max-width: 640px; line-height: 1.55; margin-bottom: 26px;
+}
+
+/* Three-up card row, same breakpoints as the services grid but no top margin. */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* Photo slot — a labelled placeholder where the client still owes us an image.
+   Deliberately not a stock photo: it names what belongs here. */
+.photo-slot {
+  position: relative; overflow: hidden;
+  aspect-ratio: 5 / 4; border-radius: var(--radius-card);
+  background: var(--surface-reg); border: 1px solid var(--border-reg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 24px; text-align: center; color: var(--color-blue);
+}
+.photo-slot__grid { position: absolute; inset: 0; opacity: 0.7; }
+.photo-slot__caption { position: relative; font-size: 13px; color: var(--text-muted); }
+
+.included__grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+}
+.included__grid .checklist { margin-top: 28px; }
+
+.audiences { background: var(--surface-soft); }
+
+/* Centred pull quote closing the page — no rule, no indent. */
+.quote-block__inner { max-width: 760px; margin-inline: auto; text-align: center; }
+.quote-block__quote {
+  border-inline-start: none; padding-inline-start: 0;
+  font-size: 30px; text-align: center;
+}
+.quote-block__cta { margin-top: 32px; }
+
+/* ==========================================================================
    Footer
    ========================================================================== */
 
@@ -456,6 +514,13 @@
   .products__head { flex-direction: column; align-items: flex-start; gap: 12px; }
 
   .approach__grid { grid-template-columns: 1fr; gap: 32px; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .page-hero { padding-block: 44px 40px; }
+  .page-hero h1 { font-size: var(--fs-h1); }
+  .page-hero__bg { width: 100%; opacity: 0.22; mask-image: none; -webkit-mask-image: none; }
+  .included__grid { grid-template-columns: 1fr; gap: 32px; }
+  .included__grid .photo-slot { order: 2; }
+  .quote-block__quote { font-size: var(--fs-quote); }
   .why__grid { grid-template-columns: 1fr; gap: 0; }
 
   .site-footer__top { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -511,7 +576,7 @@
 }
 
 @media (max-width: 620px) {
-  .services__grid, .products__grid { grid-template-columns: 1fr; }
+  .services__grid, .products__grid, .grid-3 { grid-template-columns: 1fr; }
   .clients__grid { grid-template-columns: repeat(2, 1fr); }
   .checklist { grid-template-columns: 1fr; }
   .site-footer__top { grid-template-columns: 1fr; }
