@@ -1,0 +1,106 @@
+{
+  "_readme": [
+    "מקור האמת היחיד למוצרים באתר. עורכים כאן בלבד, ואז מריצים:",
+    "    python tools/build-products.py",
+    "הסקריפט מייצר מחדש את כרטיסיות המוצר בדף הבית (המוצרים המסומנים featured)",
+    "ובעמוד הקטלוג, וכן את הטאבים של הסינון ואת ה-JSON-LD.",
+    "",
+    "שדות מוצר:",
+    "  slug      — מזהה קבוע. ישמש בהמשך ככתובת עמוד המוצר (/products/<slug>/).",
+    "  name      — שם המוצר כפי שמוצג.",
+    "  category  — מזהה מתוך categories למטה.",
+    "  image     — נתיב מתוך assets/img. הסקריפט מוסיף ../ היכן שצריך.",
+    "  imageAlt  — טקסט חלופי לתמונה.",
+    "  labels    — תגיות בפינת התמונה. tone: natural | reg | commercial | neutral | sand.",
+    "  benefits  — עד שלושה יתרונות.",
+    "  featured  — מספר המיקום בדף הבית (1,2,3), או null אם לא מופיע שם.",
+    "  published — false מסתיר את המוצר מכל האתר בלי למחוק אותו."
+  ],
+
+  "categories": [
+    { "id": "supplements",   "label": "תוספי תזונה" },
+    { "id": "detox-patches", "label": "פדים לניקוי רעלים" },
+    { "id": "raw-materials", "label": "חומרי גלם" }
+  ],
+
+  "products": [
+    {
+      "slug": "curcumin-185",
+      "name": "כורכומין 185",
+      "category": "supplements",
+      "image": "assets/img/product-curcumin-185.jpg",
+      "imageAlt": "כורכומין 185 — אריזת המוצר",
+      "labels": [
+        { "text": "ספיגה פי 185", "tone": "sand" },
+        { "text": "הוכח מחקרית", "tone": "natural" }
+      ],
+      "benefits": ["זמינות ביולוגית ל-24 שעות", "סופט ג׳ל", "בטיחות בשימוש"],
+      "featured": 1,
+      "published": true
+    },
+    {
+      "slug": "mega-detox",
+      "name": "פדים לניקוי רעלים Mega Detox",
+      "category": "detox-patches",
+      "image": "assets/img/product-patches-mega-detox.jpg",
+      "imageAlt": "פדים לניקוי רעלים Mega Detox — אריזת המוצר",
+      "labels": [
+        { "text": "Made in Japan", "tone": "neutral" },
+        { "text": "100% רכיבים טבעיים", "tone": "natural" }
+      ],
+      "benefits": ["רכיבים פטנטיים", "ניקוי רעלים בזמן שינה", "אישור אמ״ר"],
+      "featured": 2,
+      "published": true
+    },
+    {
+      "slug": "detox-gold",
+      "name": "פדים לניקוי רעלים זהב",
+      "category": "detox-patches",
+      "image": "assets/img/product-patches-gold.jpg",
+      "imageAlt": "פדים לניקוי רעלים זהב — אריזת המוצר",
+      "labels": [
+        { "text": "Made in Japan", "tone": "neutral" },
+        { "text": "100% רכיבים טבעיים", "tone": "natural" }
+      ],
+      "benefits": ["רכיבים פטנטיים", "ניקוי רעלים בזמן שינה", "אישור אמ״ר"],
+      "featured": 3,
+      "published": true
+    },
+    {
+      "slug": "detox-cool-mint",
+      "name": "פדים לניקוי רעלים Cool Mint",
+      "category": "detox-patches",
+      "image": "assets/img/product-patches-mint.jpg",
+      "imageAlt": "פדים לניקוי רעלים Cool Mint — אריזת המוצר",
+      "labels": [
+        { "text": "Made in Japan", "tone": "neutral" },
+        { "text": "100% organic", "tone": "natural" }
+      ],
+      "benefits": ["מהדורת המנטה", "תחושת רעננות", "אריזה לפי דרישה"],
+      "featured": null,
+      "published": true
+    },
+    {
+      "slug": "turmeric-extract",
+      "name": "תמצית כורכום גולמית",
+      "category": "raw-materials",
+      "image": "assets/img/raw-turmeric-extract.jpg",
+      "imageAlt": "תמצית כורכום גולמית — חומר גלם",
+      "labels": [{ "text": "חומר גלם", "tone": "sand" }],
+      "benefits": ["לתעשיית התוספים", "אישורי איכות", "אספקה בכמויות"],
+      "featured": null,
+      "published": true
+    },
+    {
+      "slug": "plant-extracts",
+      "name": "תמציות צמחים מיובשות",
+      "category": "raw-materials",
+      "image": "assets/img/raw-plant-extracts.jpg",
+      "imageAlt": "תמציות צמחים מיובשות — חומר גלם",
+      "labels": [{ "text": "B2B", "tone": "commercial" }],
+      "benefits": ["למוצרי טבע", "מקור מבוקר", "תיעוד מלא"],
+      "featured": null,
+      "published": true
+    }
+  ]
+}

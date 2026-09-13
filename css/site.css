@@ -354,6 +354,33 @@
 
 .audiences { background: var(--surface-soft); }
 
+/* Catalogue -------------------------------------------------------------- */
+
+.page-hero--tight { padding-block: 56px 32px; }
+
+.catalog { padding-block: 8px 80px; }
+
+/* The filter bar parks under the sticky header while the grid scrolls. */
+.catalog__filters {
+  position: sticky; top: 76px; z-index: 10;
+  background: var(--surface-page); padding-block: 16px;
+}
+.catalog__filters .bg-tabs { overflow-x: auto; scrollbar-width: none; }
+.catalog__filters .bg-tabs::-webkit-scrollbar { display: none; }
+.catalog__filters .bg-tab { white-space: nowrap; }
+
+.catalog__grid { margin-top: 28px; }
+
+.catalog__empty {
+  margin: 48px 0 0; text-align: center;
+  font-size: var(--fs-subtitle); color: var(--text-muted);
+}
+
+.catalog__note {
+  margin: 48px auto 0; max-width: 620px; text-align: center;
+  font-size: var(--fs-small); color: var(--text-muted);
+}
+
 /* Centred pull quote closing the page — no rule, no indent. */
 .quote-block__inner { max-width: 760px; margin-inline: auto; text-align: center; }
 .quote-block__quote {
@@ -519,6 +546,9 @@
   .page-hero h1 { font-size: var(--fs-h1); }
   .page-hero__bg { width: 100%; opacity: 0.22; mask-image: none; -webkit-mask-image: none; }
   .included__grid { grid-template-columns: 1fr; gap: 32px; }
+  /* The header collapses to 76px too, so the offset stays correct. */
+  .catalog__filters { top: 76px; }
+  .catalog { padding-block: 4px 56px; }
   .included__grid .photo-slot { order: 2; }
   .quote-block__quote { font-size: var(--fs-quote); }
   .why__grid { grid-template-columns: 1fr; gap: 0; }

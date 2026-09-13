@@ -68,6 +68,39 @@ const CONTACT = {
     });
   });
 
+  /* ---------- catalogue filter ---------- */
+
+  // Every product is in the HTML; the tabs only hide what does not match, so
+  // the full catalogue stays in the markup for search engines.
+  const filterTabs = document.querySelectorAll('.catalog__filters .bg-tab');
+  const catalogGrid = document.getElementById('catalog-grid');
+
+  if (filterTabs.length && catalogGrid) {
+    const cards = catalogGrid.querySelectorAll('.product');
+    const empty = document.querySelector('.catalog__empty');
+
+    filterTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const want = tab.getAttribute('data-filter');
+
+        filterTabs.forEach(function (t) {
+          const on = t === tab;
+          t.classList.toggle('bg-tab--active', on);
+          t.setAttribute('aria-selected', String(on));
+        });
+
+        let shown = 0;
+        cards.forEach(function (c) {
+          const match = want === 'all' || c.getAttribute('data-category') === want;
+          c.hidden = !match;
+          if (match) shown++;
+        });
+
+        if (empty) empty.hidden = shown > 0;
+      });
+    });
+  }
+
   /* ---------- quote modal ---------- */
 
   const modal = document.getElementById('quote-modal');
