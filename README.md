@@ -32,6 +32,9 @@ site/
 │   └── site.css          פריסת הדף, הדר, פוטר, מודאל, רספונסיביות
 ├── js/
 │   └── site.js           תפריט מובייל, אקורדיון, מודאל. ללא תלויות.
+├── a11y/
+│   ├── a11y-panel.js     פאנל נגישות עצמאי — ראו a11y/README.md
+│   └── README.md         איך להעתיק אותו לאתר אחר
 └── assets/
     ├── fonts/            Heebo, Assistant, Frank Ruhl Libre (woff2, self-hosted)
     ├── logo/
@@ -148,7 +151,7 @@ python tools/build-product-pages.py
 | צילום תווית | `data/product-pages/curcumin-185.json` → טאב `label` | `src: null` ולכן מוצג placeholder. צריך צילום תווית באיכות גבוהה. |
 | תמונות חומרי גלם | `assets/img/raw-*.jpg` | כרגע צילומי מאקרו בוטניים כמציין מקום. צריך צילומי חומר גלם אמיתיים. |
 | תמונה לבלוק "מה כלול" | `import-regulation/index.html` | placeholder מסומן — צריך צילום של מסמכים, תוויות ואריזות. |
-| מדיניות פרטיות והצהרת נגישות | פוטר | הקישורים מצביעים ל-`/privacy/` ו-`/accessibility/` — העמודים עוד לא נבנו. הצהרת נגישות נדרשת בחוק בישראל. |
+| מדיניות פרטיות והצהרת נגישות | פוטר + `data-statement` בתגית הפאנל | הקישורים מצביעים ל-`/privacy/` ו-`/accessibility/` — העמודים עוד לא נבנו. הצהרת נגישות נדרשת בחוק בישראל. |
 | כתובת האתר | JSON-LD בתחתית `index.html` | `biogreen.co.il` — לעדכן אם שונה. |
 
 ## הוספת עמוד חדש

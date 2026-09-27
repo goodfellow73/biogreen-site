@@ -30,12 +30,15 @@ TARGETS = {
     'products/index.html': 'products/',
 }
 
-# block name -> (first line startswith, last line startswith)
+# block name -> (first line starts with, last line contains)
+# The tail is a substring test, not startswith: the same block ends with a
+# deeper path ("../js/…") on pages one directory down.
 BOUNDS = {
     'sprite': ('<svg xmlns="http://www.w3.org/2000/svg" hidden', '</svg>'),
     'header': ('<a class="skip-link"', '</header>'),
     'footer': ('<footer class="site-footer">', '</footer>'),
-    'modal':  ('<div class="modal" id="quote-modal"', '<script src='),
+    # ends on the a11y panel tag, which follows site.js
+    'modal':  ('<div class="modal" id="quote-modal"', 'a11y-panel.js'),
 }
 
 
@@ -47,7 +50,7 @@ def locate(lines, name):
     except StopIteration:
         sys.exit(f'  cannot find the start of {name!r} ({head!r})')
     try:
-        b = next(i for i, l in enumerate(lines[a:], a) if l.startswith(tail))
+        b = next(i for i, l in enumerate(lines[a:], a) if tail in l)
     except StopIteration:
         sys.exit(f'  cannot find the end of {name!r} ({tail!r})')
     return a, b
@@ -64,7 +67,8 @@ def deepen(html, up):
             return m.group(0)
         return f'{attr}="{up}"' if url == './' else f'{attr}="{up}{url}"'
 
-    return re.sub(r'\b(href|src)="([^"]*)"', fix, html)
+    # data-statement holds a URL too, just not in an href/src attribute.
+    return re.sub(r'\b(href|src|data-statement)="([^"]*)"', fix, html)
 
 
 def set_current(header, href):

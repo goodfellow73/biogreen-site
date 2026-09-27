@@ -371,6 +371,7 @@ def build(page, prod, cats, sprite, header, footer):
 </div>
 
 <script src="{UP}js/site.js"></script>
+<script src="{UP}a11y/a11y-panel.js" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="{UP}accessibility/" data-bottom="92" defer></script>
 
 {product_jsonld(prod, page, cat_label)}
 
