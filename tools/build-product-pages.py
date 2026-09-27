@@ -1,0 +1,423 @@
+#!/usr/bin/env python3
+"""Generate a product page for every file in data/product-pages/.
+
+Run from the site root:   python tools/build-product-pages.py
+
+Each page is written to products/<slug>/index.html.
+
+Two data sources, joined on the slug, with no field in both:
+  data/products.json            catalogue facts — name, category, main image
+  data/product-pages/<slug>.json  page content — hero copy, the eight tabs
+
+The header, footer and icon sprite are lifted out of index.html so the pages
+cannot drift from the rest of the site.
+"""
+
+import json
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PAGES = os.path.join(ROOT, 'data', 'product-pages')
+UP = '../../'          # product pages live two directories deep
+
+
+def esc(s):
+    return (str(s).replace('&', '&amp;').replace('<', '&lt;')
+            .replace('>', '&gt;').replace('"', '&quot;'))
+
+
+# ---------------------------------------------------------------- shared shell
+
+def shell():
+    """Pull the sprite, header and footer out of the home page."""
+    src = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+    lines = src.split('\n')
+
+    def find(prefix):
+        for i, l in enumerate(lines, 1):
+            if l.startswith(prefix):
+                return i
+        sys.exit(f'index.html: cannot find a line starting with {prefix!r}')
+
+    def block(a, b):
+        return '\n'.join(lines[a - 1:b])
+
+    sprite = block(find('<svg xmlns="http://www.w3.org/2000/svg" hidden'), find('</svg>'))
+    header = block(find('<a class="skip-link"'), find('</header>'))
+    footer = block(find('<footer class="site-footer">'), find('</footer>'))
+
+    def up(html):
+        def fix(m):
+            attr, url = m.group(1), m.group(2)
+            if url.startswith(('#', '/', 'http', 'mailto:', 'tel:', 'data:', '..')):
+                return m.group(0)
+            return f'{attr}="{UP}"' if url == './' else f'{attr}="{UP}{url}"'
+        return re.sub(r'\b(href|src)="([^"]*)"', fix, html)
+
+    header, footer = up(header), up(footer)
+    header = (header
+              .replace(f'<a class="nav__link" href="{UP}" aria-current="page">',
+                       f'<a class="nav__link" href="{UP}">')
+              .replace(f'<a class="nav__link" href="{UP}products/">',
+                       f'<a class="nav__link" href="{UP}products/" aria-current="page">'))
+    return sprite, header, footer
+
+
+# ------------------------------------------------------------- content blocks
+
+def render_block(b):
+    t = b.get('type')
+
+    if t == 'text':
+        return f'      <p>{esc(b["value"])}</p>'
+
+    if t == 'list':
+        items = '\n'.join(
+            f'          <li><svg class="icon" width="17" height="17">'
+            f'<use href="#i-check"></use></svg>{esc(i)}</li>' for i in b['items'])
+        title = f'      <h4>{esc(b["title"])}</h4>\n' if b.get('title') else ''
+        return f'{title}      <ul class="pp-list">\n{items}\n      </ul>'
+
+    if t == 'steps':
+        items = '\n'.join(
+            f'          <li class="pp-step">\n'
+            f'            <span class="pp-step__num">{n}</span>\n'
+            f'            <div>\n'
+            f'              <h4>{esc(s["title"])}</h4>\n'
+            f'              <p>{esc(s["text"])}</p>\n'
+            f'            </div>\n'
+            f'          </li>' for n, s in enumerate(b['items'], 1))
+        title = f'      <h4 class="pp-steps__title">{esc(b["title"])}</h4>\n' if b.get('title') else ''
+        return f'{title}      <ol class="pp-steps">\n{items}\n      </ol>'
+
+    if t == 'cards':
+        items = '\n'.join(
+            f'        <div class="pp-card">\n'
+            f'          <h4>{esc(c["title"])}</h4>\n'
+            f'          <p>{esc(c["text"])}</p>\n'
+            f'        </div>' for c in b['items'])
+        return f'      <div class="pp-cards">\n{items}\n      </div>'
+
+    if t == 'note':
+        icon = (f'<span class="pp-note__icon"><svg class="icon" width="20" height="20">'
+                f'<use href="#i-{esc(b["icon"])}"></use></svg></span>' if b.get('icon') else '')
+        tone = ' pp-note--warn' if b.get('tone') == 'warn' else ''
+        return (f'      <div class="pp-note{tone}">{icon}\n'
+                f'        <div>\n'
+                f'          <h4>{esc(b["title"])}</h4>\n'
+                f'          <p>{esc(b["text"])}</p>\n'
+                f'        </div>\n'
+                f'      </div>')
+
+    if t == 'notice':
+        items = '\n'.join(f'          <li>{esc(i)}</li>' for i in b.get('items', []))
+        footer = f'\n        <p class="pp-notice__footer">{esc(b["footer"])}</p>' if b.get('footer') else ''
+        return (f'      <div class="pp-notice">\n'
+                f'        <h4>{esc(b["title"])}</h4>\n'
+                f'        <p>{esc(b["text"])}</p>\n'
+                f'        <ul>\n{items}\n        </ul>{footer}\n'
+                f'      </div>')
+
+    if t == 'image':
+        if b.get('src'):
+            return (f'      <figure class="pp-figure">\n'
+                    f'        <img src="{UP}{esc(b["src"])}" alt="{esc(b["alt"])}" loading="lazy">\n'
+                    f'      </figure>')
+        # TODO marker stays in the output so a missing asset is obvious.
+        return ('      <!-- TODO: image not supplied yet -->\n'
+                '      <div class="photo-slot">\n'
+                '        <div class="bg-lab-grid photo-slot__grid"></div>\n'
+                '        <svg class="icon" width="40" height="40"><use href="#i-file-text"></use></svg>\n'
+                f'        <span class="photo-slot__caption">{esc(b.get("placeholder", "תמונה"))}</span>\n'
+                '      </div>')
+
+    if t == 'faq':
+        out = ['      <div class="faq__list">']
+        for n, qa in enumerate(b['items'], 1):
+            open_ = n == 1
+            out.append(
+                f'        <div class="bg-faq{" bg-faq--open" if open_ else ""}">\n'
+                f'          <button class="bg-faq__q" aria-expanded="{str(open_).lower()}" aria-controls="pfaq-{n}">\n'
+                f'            <span>{esc(qa["q"])}</span>\n'
+                f'            <span class="bg-faq__icon"><svg class="icon" width="22" height="22">'
+                f'<use href="#i-chevron-down"></use></svg></span>\n'
+                f'          </button>\n'
+                f'          <div class="bg-faq__a" id="pfaq-{n}"{"" if open_ else " hidden"}>\n'
+                f'            <p>{esc(qa["a"])}</p>\n'
+                f'          </div>\n'
+                f'        </div>')
+        out.append('      </div>')
+        return '\n'.join(out)
+
+    sys.exit(f'unknown block type: {t!r}')
+
+
+def render_tabs(tabs):
+    bar, panels = [], []
+    for n, t in enumerate(tabs):
+        first = n == 0
+        bar.append(
+            f'        <button class="bg-tab{" bg-tab--active" if first else ""}" type="button"'
+            f' role="tab" aria-selected="{str(first).lower()}"'
+            f' aria-controls="tab-{esc(t["id"])}" data-tab="{esc(t["id"])}">{esc(t["label"])}</button>')
+        body = '\n'.join(render_block(b) for b in t['blocks'])
+        panels.append(
+            f'    <section class="pp-panel" id="tab-{esc(t["id"])}" role="tabpanel"'
+            f'{"" if first else " hidden"}>\n'
+            f'      <h2 class="pp-panel__title">{esc(t["heading"])}</h2>\n'
+            f'{body}\n'
+            f'    </section>')
+    return '\n'.join(bar), '\n'.join(panels)
+
+
+def faq_jsonld(tabs):
+    for t in tabs:
+        for b in t['blocks']:
+            if b.get('type') == 'faq':
+                doc = {
+                    '@context': 'https://schema.org', '@type': 'FAQPage',
+                    'mainEntity': [{
+                        '@type': 'Question', 'name': qa['q'],
+                        'acceptedAnswer': {'@type': 'Answer', 'text': qa['a']},
+                    } for qa in b['items']],
+                }
+                return ('<script type="application/ld+json">\n'
+                        + json.dumps(doc, ensure_ascii=False, indent=2) + '\n</script>')
+    return ''
+
+
+def product_jsonld(prod, page, cat_label):
+    doc = {
+        '@context': 'https://schema.org', '@type': 'Product',
+        'name': prod['name'],
+        'category': cat_label,
+        'description': page.get('lede', ''),
+        'image': f"https://www.biogreen.co.il/{prod['image']}",
+        'brand': {'@type': 'Brand', 'name': 'BioGreen'},
+        'sku': prod['slug'],
+    }
+    return ('<script type="application/ld+json">\n'
+            + json.dumps(doc, ensure_ascii=False, indent=2) + '\n</script>')
+
+
+# --------------------------------------------------------------------- render
+
+def build(page, prod, cats, sprite, header, footer):
+    slug = page['slug']
+    cat_label = cats[prod['category']]
+
+    icons = '\n'.join(
+        f'        <li><img src="{UP}assets/icons/product/{esc(i["file"])}"'
+        f' alt="{esc(i["alt"])}" loading="lazy"></li>' for i in page['heroIcons'])
+
+    bar, panels = render_tabs(page['tabs'])
+    q = page['quote']
+
+    html = f'''<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(prod['name'])} | ביו-גרין</title>
+<meta name="description" content="{esc(page['lede'])}">
+<link rel="icon" href="{UP}assets/logo/biogreen-logo-trim.png">
+<link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/heebo-700-hebrew.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/assistant-400-hebrew.woff2" crossorigin>
+<link rel="stylesheet" href="{UP}css/design-system.css">
+<link rel="stylesheet" href="{UP}css/site.css">
+</head>
+<body>
+
+<!-- Generated by tools/build-product-pages.py from
+     data/product-pages/{esc(slug)}.json — edit the JSON, not this file. -->
+
+{sprite}
+
+{header}
+
+<main id="main">
+
+<!-- ============================================================
+     Hero — content at the start edge, product shot at the end edge.
+     On phones the image comes first (see .pp-hero__media order).
+     ============================================================ -->
+<section class="pp-hero">
+  <div class="shell pp-hero__grid">
+    <div class="pp-hero__body">
+      <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span>{esc(cat_label)}</span>
+      <h1>{esc(prod['name'])}</h1>
+      <p class="pp-hero__subtitle">{esc(page['subtitle'])}</p>
+      <p class="pp-hero__tagline">{esc(page['tagline'])}</p>
+      <p class="pp-hero__lede">{esc(page['lede'])}</p>
+
+      <ul class="pp-icons">
+{icons}
+      </ul>
+
+      <div class="btn-row">
+        <a class="bg-btn bg-btn--primary bg-btn--lg" href="#quote">
+          <svg class="icon" width="22" height="22"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
+        </a>
+        <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="#">
+          <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו ב-WhatsApp</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="pp-hero__media">
+      <img src="{UP}{esc(prod['image'])}" alt="{esc(prod.get('imageAlt', prod['name']))}" width="900" height="900">
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Product dossier — the design system's own tabs, switching the
+     panel below without leaving the page.
+     ============================================================ -->
+<div class="pp-tabbar">
+  <div class="shell">
+    <div class="bg-tabs" role="tablist" aria-label="מידע על המוצר">
+{bar}
+    </div>
+  </div>
+</div>
+
+<div class="shell pp-panels">
+{panels}
+</div>
+
+<!-- ============================================================
+     Quote request
+     ============================================================ -->
+<section class="pp-quote" id="quote">
+  <div class="shell pp-quote__inner">
+    <div class="pp-quote__head">
+      <h2>{esc(q['heading'])}</h2>
+      <p>{esc(q['sub'])}</p>
+    </div>
+
+    <form class="pp-form" novalidate data-product-form data-product="{esc(prod['name'])}">
+      <div class="form-grid">
+        <div class="bg-field">
+          <label class="bg-field__label" for="pq-name">שם<span class="bg-field__req">*</span></label>
+          <input class="bg-input" id="pq-name" name="name" required placeholder="ישראל ישראלי">
+        </div>
+        <div class="bg-field">
+          <label class="bg-field__label" for="pq-company">חברה</label>
+          <input class="bg-input" id="pq-company" name="company" placeholder="אופציונלי">
+        </div>
+        <div class="bg-field">
+          <label class="bg-field__label" for="pq-phone">טלפון<span class="bg-field__req">*</span></label>
+          <input class="bg-input" id="pq-phone" name="phone" type="tel" required placeholder="050-0000000">
+        </div>
+        <div class="bg-field">
+          <label class="bg-field__label" for="pq-email">אימייל<span class="bg-field__req">*</span></label>
+          <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="name@company.co.il">
+        </div>
+        <div class="bg-field">
+          <label class="bg-field__label" for="pq-qty">כמות מבוקשת</label>
+          <input class="bg-input" id="pq-qty" name="quantity" placeholder="לדוגמה: 200 יחידות">
+        </div>
+      </div>
+
+      <div class="bg-field">
+        <label class="bg-field__label" for="pq-notes">הערות</label>
+        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
+      </div>
+
+      <label class="pp-consent">
+        <input type="checkbox" name="consent" value="yes">
+        <span>{esc(q['consent'])}</span>
+      </label>
+
+      <button class="bg-btn bg-btn--primary bg-btn--lg bg-btn--block" type="submit">
+        <svg class="icon" width="22" height="22"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
+      </button>
+
+      <p class="pp-privacy">{esc(q['privacy'])}</p>
+    </form>
+
+    <div class="pp-form__done" hidden>
+      <span class="modal__done-mark"><svg class="icon" width="34" height="34"><use href="#i-circle-check-big"></use></svg></span>
+      <h3>תודה, קיבלנו את הפרטים</h3>
+      <p>נחזור אליכם בהקדם עם מידע נוסף והצעת מחיר.</p>
+      <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+        <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>דברו איתנו בוואטסאפ</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+{footer}
+
+<a class="bg-btn bg-btn--whatsapp fab" data-wa href="#">
+  <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
+</a>
+
+<div class="mobile-bar">
+  <a class="bg-btn bg-btn--secondary" data-tel href="#">
+    <svg class="icon" width="17" height="17"><use href="#i-phone"></use></svg><span>התקשרו</span>
+  </a>
+  <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+    <svg class="icon" width="17" height="17"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
+  </a>
+  <a class="bg-btn bg-btn--primary" href="#quote">
+    <svg class="icon" width="17" height="17"><use href="#i-receipt"></use></svg><span>הצעת מחיר</span>
+  </a>
+</div>
+
+<script src="{UP}js/site.js"></script>
+
+{product_jsonld(prod, page, cat_label)}
+
+{faq_jsonld(page['tabs'])}
+
+</body>
+</html>
+'''
+    out_dir = os.path.join(ROOT, 'products', slug)
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, 'index.html'), 'w', encoding='utf-8', newline='\n') as f:
+        f.write(html)
+    return f'products/{slug}/index.html'
+
+
+def main():
+    with open(os.path.join(ROOT, 'data', 'products.json'), encoding='utf-8') as f:
+        catalogue = json.load(f)
+    cats = {c['id']: c['label'] for c in catalogue['categories']}
+    by_slug = {p['slug']: p for p in catalogue['products']}
+
+    if not os.path.isdir(PAGES):
+        sys.exit(f'missing directory: data/product-pages')
+
+    sprite, header, footer = shell()
+    written = []
+
+    for name in sorted(os.listdir(PAGES)):
+        if not name.endswith('.json'):
+            continue
+        with open(os.path.join(PAGES, name), encoding='utf-8') as f:
+            page = json.load(f)
+
+        slug = page.get('slug') or name[:-5]
+        if slug not in by_slug:
+            sys.exit(f'{name}: slug {slug!r} is not in data/products.json')
+        for i in page.get('heroIcons', []):
+            p = os.path.join(ROOT, 'assets', 'icons', 'product', i['file'])
+            if not os.path.exists(p):
+                sys.exit(f'{name}: missing icon {i["file"]}')
+
+        written.append(build(page, by_slug[slug], cats, sprite, header, footer))
+
+    print(f'{len(written)} product page(s) written:')
+    for w in written:
+        print('  ' + w)
+
+
+if __name__ == '__main__':
+    main()

@@ -63,6 +63,12 @@ def esc(s):
             .replace('>', '&gt;').replace('"', '&quot;'))
 
 
+def has_page(slug):
+    """True when data/product-pages/<slug>.json exists — i.e. the product has
+    its own page, so the card can offer a link to it."""
+    return os.path.exists(os.path.join(ROOT, 'data', 'product-pages', slug + '.json'))
+
+
 def card(p, cats, prefix, indent='      '):
     """One product card. `prefix` is '' at the site root, '../' one level deep."""
     i = indent
@@ -77,6 +83,11 @@ def card(p, cats, prefix, indent='      '):
     labels_block = (f'\n{i}    <div class="product__labels">\n{labels}\n{i}    </div>'
                     if labels else '')
 
+    # Link to the product page only when one actually exists.
+    details = (f'{i}      <a class="bg-btn bg-btn--secondary bg-btn--sm bg-btn--block"'
+               f' href="{prefix}products/{esc(p["slug"])}/">לפרטי המוצר</a>\n'
+               if has_page(p['slug']) else '')
+
     return f'''{i}<article class="bg-card bg-card--interactive product" data-category="{esc(p['category'])}" data-slug="{esc(p['slug'])}">
 {i}  <div class="product__media">
 {i}    <img src="{prefix}{esc(p['image'])}" alt="{esc(p.get('imageAlt', p['name']))}" loading="lazy">{labels_block}
@@ -88,7 +99,7 @@ def card(p, cats, prefix, indent='      '):
 {benefits}
 {i}    </ul>
 {i}    <div class="product__cta">
-{i}      <button class="bg-btn bg-btn--primary bg-btn--sm bg-btn--block" data-quote data-intent="products" data-product="{esc(p['name'])}">
+{details}{i}      <button class="bg-btn bg-btn--primary bg-btn--sm bg-btn--block" data-quote data-intent="products" data-product="{esc(p['name'])}">
 {i}        <svg class="icon" width="17" height="17"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
 {i}      </button>
 {i}    </div>

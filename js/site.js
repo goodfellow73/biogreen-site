@@ -101,6 +101,75 @@ const CONTACT = {
     });
   }
 
+  /* ---------- product page tabs ---------- */
+
+  // Every panel is in the HTML; the tabs only swap which one is shown, so the
+  // whole dossier stays crawlable.
+  const ppTabs = document.querySelectorAll('.pp-tabbar .bg-tab');
+
+  if (ppTabs.length) {
+    const panels = document.querySelectorAll('.pp-panel');
+
+    ppTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const want = tab.getAttribute('data-tab');
+
+        ppTabs.forEach(function (t) {
+          const on = t === tab;
+          t.classList.toggle('bg-tab--active', on);
+          t.setAttribute('aria-selected', String(on));
+        });
+
+        panels.forEach(function (p) {
+          p.hidden = p.id !== 'tab-' + want;
+        });
+
+        // Keep the newly opened panel in view under the sticky bar.
+        const bar = document.querySelector('.pp-tabbar');
+        if (bar && bar.getBoundingClientRect().top < 0) {
+          bar.scrollIntoView();
+        }
+      });
+    });
+  }
+
+  /* ---------- product page quote form ---------- */
+
+  const productForm = document.querySelector('[data-product-form]');
+
+  if (productForm) {
+    const doneBox = document.querySelector('.pp-form__done');
+
+    productForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      productForm.querySelectorAll('.bg-field').forEach(function (f) {
+        f.classList.remove('bg-field--error');
+      });
+      if (!productForm.checkValidity()) {
+        productForm.querySelectorAll(':invalid').forEach(function (f) {
+          const field = f.closest('.bg-field');
+          if (field) field.classList.add('bg-field--error');
+        });
+        const firstInvalid = productForm.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.focus();
+        return;
+      }
+
+      // TODO: wire to the CRM / mail endpoint. The payload is ready here.
+      const payload = Object.fromEntries(new FormData(productForm).entries());
+      payload.product = productForm.getAttribute('data-product');
+      console.info('[BioGreen] product quote request', payload);
+
+      productForm.hidden = true;
+      if (doneBox) {
+        doneBox.hidden = false;
+        doneBox.scrollIntoView({ block: 'center' });
+      }
+      productForm.reset();
+    });
+  }
+
   /* ---------- quote modal ---------- */
 
   const modal = document.getElementById('quote-modal');
