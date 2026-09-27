@@ -108,7 +108,7 @@ def card(p, cats, prefix, indent='      '):
 {i}    </ul>
 {i}    <div class="product__cta">
 {details}{i}      <button class="bg-btn bg-btn--primary bg-btn--sm bg-btn--block" data-quote data-intent="products" data-product="{esc(p['name'])}">
-{i}        <svg class="icon" width="17" height="17"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
+{i}        <svg class="icon" width="17" height="17"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
 {i}      </button>
 {i}    </div>
 {i}  </div>

@@ -258,7 +258,7 @@ def build(page, prod, cats, sprite, header, footer):
 
       <div class="btn-row">
         <a class="bg-btn bg-btn--primary bg-btn--lg" href="#quote">
-          <svg class="icon" width="22" height="22"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
+          <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
         </a>
         <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="#">
           <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו ב-WhatsApp</span>
@@ -333,7 +333,7 @@ def build(page, prod, cats, sprite, header, footer):
       </label>
 
       <button class="bg-btn bg-btn--primary bg-btn--lg bg-btn--block" type="submit">
-        <svg class="icon" width="22" height="22"><use href="#i-receipt"></use></svg><span>לקבלת הצעת מחיר</span>
+        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
       </button>
 
       <p class="pp-privacy">{esc(q['privacy'])}</p>
@@ -366,7 +366,7 @@ def build(page, prod, cats, sprite, header, footer):
     <svg class="icon" width="17" height="17"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
   </a>
   <a class="bg-btn bg-btn--primary" href="#quote">
-    <svg class="icon" width="17" height="17"><use href="#i-receipt"></use></svg><span>הצעת מחיר</span>
+    <svg class="icon" width="17" height="17"><use href="#i-clipboard-pen"></use></svg><span>הצעת מחיר</span>
   </a>
 </div>
 
