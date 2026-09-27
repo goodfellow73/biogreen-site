@@ -420,15 +420,23 @@
 }
 .footer-col a { font-size: 15px; color: rgba(247, 248, 243, 0.78); }
 .footer-col a:hover { color: #fff; }
+/* Medical disclaimer, centred above the legal row. */
+.site-footer__disclaimer {
+  margin: 28px auto 0; max-width: 760px; text-align: center;
+  font-size: 13px; line-height: 1.7; color: rgba(247, 248, 243, 0.6);
+}
+
 .site-footer__bottom {
   display: flex; justify-content: space-between; align-items: center; gap: 16px;
-  padding-top: 24px; font-size: 13px; color: rgba(247, 248, 243, 0.55); flex-wrap: wrap;
+  margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px; color: rgba(247, 248, 243, 0.55); flex-wrap: wrap;
 }
-.site-footer__bottom .bg-label {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: rgba(247, 248, 243, 0.85);
-}
+.site-footer__legal { display: inline-flex; align-items: center; gap: 10px; }
+.site-footer__legal a { color: rgba(247, 248, 243, 0.78); font-size: 13px; }
+.site-footer__legal a:hover { color: #fff; }
+.site-footer__sep { color: rgba(247, 248, 243, 0.3); }
+.site-footer__copy { unicode-bidi: isolate; }
 
 /* ==========================================================================
    Quote modal

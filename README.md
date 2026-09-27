@@ -23,7 +23,8 @@ site/
 │   └── product-pages/    תוכן עמוד המוצר, קובץ לכל מוצר
 ├── tools/
 │   ├── build-products.py      מייצר את הכרטיסיות מה-JSON
-│   └── build-product-pages.py מייצר את עמודי המוצר
+│   ├── build-product-pages.py מייצר את עמודי המוצר
+│   └── sync-shell.py          מעתיק הדר/פוטר/טופס מ-index.html לשאר העמודים
 ├── css/
 │   ├── design-system.css נקודת כניסה — מייבאת את שאר קבצי הטוקנים
 │   ├── colors.css  typography.css  spacing.css  fonts.css  base.css  components.css
@@ -147,6 +148,7 @@ python tools/build-product-pages.py
 | צילום תווית | `data/product-pages/curcumin-185.json` → טאב `label` | `src: null` ולכן מוצג placeholder. צריך צילום תווית באיכות גבוהה. |
 | תמונות חומרי גלם | `assets/img/raw-*.jpg` | כרגע צילומי מאקרו בוטניים כמציין מקום. צריך צילומי חומר גלם אמיתיים. |
 | תמונה לבלוק "מה כלול" | `import-regulation/index.html` | placeholder מסומן — צריך צילום של מסמכים, תוויות ואריזות. |
+| מדיניות פרטיות והצהרת נגישות | פוטר | הקישורים מצביעים ל-`/privacy/` ו-`/accessibility/` — העמודים עוד לא נבנו. הצהרת נגישות נדרשת בחוק בישראל. |
 | כתובת האתר | JSON-LD בתחתית `index.html` | `biogreen.co.il` — לעדכן אם שונה. |
 
 ## הוספת עמוד חדש
@@ -155,10 +157,16 @@ python tools/build-product-pages.py
 `/products/` — כמו שתהיה בוורדפרס. מתוך תיקייה כזו כל הנתיבים היחסיים מקבלים
 `../` (למשל `../css/site.css`).
 
-ה-Header, ה-Footer וטופס הפנייה זהים בכל העמודים. הדרך הבטוחה להוסיף עמוד היא
-להעתיק אותם מ-`index.html` ולהוסיף `../` לנתיבים, ולהעביר את `aria-current="page"`
-לפריט התפריט הנכון. גם ה-sprite של האייקונים זהה בכל העמודים — אייקון חדש צריך
-להתווסף לכולם.
+ה-Header, ה-Footer, טופס הפנייה וה-sprite של האייקונים זהים בכל העמודים.
+**`index.html` הוא המקור** — אחרי שינוי באחד מהם מריצים:
+
+```bash
+python tools/sync-shell.py && python tools/build-products.py && python tools/build-product-pages.py
+```
+
+`sync-shell.py` מעתיק את ארבעת הבלוקים לשאר העמודים, מוסיף `../` לנתיבים לפי
+עומק העמוד, ומעביר את `aria-current="page"` לפריט התפריט הנכון. עמוד חדש צריך
+להתווסף לרשימת `TARGETS` שבראש הסקריפט.
 
 ## הרצה מקומית
 
