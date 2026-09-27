@@ -84,9 +84,17 @@ def card(p, cats, prefix, indent='      '):
                     if labels else '')
 
     # Link to the product page only when one actually exists.
+    page_url = f'{prefix}products/{esc(p["slug"])}/'
+    linked = has_page(p['slug'])
+
     details = (f'{i}      <a class="bg-btn bg-btn--secondary bg-btn--sm bg-btn--block"'
-               f' href="{prefix}products/{esc(p["slug"])}/">לפרטי המוצר</a>\n'
-               if has_page(p['slug']) else '')
+               f' href="{page_url}">לפרטי המוצר</a>\n' if linked else '')
+
+    # The card already lifts on hover, so it should be clickable as a whole.
+    # The title carries the link and .product__link stretches over the card —
+    # one keyboard stop, real link semantics, whole card as the target.
+    title = (f'<a class="product__link" href="{page_url}">{esc(p["name"])}</a>'
+             if linked else esc(p['name']))
 
     return f'''{i}<article class="bg-card bg-card--interactive product" data-category="{esc(p['category'])}" data-slug="{esc(p['slug'])}">
 {i}  <div class="product__media">
@@ -94,7 +102,7 @@ def card(p, cats, prefix, indent='      '):
 {i}  </div>
 {i}  <div class="product__body">
 {i}    <span class="bg-eyebrow" style="margin:0"><span class="bg-eyebrow__dot"></span>{esc(cats[p['category']])}</span>
-{i}    <h3>{esc(p['name'])}</h3>
+{i}    <h3>{title}</h3>
 {i}    <ul class="product__benefits">
 {benefits}
 {i}    </ul>

@@ -207,7 +207,17 @@
 }
 .products__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 
-.product { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.product { padding: 0; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+/* Stretched link: the title is the real link, and this pseudo-element makes
+   the whole card its hit area. The CTA row sits above it so its own buttons
+   still work. Only products that have a page get this. */
+.product__link { color: inherit; text-decoration: none; }
+.product__link::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+.product:has(.product__link) { cursor: pointer; }
+.product__link:focus-visible { outline: none; }
+.product:has(.product__link:focus-visible) { box-shadow: var(--shadow-focus); }
+.product:has(.product__link:hover) h3 { color: var(--color-green); }
 .product__media {
   position: relative; aspect-ratio: 4 / 3; background: #fff;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -232,6 +242,7 @@
 .product__cta {
   margin-top: auto; padding-top: var(--space-3);
   display: grid; gap: 8px;
+  position: relative; z-index: 1;   /* above the stretched link */
 }
 
 /* ==========================================================================
