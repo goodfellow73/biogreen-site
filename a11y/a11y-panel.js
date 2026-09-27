@@ -201,20 +201,23 @@
   var sr = host.attachShadow({ mode: 'open' });
 
   var side = CFG.position === 'right' ? 'right' : 'left';
+  var BTN = 38;   // launcher diameter
+  var ICO = 21;   // mark inside it
+  var GAP = 10;   // breathing room between launcher and panel
 
   var UI_CSS =
     ':host{all:initial;}' +
     '*{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;}' +
 
     '.launcher{position:fixed;' + side + ':18px;bottom:' + CFG.bottom + 'px;z-index:2147483000;' +
-    'width:54px;height:54px;border-radius:50%;border:0;cursor:pointer;' +
+    'width:' + BTN + 'px;height:' + BTN + 'px;border-radius:50%;border:0;cursor:pointer;' +
     'background:' + CFG.accent + ';color:#fff;display:flex;align-items:center;justify-content:center;' +
     'box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .15s ease;}' +
     '.launcher:hover{transform:scale(1.06);}' +
     '.launcher:focus-visible{outline:3px solid #ffdd33;outline-offset:3px;}' +
-    '.launcher svg{width:30px;height:30px;}' +
+    '.launcher svg{width:' + ICO + 'px;height:' + ICO + 'px;}' +
 
-    '.panel{position:fixed;' + side + ':18px;bottom:' + (CFG.bottom + 64) + 'px;z-index:2147483000;' +
+    '.panel{position:fixed;' + side + ':18px;bottom:' + (CFG.bottom + BTN + GAP) + 'px;z-index:2147483000;' +
     'width:340px;max-width:calc(100vw - 36px);max-height:min(76vh,620px);overflow:auto;' +
     'background:#fff;color:#16211c;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.3);' +
     'direction:' + L.dir + ';text-align:' + (L.dir === 'rtl' ? 'right' : 'left') + ';}' +
@@ -257,7 +260,7 @@
     '.mask i{position:absolute;left:0;right:0;background:rgba(0,0,0,.62);display:block;}' +
 
     '@media (max-width:480px){.panel{width:calc(100vw - 24px);' + side + ':12px;' +
-    'bottom:' + (CFG.bottom + 60) + 'px;}}';
+    'bottom:' + (CFG.bottom + BTN + GAP) + 'px;}}';
 
   function ico(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true">' + paths + '</svg>';
