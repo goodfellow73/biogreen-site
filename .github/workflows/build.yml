@@ -1,0 +1,63 @@
+name: Build site from data
+
+# The product pages and catalogue cards are generated from data/ by the scripts
+# in tools/. Until now that only happened on a developer's machine. Once a CMS
+# edits data/products.json this has to run on every change, so a non-technical
+# editor never has to touch a build step.
+#
+# The workflow commits the regenerated HTML back to the repo, which is what the
+# host (Sticklight Cloud / Cloudflare Pages / GitHub Pages) actually serves.
+
+on:
+  push:
+    branches: [main]
+    # Only the inputs to the build. The generated HTML is NOT listed, so the
+    # commit this workflow makes cannot trigger another run.
+    paths:
+      - 'data/**'
+      - 'tools/**'
+      - 'assets/img/**'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The generators validate before writing — duplicate slugs, unknown
+      # categories, missing images — and exit non-zero. A bad save in the CMS
+      # fails here loudly instead of publishing a broken page.
+      - name: Generate pages from data
+        run: |
+          python tools/sync-shell.py
+          python tools/build-products.py
+          python tools/build-product-pages.py
+
+      - name: Commit regenerated HTML
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing to regenerate — the HTML already matches the data."
+            exit 0
+          fi
+
+          git config user.name  "biogreen-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git status --short
+          git commit -m "Regenerate pages from data [skip ci]"
+          git push
