@@ -21,6 +21,8 @@ site/
 ├── data/
 │   ├── products.json     מקור האמת למוצרים — כאן עורכים
 │   └── product-pages/    תוכן עמוד המוצר, קובץ לכל מוצר
+├── .github/workflows/
+│   └── build.yml         מריץ את הסקריפטים בענן בכל שינוי ב-data/
 ├── tools/
 │   ├── build-products.py      מייצר את הכרטיסיות מה-JSON
 │   ├── build-product-pages.py מייצר את עמודי המוצר
@@ -71,7 +73,13 @@ site/
 
 ## ניהול מוצרים
 
-כל המוצרים באתר מוגדרים בקובץ אחד: `data/products.json`. אחרי עריכה מריצים:
+כל המוצרים באתר מוגדרים בקובץ אחד: `data/products.json`.
+
+**מי שעורך דרך מערכת ניהול לא צריך להריץ כלום** — כל שינוי ב-`data/`, `tools/`
+או `assets/img/` מפעיל את `.github/workflows/build.yml`, שמריץ את שלושת
+הסקריפטים ועושה commit ל-HTML המחודש. האחסון פורס משם.
+
+לעבודה מקומית מריצים ידנית:
 
 ```bash
 python tools/build-products.py
