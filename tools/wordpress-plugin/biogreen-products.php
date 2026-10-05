@@ -249,6 +249,58 @@ add_action( 'save_post_product', function ( $post_id ) {
 	}
 }, 10, 1 );
 
+/* ------------------------------------------------------------ slug warning */
+
+/**
+ * Every product title here is Hebrew, so WordPress derives a Hebrew slug and
+ * percent-encodes it — the address would become
+ * /products/%d7%aa%d7%95%d7%a1%d7%a3.../ and the build refuses it.
+ * Warning at the point of editing beats failing later in CI.
+ */
+add_action( 'admin_notices', function () {
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->post_type !== 'product' ) {
+		return;
+	}
+
+	$bad = [];
+
+	if ( $screen->base === 'post' ) {
+		$post = get_post();
+		if ( $post && $post->post_name && ! preg_match( '/^[a-z0-9-]+$/', urldecode( $post->post_name ) ) ) {
+			$bad[] = $post;
+		}
+	} elseif ( $screen->base === 'edit' ) {
+		foreach ( get_posts( [ 'post_type' => 'product', 'numberposts' => 100,
+		                       'post_status' => [ 'publish', 'draft' ] ] ) as $post ) {
+			if ( $post->post_name && ! preg_match( '/^[a-z0-9-]+$/', urldecode( $post->post_name ) ) ) {
+				$bad[] = $post;
+			}
+		}
+	}
+
+	if ( ! $bad ) {
+		return;
+	}
+
+	echo '<div class="notice notice-warning"><p><strong>הכתובת של המוצר צריכה להיות באנגלית.</strong><br>';
+	echo 'בסרגל הצד, תחת <em>קישור → מזהה כתובת</em>, יש לכתוב מזהה באותיות אנגליות קטנות ';
+	echo 'עם מקפים — למשל <code>curcumin-185</code>. הכתובת באתר תהיה ';
+	echo '<code>/products/curcumin-185/</code>. בלי זה הבנייה נעצרת.</p>';
+
+	if ( count( $bad ) > 1 || ( $screen->base === 'edit' ) ) {
+		echo '<p>מוצרים שצריך לתקן: ';
+		$links = [];
+		foreach ( $bad as $post ) {
+			$links[] = '<a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">'
+				. esc_html( $post->post_title ) . '</a>';
+		}
+		echo wp_kses_post( implode( ', ', $links ) ) . '</p>';
+	}
+
+	echo '</div>';
+} );
+
 /* ------------------------------------------------- rebuild the static site */
 
 add_action( 'admin_menu', function () {
