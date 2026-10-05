@@ -33,6 +33,13 @@ on:
 permissions:
   contents: write
 
+# Lifted to the job env so a step's `if:` can test whether WordPress is
+# configured at all — the secrets context is not usable in those conditions.
+env:
+  WP_URL: ${{ secrets.WP_URL }}
+  WP_USER: ${{ secrets.WP_USER }}
+  WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+
 concurrency:
   group: build-site
   cancel-in-progress: false
@@ -50,16 +57,22 @@ jobs:
 
       # Only needed for the WordPress pull, which resizes uploaded photos.
       - name: Install Pillow
-        if: github.event_name == 'repository_dispatch' || inputs.pull_from_wp
+        if: env.WP_URL != '' && (github.event_name == 'repository_dispatch' || inputs.pull_from_wp)
         run: pip install --quiet pillow
 
+      # Skipped while WP_URL is unset, so a webhook that arrives before
+      # WordPress is wired up still rebuilds from the data already in the repo
+      # instead of failing. Once WP_URL exists, a WordPress that cannot be
+      # reached is a real error and stops the run.
       - name: Pull products from WordPress
-        if: github.event_name == 'repository_dispatch' || inputs.pull_from_wp
-        env:
-          WP_URL: ${{ secrets.WP_URL }}
-          WP_USER: ${{ secrets.WP_USER }}
-          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        if: env.WP_URL != '' && (github.event_name == 'repository_dispatch' || inputs.pull_from_wp)
         run: python tools/pull-from-wp.py
+
+      - name: Note that WordPress is not configured
+        if: env.WP_URL == '' && github.event_name == 'repository_dispatch'
+        run: |
+          echo "::notice::WP_URL is not set, so nothing was pulled from WordPress."
+          echo "Rebuilt from the data already in the repository."
 
       # The generators validate before writing — duplicate slugs, unknown
       # categories, unknown label tones, missing images — and exit non-zero, so
