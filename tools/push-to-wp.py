@@ -103,6 +103,19 @@ def blocks_to_html(blocks):
     return '\n'.join(out)
 
 
+def note_title(n):
+    """Encode a highlight box's icon and tone into its title line.
+
+    The textarea holds one box per blank-line-separated chunk, so anything
+    beyond title and text has to ride along in the title. The puller strips
+    both prefixes back off.
+    """
+    prefix = f'[{n["icon"]}] ' if n.get('icon') else ''
+    if n.get('tone') == 'warn':
+        prefix = '! ' + prefix
+    return prefix + n['title']
+
+
 def pairs_to_text(items, a='title', b='text'):
     """The blank-line convention the plugin's textareas use."""
     return '\n\n'.join(f'{i[a]}\n{i[b]}' for i in items)
@@ -159,14 +172,13 @@ def page_meta(page):
 
             steps = [b for b in blocks if b.get('type') == 'steps']
             if steps:
+                meta[f'tab_{tid}_steps_title'] = steps[0].get('title', '')
                 meta[f'tab_{tid}_steps'] = pairs_to_text(steps[0]['items'])
 
             notes = [b for b in blocks if b.get('type') == 'note']
             if notes:
                 meta[f'tab_{tid}_notes'] = '\n\n'.join(
-                    ('! ' if n.get('tone') == 'warn' else '')
-                    + n['title'] + '\n' + n['text']
-                    for n in notes)
+                    note_title(n) + '\n' + n['text'] for n in notes)
 
     return meta
 
@@ -195,7 +207,14 @@ def upload_image(rel_path):
 
 
 def main():
-    print(f'Pushing to {WP_URL} as {WP_USER}\n')
+    print(f'Pushing to {WP_URL} as {WP_USER}')
+
+    # Check the credentials before touching anything. Without this, a dead
+    # application password surfaces much later as "invalid parameter: status"
+    # — the draft query simply needs a logged-in user — which reads like a bug
+    # in this script rather than an expired password.
+    me = api('users/me')
+    print(f'Authenticated as {me.get("name")} ({", ".join(me.get("roles", []))})\n')
 
     with open(os.path.join(ROOT, 'data', 'products.json'), encoding='utf-8') as f:
         data = json.load(f)

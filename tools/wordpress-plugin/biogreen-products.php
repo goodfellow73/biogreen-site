@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.2.0
+ * Version:      1.2.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,9 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.2.1  A "steps title" field per prose tab, and an [icon-name] prefix for a
+ *        highlight box's title. 1.2.0 carried the blocks across but dropped
+ *        both of these, so the kosher boxes came back without their badges.
  * 1.2.0  Optional "numbered steps" and "highlight boxes" fields on each prose
  *        tab. Without them a tab's designed blocks flattened into plain prose
  *        once its content moved into WordPress.
@@ -33,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.2.0';
+const BIOGREEN_VERSION = '1.2.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -71,8 +74,11 @@ function biogreen_fields() {
 		$content[ "tab_{$id}_body" ]    = [ "$label — תוכן", 'wysiwyg' ];
 		// Two blocks carry design that plain editor prose cannot: numbered
 		// cards and highlight boxes. Optional, same blank-line convention.
+		$content[ "tab_{$id}_steps_title" ] = [ "$label — כותרת לשלבים (אופציונלי)", 'text' ];
 		$content[ "tab_{$id}_steps" ] = [ "$label — שלבים ממוספרים (אופציונלי)", 'textarea' ];
-		$content[ "tab_{$id}_notes" ] = [ "$label — תיבות הדגשה (אופציונלי)", 'textarea' ];
+		// A title may open with [icon-name] for the badge icon and/or ! for the
+		// amber warning variant, e.g. "[stamp] כשר פרווה" or "! אלרגן".
+		$content[ "tab_{$id}_notes" ] = [ "$label — תיבות הדגשה (אופציונלי). כותרת יכולה להתחיל ב-[שם-אייקון] ו/או ב-! לאזהרה", 'textarea' ];
 	}
 	$content['tab_benefits_heading'] = [ 'יתרונות — כותרת', 'text' ];
 	$content['tab_benefits_items']   = [ 'יתרונות — פריט לכל בלוק, שורה ראשונה = כותרת, מופרדים בשורה ריקה', 'textarea' ];

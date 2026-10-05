@@ -169,6 +169,11 @@ TABS = [
 
 PROSE_TABS = {'description', 'audience', 'usage', 'ingredients', 'kosher'}
 
+# Read from the sprite rather than hard-coded, so adding an icon to index.html
+# is all it takes to make it usable from WordPress.
+with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as _f:
+    SPRITE_ICONS = set(re.findall(r'id="i-([a-z0-9-]+)"', _f.read()))
+
 
 def blocks_from_text(raw):
     """Parse a textarea into title/body pairs.
@@ -220,18 +225,30 @@ def build_page(post, slug, name):
             # Numbered cards — the "evolution" treatment on the description tab.
             steps = blocks_from_text(field(post, f'tab_{tid}_steps'))
             if steps:
-                blocks.append({'type': 'steps', 'items': steps})
+                block = {'type': 'steps', 'items': steps}
+                title = clean(field(post, f'tab_{tid}_steps_title'))
+                if title:
+                    block['title'] = title
+                blocks.append(block)
 
-            # Highlight boxes. A title starting with "!" is the amber warning
-            # variant, which is how the allergen box is marked.
+            # Highlight boxes. A title may open with "!" for the amber warning
+            # variant — how the allergen box is marked — and with
+            # "[icon-name]" for the badge icon beside it.
             for n in blocks_from_text(field(post, f'tab_{tid}_notes')):
-                title = n['title']
-                warn = title.startswith('!')
-                block = {'type': 'note',
-                         'title': title.lstrip('!').strip(),
-                         'text': n['text']}
-                if warn:
-                    block['tone'] = 'warn'
+                title, tone, icon = n['title'].strip(), None, None
+                if title.startswith('!'):
+                    title, tone = title.lstrip('!').strip(), 'warn'
+                m = re.match(r'\[([a-z0-9-]+)\]\s*(.*)$', title)
+                if m:
+                    icon, title = m.group(1), m.group(2).strip()
+                    if icon not in SPRITE_ICONS:
+                        die(f"'{slug}' tab '{tid}': no icon named '{icon}' in the "
+                            f"sprite. Available: {', '.join(sorted(SPRITE_ICONS))}")
+                block = {'type': 'note', 'title': title, 'text': n['text']}
+                if icon:
+                    block['icon'] = icon
+                if tone:
+                    block['tone'] = tone
                 blocks.append(block)
 
         if tid == 'usage':
