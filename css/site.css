@@ -767,6 +767,27 @@
 .pp-notice li { font-size: var(--fs-card); color: var(--text-muted); margin-bottom: 4px; }
 .pp-notice__footer { margin-top: 12px !important; font-weight: var(--fw-semibold); }
 
+/* Content authored in the WordPress editor. The tags are whatever the editor
+   produced, so the page's typography is applied by element rather than class. */
+.pp-prose > :first-child { margin-top: 0; }
+.pp-prose > :last-child { margin-bottom: 0; }
+.pp-prose p { color: var(--text-muted); line-height: var(--lh-body); margin: 0 0 1em; }
+.pp-prose h2, .pp-prose h3 {
+  font-size: var(--fs-h4); color: var(--color-green-deep); margin: 28px 0 8px;
+}
+.pp-prose h4 { font-size: 18px; margin: 24px 0 6px; }
+.pp-prose ul, .pp-prose ol { margin: 0 0 1em; padding-inline-start: 22px; }
+.pp-prose li { font-size: var(--fs-card); color: var(--text-muted); margin-bottom: 6px; }
+.pp-prose strong { color: var(--color-green-deep); font-weight: var(--fw-semibold); }
+.pp-prose a { text-decoration: underline; text-underline-offset: 3px; }
+.pp-prose img { max-width: 100%; height: auto; border-radius: var(--radius-md); }
+.pp-prose table { width: 100%; border-collapse: collapse; margin: 0 0 1em; }
+.pp-prose th, .pp-prose td {
+  border: 1px solid var(--border-card); padding: 10px 12px;
+  font-size: var(--fs-card); text-align: start;
+}
+.pp-prose th { background: var(--surface-soft); color: var(--color-green-deep); font-weight: var(--fw-semibold); }
+
 .pp-figure { margin: 0; }
 .pp-figure img {
   width: 100%; border-radius: var(--radius-card);

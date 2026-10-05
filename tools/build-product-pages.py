@@ -73,6 +73,12 @@ def render_block(b):
     if t == 'text':
         return f'      <p>{esc(b["value"])}</p>'
 
+    if t == 'html':
+        # Rendered HTML straight from a WordPress editor. Deliberately NOT
+        # escaped — it is authored content, not user input — and wrapped so the
+        # page's own typography applies to whatever tags the editor produced.
+        return f'      <div class="pp-prose">\n{b["value"].strip()}\n      </div>'
+
     if t == 'list':
         items = '\n'.join(
             f'          <li><svg class="icon" width="17" height="17">'

@@ -18,8 +18,10 @@ site never requests anything from the WordPress host. If the site were to fetch
 from WordPress in the browser we would lose the three things the static build
 exists for: speed, security, and a catalogue search engines can read.
 
-What it does NOT touch: data/product-pages/*.json. Those hold the eight-tab
-product page content and are still authored by hand.
+It also writes data/product-pages/<slug>.json — the eight-tab product page —
+but only for products that carry page copy in WordPress. A product with no page
+copy is left exactly as it is, so hand-authored pages survive until their
+content is moved across.
 """
 
 import base64
@@ -35,6 +37,7 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG_DIR = os.path.join(ROOT, 'assets', 'img')
 OUT = os.path.join(ROOT, 'data', 'products.json')
+PAGE_DIR = os.path.join(ROOT, 'data', 'product-pages')
 
 WP_URL = (os.environ.get('WP_URL') or '').rstrip('/')
 WP_USER = os.environ.get('WP_USER') or ''
@@ -150,6 +153,126 @@ def field(post, *names):
     return ''
 
 
+# --------------------------------------------------------------- page content
+
+# The eight tabs are the same on every product page; only their contents differ.
+TABS = [
+    ('description', 'תיאור'),
+    ('audience',    'למי מתאים'),
+    ('benefits',    'יתרונות'),
+    ('usage',       'הוראות שימוש'),
+    ('ingredients', 'רכיבים ומידע'),
+    ('kosher',      'כשרות ואישורים'),
+    ('label',       'תווית'),
+    ('faq',         'שאלות נפוצות'),
+]
+
+PROSE_TABS = {'description', 'audience', 'usage', 'ingredients', 'kosher'}
+
+
+def blocks_from_text(raw):
+    """Parse a textarea into title/body pairs.
+
+    Items are separated by a blank line; the first line of each is the title and
+    the rest is the body:
+
+        ספיגה עוצמתית עד פי 185
+        הפורמולה מבוססת על טכנולוגיית…
+
+        זמינות ל-24 שעות
+        הטכנולוגיה מאפשרת…
+
+    One field instead of two dozen numbered ones, and no ACF Pro repeater.
+    """
+    out = []
+    for chunk in re.split(r'\n\s*\n', (raw or '').replace('\r\n', '\n').strip()):
+        lines = [l.strip() for l in chunk.split('\n') if l.strip()]
+        if not lines:
+            continue
+        out.append({'title': lines[0], 'text': ' '.join(lines[1:])})
+    return out
+
+
+def build_page(post, slug, name):
+    """Assemble data/product-pages/<slug>.json, or None if WP has no page copy."""
+    if not clean(field(post, 'page_lede')):
+        return None
+
+    icons = []
+    for i in range(1, 7):
+        f = clean(field(post, f'hero_icon_{i}'))
+        if not f:
+            continue
+        if not os.path.exists(os.path.join(ROOT, 'assets', 'icons', 'product', f)):
+            die(f"'{slug}' references a product icon that is not in the repo: {f}")
+        icons.append({'file': f, 'alt': clean(field(post, f'hero_icon_{i}_alt')) or f})
+
+    tabs = []
+    for tid, label in TABS:
+        heading = clean(field(post, f'tab_{tid}_heading'))
+        blocks = []
+
+        if tid in PROSE_TABS:
+            body = field(post, f'tab_{tid}_body')
+            if body:
+                blocks.append({'type': 'html', 'value': str(body)})
+
+        if tid == 'usage':
+            n_title = clean(field(post, 'tab_usage_notice_title'))
+            if n_title:
+                items = [l.strip() for l in
+                         str(field(post, 'tab_usage_notice_items') or '').split('\n')
+                         if l.strip()]
+                blocks.append({
+                    'type': 'notice', 'title': n_title,
+                    'text': clean(field(post, 'tab_usage_notice_text')),
+                    'items': items,
+                    'footer': clean(field(post, 'tab_usage_notice_footer')),
+                })
+
+        if tid == 'benefits':
+            items = blocks_from_text(field(post, 'tab_benefits_items'))
+            if items:
+                blocks.append({'type': 'cards', 'items': items})
+
+        if tid == 'faq':
+            items = [{'q': b['title'], 'a': b['text']}
+                     for b in blocks_from_text(field(post, 'tab_faq_items'))]
+            if items:
+                blocks.append({'type': 'faq', 'items': items})
+
+        if tid == 'label':
+            url = field(post, 'tab_label_image')
+            if isinstance(url, dict):              # ACF image field returns an object
+                url = url.get('url')
+            alt = clean(field(post, 'tab_label_alt')) or f'תווית {name}'
+            src = grab_image(url, f'{slug}-label') if url else None
+            blocks.append({'type': 'image', 'src': src, 'alt': alt,
+                           'placeholder': 'צילום תווית המוצר באיכות גבוהה'})
+
+        if not heading and not blocks:
+            continue                                # skip a tab WordPress left empty
+        tabs.append({'id': tid, 'label': label,
+                     'heading': heading or label, 'blocks': blocks})
+
+    return {
+        'slug': slug,
+        'subtitle': clean(field(post, 'page_subtitle')),
+        'tagline': clean(field(post, 'page_tagline')),
+        'lede': clean(field(post, 'page_lede')),
+        'heroIcons': icons,
+        'tabs': tabs,
+        'quote': {
+            'heading': clean(field(post, 'quote_heading')) or f'רוצים לקבל הצעת מחיר ל{name}?',
+            'sub': clean(field(post, 'quote_sub'))
+                   or 'השאירו פרטים ונחזור אליכם עם מידע נוסף והצעת מחיר.',
+            'privacy': 'הפרטים שמסרת ישמשו לצורך טיפול בפנייתך וליצירת קשר בנושא הפנייה. '
+                       'לפרטים נוספים ראו מדיניות הפרטיות.',
+            'consent': 'אני מעוניין/ת לקבל מביוגרין עדכונים, מידע מקצועי והצעות.',
+        },
+    }
+
+
 def main():
     print(f'Reading products from {WP_URL}')
 
@@ -167,7 +290,7 @@ def main():
             'the catalogue — fix the endpoint, or unpublish products one by one '
             'if that is really intended.')
 
-    products = []
+    products, pages = [], []
     for p in posts:
         slug = p.get('slug') or ''
         name = clean((p.get('title') or {}).get('rendered'))
@@ -213,6 +336,19 @@ def main():
             'featured': featured, 'published': True,
         })
         print(f'  {slug:24} {name}')
+
+        # Page content is optional: a product can exist in the catalogue without
+        # a page of its own, exactly as it does today.
+        page = build_page(p, slug, name)
+        if page:
+            os.makedirs(PAGE_DIR, exist_ok=True)
+            with open(os.path.join(PAGE_DIR, slug + '.json'), 'w',
+                      encoding='utf-8', newline='\n') as f:
+                json.dump(page, f, ensure_ascii=False, indent=2)
+                f.write('\n')
+            print(f'  {"":24} page: {len(page["tabs"])} tabs, '
+                  f'{len(page["heroIcons"])} icons')
+            pages.append(slug)
 
     seen = set()
     for p in products:
