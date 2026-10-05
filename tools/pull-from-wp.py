@@ -292,10 +292,18 @@ def main():
 
     products, pages = [], []
     for p in posts:
-        slug = p.get('slug') or ''
+        slug = urllib.parse.unquote(p.get('slug') or '')
         name = clean((p.get('title') or {}).get('rendered'))
         if not slug or not name:
             die(f'post {p.get("id")} has no slug or title.')
+
+        # A Hebrew title gives WordPress a Hebrew slug, which it percent-encodes.
+        # That string would become the public URL and the data filename, so ask
+        # for a Latin one instead of quietly producing %d7%aa%d7%95%d7%a1…
+        if not re.fullmatch(r'[a-z0-9-]+', slug):
+            die(f"'{name}' has the slug '{slug}'. Set a Latin slug in the "
+                f"WordPress editor (lowercase letters, digits and hyphens) — "
+                f"it becomes the page address, e.g. /products/curcumin-185/.")
 
         term_ids = (p.get('product_category') or [])
         cat = by_term_id.get(term_ids[0]) if term_ids else None
@@ -325,7 +333,10 @@ def main():
 
         order = field(p, 'featured_order')
         try:
+            # An unset integer meta comes back from WordPress as 0, not ''.
             featured = int(order) if str(order).strip() else None
+            if featured == 0:
+                featured = None
         except ValueError:
             die(f"'{slug}' has a non-numeric featured_order: {order!r}")
 
