@@ -1,24 +1,34 @@
 name: Build site from data
 
-# The product pages and catalogue cards are generated from data/ by the scripts
-# in tools/. Until now that only happened on a developer's machine. Once a CMS
-# edits data/products.json this has to run on every change, so a non-technical
-# editor never has to touch a build step.
+# The catalogue cards and product pages are generated from data/ by the scripts
+# in tools/. This runs them in the cloud so nobody editing content ever meets a
+# build step, and commits the regenerated HTML back — that is what the host
+# actually serves.
 #
-# The workflow commits the regenerated HTML back to the repo, which is what the
-# host (Sticklight Cloud / Cloudflare Pages / GitHub Pages) actually serves.
+# Two ways in:
+#   push            someone edited data/ or tools/ in the repo
+#   repository_dispatch (wp-content-updated)
+#                   WordPress saved a product and fired a webhook; pull from it
+#                   first, then build
 
 on:
   push:
     branches: [main]
-    # Only the inputs to the build. The generated HTML is NOT listed, so the
-    # commit this workflow makes cannot trigger another run.
+    # Only the INPUTS to the build. The generated HTML is deliberately absent,
+    # so the commit this workflow makes cannot trigger another run.
     paths:
       - 'data/**'
       - 'tools/**'
       - 'assets/img/**'
       - '.github/workflows/build.yml'
+  repository_dispatch:
+    types: [wp-content-updated]
   workflow_dispatch:
+    inputs:
+      pull_from_wp:
+        description: 'Pull products from WordPress before building'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -38,9 +48,22 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Only needed for the WordPress pull, which resizes uploaded photos.
+      - name: Install Pillow
+        if: github.event_name == 'repository_dispatch' || inputs.pull_from_wp
+        run: pip install --quiet pillow
+
+      - name: Pull products from WordPress
+        if: github.event_name == 'repository_dispatch' || inputs.pull_from_wp
+        env:
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: python tools/pull-from-wp.py
+
       # The generators validate before writing — duplicate slugs, unknown
-      # categories, missing images — and exit non-zero. A bad save in the CMS
-      # fails here loudly instead of publishing a broken page.
+      # categories, unknown label tones, missing images — and exit non-zero, so
+      # a bad save fails here instead of publishing a broken page.
       - name: Generate pages from data
         run: |
           python tools/sync-shell.py
