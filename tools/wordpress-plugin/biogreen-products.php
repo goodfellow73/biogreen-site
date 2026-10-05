@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.1.0
+ * Version:      1.2.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,9 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.2.0  Optional "numbered steps" and "highlight boxes" fields on each prose
+ *        tab. Without them a tab's designed blocks flattened into plain prose
+ *        once its content moved into WordPress.
  * 1.1.0  Blocking rebuild call that records its result; "Build now" button and
  *        last-build status in settings; red notice on every product screen when
  *        a rebuild failed, with GitHub's response translated into an action.
@@ -30,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.1.0';
+const BIOGREEN_VERSION = '1.2.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -66,6 +69,10 @@ function biogreen_fields() {
 	foreach ( $tabs as $id => $label ) {
 		$content[ "tab_{$id}_heading" ] = [ "$label — כותרת", 'text' ];
 		$content[ "tab_{$id}_body" ]    = [ "$label — תוכן", 'wysiwyg' ];
+		// Two blocks carry design that plain editor prose cannot: numbered
+		// cards and highlight boxes. Optional, same blank-line convention.
+		$content[ "tab_{$id}_steps" ] = [ "$label — שלבים ממוספרים (אופציונלי)", 'textarea' ];
+		$content[ "tab_{$id}_notes" ] = [ "$label — תיבות הדגשה (אופציונלי)", 'textarea' ];
 	}
 	$content['tab_benefits_heading'] = [ 'יתרונות — כותרת', 'text' ];
 	$content['tab_benefits_items']   = [ 'יתרונות — פריט לכל בלוק, שורה ראשונה = כותרת, מופרדים בשורה ריקה', 'textarea' ];

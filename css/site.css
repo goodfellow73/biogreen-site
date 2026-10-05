@@ -776,8 +776,23 @@
   font-size: var(--fs-h4); color: var(--color-green-deep); margin: 28px 0 8px;
 }
 .pp-prose h4 { font-size: 18px; margin: 24px 0 6px; }
-.pp-prose ul, .pp-prose ol { margin: 0 0 1em; padding-inline-start: 22px; }
-.pp-prose li { font-size: var(--fs-card); color: var(--text-muted); margin-bottom: 6px; }
+.pp-prose ol { margin: 0 0 1em; padding-inline-start: 22px; }
+.pp-prose li { font-size: var(--fs-card); color: var(--text-muted); margin-bottom: 8px; }
+
+/* A plain <ul> from the editor gets the same green tick as a hand-authored
+   list, so prose written in WordPress still reads as part of the design.
+   The tick is drawn from two borders rather than an icon, since the editor
+   only ever produces a bare <li>. Physical sides on purpose — the glyph is
+   the same shape in either text direction. */
+.pp-prose ul { margin: 0 0 1em; padding-inline-start: 0; list-style: none; }
+.pp-prose ul > li { position: relative; padding-inline-start: 26px; }
+.pp-prose ul > li::before {
+  content: ""; position: absolute; inset-inline-start: 2px; top: 0.42em;
+  width: 13px; height: 7px;
+  border-left: 2px solid var(--color-green);
+  border-bottom: 2px solid var(--color-green);
+  transform: rotate(-45deg);
+}
 .pp-prose strong { color: var(--color-green-deep); font-weight: var(--fw-semibold); }
 .pp-prose a { text-decoration: underline; text-underline-offset: 3px; }
 .pp-prose img { max-width: 100%; height: auto; border-radius: var(--radius-md); }

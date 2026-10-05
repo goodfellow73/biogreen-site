@@ -143,7 +143,7 @@ def page_meta(page):
 
         elif tid == 'usage':
             meta['tab_usage_body'] = blocks_to_html(
-                [b for b in blocks if b.get('type') != 'notice'])
+                [b for b in blocks if b.get('type') not in ('notice', 'steps', 'note')])
             notice = [b for b in blocks if b.get('type') == 'notice']
             if notice:
                 n = notice[0]
@@ -153,7 +153,20 @@ def page_meta(page):
                 meta['tab_usage_notice_footer'] = n.get('footer', '')
 
         else:
-            meta[f'tab_{tid}_body'] = blocks_to_html(blocks)
+            # Steps and notes go to their own fields; everything else is prose.
+            prose = [b for b in blocks if b.get('type') not in ('steps', 'note')]
+            meta[f'tab_{tid}_body'] = blocks_to_html(prose)
+
+            steps = [b for b in blocks if b.get('type') == 'steps']
+            if steps:
+                meta[f'tab_{tid}_steps'] = pairs_to_text(steps[0]['items'])
+
+            notes = [b for b in blocks if b.get('type') == 'note']
+            if notes:
+                meta[f'tab_{tid}_notes'] = '\n\n'.join(
+                    ('! ' if n.get('tone') == 'warn' else '')
+                    + n['title'] + '\n' + n['text']
+                    for n in notes)
 
     return meta
 

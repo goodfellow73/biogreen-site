@@ -217,6 +217,23 @@ def build_page(post, slug, name):
             if body:
                 blocks.append({'type': 'html', 'value': str(body)})
 
+            # Numbered cards — the "evolution" treatment on the description tab.
+            steps = blocks_from_text(field(post, f'tab_{tid}_steps'))
+            if steps:
+                blocks.append({'type': 'steps', 'items': steps})
+
+            # Highlight boxes. A title starting with "!" is the amber warning
+            # variant, which is how the allergen box is marked.
+            for n in blocks_from_text(field(post, f'tab_{tid}_notes')):
+                title = n['title']
+                warn = title.startswith('!')
+                block = {'type': 'note',
+                         'title': title.lstrip('!').strip(),
+                         'text': n['text']}
+                if warn:
+                    block['tone'] = 'warn'
+                blocks.append(block)
+
         if tid == 'usage':
             n_title = clean(field(post, 'tab_usage_notice_title'))
             if n_title:
