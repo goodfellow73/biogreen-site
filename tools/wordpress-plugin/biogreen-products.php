@@ -303,19 +303,148 @@ add_action( 'admin_notices', function () {
 
 /* ------------------------------------------------- rebuild the static site */
 
+/**
+ * Ask GitHub to rebuild the static site.
+ *
+ * Deliberately a blocking request. Fire-and-forget would keep saving a hair
+ * faster, but then a dead token or a blocked outbound connection fails in
+ * silence: the editor sees "Product updated" and the site never changes. One
+ * second of latency buys an honest answer.
+ *
+ * @return array{ok:bool,message:string}
+ */
+function biogreen_trigger_build() {
+	$repo  = get_option( 'biogreen_repo' );
+	$token = get_option( 'biogreen_token' );
+
+	if ( ! $repo || ! $token ) {
+		return [ 'ok' => false, 'message' => 'חסרים ריפו או Access Token בהגדרות.' ];
+	}
+
+	$res = wp_remote_post( "https://api.github.com/repos/{$repo}/dispatches", [
+		'headers' => [
+			'Accept'        => 'application/vnd.github+json',
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type'  => 'application/json',
+			'User-Agent'    => 'biogreen-wp',
+		],
+		'body'    => wp_json_encode( [ 'event_type' => 'wp-content-updated' ] ),
+		'timeout' => 10,
+	] );
+
+	if ( is_wp_error( $res ) ) {
+		$out = [ 'ok' => false, 'message' => 'לא ניתן להגיע ל-GitHub: ' . $res->get_error_message() ];
+	} else {
+		$code = (int) wp_remote_retrieve_response_code( $res );
+		// GitHub answers 204 No Content on success.
+		$errors = [
+			401 => 'ה-Access Token שגוי או פג תוקף.',
+			403 => 'ל-Token אין הרשאה לריפו. נדרש Contents: Read and write.',
+			404 => "הריפו '{$repo}' לא נמצא, או שאין ל-Token גישה אליו.",
+			422 => 'GitHub דחה את הבקשה. ודאו ששם הריפו נכון.',
+		];
+		$out = $code === 204
+			? [ 'ok' => true, 'message' => 'הבנייה הופעלה. האתר יתעדכן תוך כדקה.' ]
+			: [ 'ok' => false, 'message' => $errors[ $code ] ?? "GitHub החזיר שגיאה {$code}." ];
+	}
+
+	update_option( 'biogreen_last_build', [
+		'time'    => time(),
+		'ok'      => $out['ok'],
+		'message' => $out['message'],
+	] );
+
+	if ( ! $out['ok'] ) {
+		error_log( 'BioGreen rebuild failed: ' . $out['message'] );
+	}
+
+	return $out;
+}
+
+add_action( 'save_post_product', function ( $post_id, $post ) {
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id )
+		|| $post->post_status === 'auto-draft' ) {
+		return;
+	}
+	biogreen_trigger_build();
+}, 99, 2 );
+
+/**
+ * If the last attempt failed, say so wherever products are edited. Without
+ * this the only symptom is a site that quietly stops updating.
+ */
+add_action( 'admin_notices', function () {
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->post_type !== 'product' ) {
+		return;
+	}
+
+	$last = get_option( 'biogreen_last_build' );
+	if ( ! $last || ! empty( $last['ok'] ) ) {
+		return;
+	}
+
+	printf(
+		'<div class="notice notice-error"><p><strong>האתר לא התעדכן.</strong> %s<br>
+		 הפריטים נשמרו בוורדפרס, אך לא הועברו לאתר.
+		 <a href="%s">בדיקה והפעלה ידנית</a></p></div>',
+		esc_html( $last['message'] ),
+		esc_url( admin_url( 'options-general.php?page=biogreen' ) )
+	);
+} );
+
 add_action( 'admin_menu', function () {
 	add_options_page( 'BioGreen — בנייה', 'BioGreen', 'manage_options', 'biogreen', function () {
+		$notice = '';
+
 		if ( isset( $_POST['biogreen_settings_nonce'] )
 			&& wp_verify_nonce( sanitize_key( $_POST['biogreen_settings_nonce'] ), 'biogreen_settings' )
 			&& current_user_can( 'manage_options' ) ) {
-			update_option( 'biogreen_repo', sanitize_text_field( wp_unslash( $_POST['biogreen_repo'] ?? '' ) ) );
-			update_option( 'biogreen_token', sanitize_text_field( wp_unslash( $_POST['biogreen_token'] ?? '' ) ) );
-			echo '<div class="notice notice-success"><p>נשמר.</p></div>';
+
+			if ( isset( $_POST['biogreen_build'] ) ) {
+				$r = biogreen_trigger_build();
+				$notice = sprintf(
+					'<div class="notice notice-%s"><p>%s</p></div>',
+					$r['ok'] ? 'success' : 'error',
+					esc_html( $r['message'] )
+				);
+			} else {
+				update_option( 'biogreen_repo', sanitize_text_field( wp_unslash( $_POST['biogreen_repo'] ?? '' ) ) );
+				update_option( 'biogreen_token', sanitize_text_field( wp_unslash( $_POST['biogreen_token'] ?? '' ) ) );
+				$notice = '<div class="notice notice-success"><p>נשמר.</p></div>';
+			}
 		}
+
+		$last = get_option( 'biogreen_last_build' );
 		?>
 		<div class="wrap">
 			<h1>BioGreen — בנייה מחדש של האתר</h1>
+			<?php echo wp_kses_post( $notice ); ?>
+
 			<p>שמירת מוצר מפעילה בנייה של האתר הסטטי. האתר מתעדכן תוך כדקה.</p>
+
+			<?php if ( $last ) : ?>
+				<p>
+					<strong>הבנייה האחרונה:</strong>
+					<?php
+					echo esc_html( wp_date( 'd/m/Y H:i', $last['time'] ) );
+					echo empty( $last['ok'] )
+						? ' — <span style="color:#b32d2e">נכשלה</span>'
+						: ' — <span style="color:#1a7f37">הצליחה</span>';
+					?>
+					<br><em><?php echo esc_html( $last['message'] ); ?></em>
+				</p>
+			<?php endif; ?>
+
+			<form method="post" style="margin-bottom:28px">
+				<?php wp_nonce_field( 'biogreen_settings', 'biogreen_settings_nonce' ); ?>
+				<input type="hidden" name="biogreen_build" value="1">
+				<?php submit_button( 'בנה את האתר עכשיו', 'primary', 'submit', false ); ?>
+				<p class="description">שימושי כדי לוודא שהחיבור עובד, או אחרי שינוי שלא הפעיל בנייה.</p>
+			</form>
+
+			<hr>
+
 			<form method="post">
 				<?php wp_nonce_field( 'biogreen_settings', 'biogreen_settings_nonce' ); ?>
 				<table class="form-table">
@@ -329,45 +458,12 @@ add_action( 'admin_menu', function () {
 						<th><label for="biogreen_token">Access Token</label></th>
 						<td><input type="password" id="biogreen_token" name="biogreen_token" class="regular-text"
 							value="<?php echo esc_attr( get_option( 'biogreen_token', '' ) ); ?>">
-							<p class="description">Fine-grained token עם הרשאת Contents: write</p></td>
+							<p class="description">Fine-grained token עם הרשאת Contents: Read and write</p></td>
 					</tr>
 				</table>
-				<?php submit_button(); ?>
+				<?php submit_button( 'שמירת הגדרות' ); ?>
 			</form>
 		</div>
 		<?php
 	} );
 } );
-
-/**
- * Fire the rebuild. Runs after the save hook above so the meta is already
- * stored, and never blocks the editor — a failure is logged, not shown.
- */
-add_action( 'save_post_product', function ( $post_id, $post ) {
-	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id )
-		|| $post->post_status === 'auto-draft' ) {
-		return;
-	}
-
-	$repo  = get_option( 'biogreen_repo' );
-	$token = get_option( 'biogreen_token' );
-	if ( ! $repo || ! $token ) {
-		return;
-	}
-
-	$res = wp_remote_post( "https://api.github.com/repos/{$repo}/dispatches", [
-		'headers' => [
-			'Accept'        => 'application/vnd.github+json',
-			'Authorization' => 'Bearer ' . $token,
-			'Content-Type'  => 'application/json',
-			'User-Agent'    => 'biogreen-wp',
-		],
-		'body'     => wp_json_encode( [ 'event_type' => 'wp-content-updated' ] ),
-		'timeout'  => 15,
-		'blocking' => false,
-	] );
-
-	if ( is_wp_error( $res ) ) {
-		error_log( 'BioGreen rebuild failed: ' . $res->get_error_message() );
-	}
-}, 99, 2 );
