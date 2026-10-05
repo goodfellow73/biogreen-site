@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.0.0
+ * Version:      1.1.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -11,11 +11,26 @@
  * Install: drop this folder into wp-content/plugins/ and activate it.
  * No ACF required — every field is registered as post meta and exposed to the
  * REST API, which is what tools/pull-from-wp.py reads.
+ *
+ * The running version is shown on Settings → BioGreen, so an install can be
+ * checked against the file that was sent.
+ *
+ * Changelog
+ * 1.1.0  Blocking rebuild call that records its result; "Build now" button and
+ *        last-build status in settings; red notice on every product screen when
+ *        a rebuild failed, with GitHub's response translated into an action.
+ * 1.0.2  Warn on the edit screen and product list when a slug is not Latin —
+ *        Hebrew titles produce percent-encoded slugs that break the build.
+ * 1.0.1  Fix: added 'custom-fields' to supports. Without it WordPress omits the
+ *        meta object from REST entirely and none of the fields reach the site.
+ * 1.0.0  Product type, taxonomy, 49 fields, rebuild webhook.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+const BIOGREEN_VERSION = '1.1.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -419,6 +434,9 @@ add_action( 'admin_menu', function () {
 		?>
 		<div class="wrap">
 			<h1>BioGreen — בנייה מחדש של האתר</h1>
+			<p style="color:#646970;margin-top:-6px">
+				גרסת התוסף <code><?php echo esc_html( BIOGREEN_VERSION ); ?></code>
+			</p>
 			<?php echo wp_kses_post( $notice ); ?>
 
 			<p>שמירת מוצר מפעילה בנייה של האתר הסטטי. האתר מתעדכן תוך כדקה.</p>
