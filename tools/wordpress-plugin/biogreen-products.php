@@ -103,7 +103,10 @@ add_action( 'init', function () {
 		'public'       => true,
 		'show_in_rest' => true,          // required — no REST API without it
 		'rest_base'    => 'product',
-		'supports'     => [ 'title', 'thumbnail' ],
+		// 'custom-fields' is required: without it WordPress omits the `meta`
+		// object from the REST response entirely, and registering the fields
+		// below has no visible effect.
+		'supports'     => [ 'title', 'thumbnail', 'custom-fields' ],
 		'menu_icon'    => 'dashicons-products',
 		'has_archive'  => false,
 	] );
