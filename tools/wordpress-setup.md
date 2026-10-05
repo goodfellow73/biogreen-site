@@ -1,124 +1,137 @@
-# הקמת וורדפרס לניהול המוצרים
+# ניהול המוצרים בוורדפרס
 
-וורדפרס משמש כאן **כממשק עריכה בלבד**. האתר הציבורי לא פונה אליו אף פעם —
-הנתונים נמשכים בזמן הבנייה, התמונות יורדות לריפו, וה‑HTML מיוצר מראש.
+וורדפרס הוא **ממשק העריכה בלבד**. האתר הציבורי לא פונה אליו אף פעם — הנתונים
+נמשכים בזמן הבנייה, התמונות יורדות לריפו, וה-HTML מיוצר מראש.
 
-לכן ההתקנה לא חייבת להיות ציבורית. היא יכולה לשבת על תת‑דומיין עם `noindex`,
-ולשמש רק את הלקוחה.
+לכן ההתקנה לא חייבת להיות ציבורית: היא יכולה לשבת על תת-דומיין עם `noindex`
+ולשמש רק את הלקוחה. ואם היא נופלת — **האתר נשאר באוויר**, רק העריכה מושבתת.
 
-> אם יום אחד תמשוך מוורדפרס בזמן אמת — תאבד את שלושת הדברים שבשבילם האתר סטטי:
+> אם יום אחד תמשוך מוורדפרס בזמן אמת, תאבד את שלושת הדברים שבשבילם האתר סטטי:
 > המהירות, האבטחה, וקטלוג שגוגל ומנועי AI יכולים לקרוא.
 
 ---
 
-## 1. סוג תוכן מותאם
+## התקנה
 
-```php
-add_action( 'init', function () {
-	register_post_type( 'product', [
-		'label'        => 'מוצרים',
-		'public'       => true,
-		'show_in_rest' => true,          // חובה — בלי זה אין REST API
-		'rest_base'    => 'product',
-		'supports'     => [ 'title', 'thumbnail', 'custom-fields' ],
-		'menu_icon'    => 'dashicons-products',
-	] );
+כל הקוד ארוז כתוסף מוכן: **[`wordpress-plugin/biogreen-products.php`](wordpress-plugin/biogreen-products.php)**
 
-	register_taxonomy( 'product_category', 'product', [
-		'label'        => 'קטגוריות מוצר',
-		'hierarchical' => true,
-		'show_in_rest' => true,
-		'rest_base'    => 'product_category',
-	] );
-} );
+1. העתק את תיקיית `wordpress-plugin` אל `wp-content/plugins/`
+2. הפעל את התוסף במסך התוספים
+3. `הגדרות → BioGreen` — הזן את הריפו ואת ה-Access Token
+
+זהו. **לא צריך ACF** ולא תוסף נוסף — כל 49 השדות רשומים כ-post meta וחשופים
+ל-REST API, וזה מה שסקריפט הבנייה קורא.
+
+> **למה תוסף ולא `functions.php`:** קוד שם נמחק בעדכון תבנית או בהחלפתה, ולוקח
+> איתו את כל הגדרות המוצרים. תוסף שורד את שניהם.
+
+**ה-Token:** ב-GitHub תחת `Settings → Developer settings → Fine-grained tokens`,
+עם גישה לריפו `goodfellow73/biogreen-site` והרשאת **Contents: Read and write**
+בלבד. לא יותר מזה.
+
+---
+
+## שדות הכרטיסייה
+
+מה שמופיע בקטלוג ובדף הבית.
+
+| שדה | מה זה |
+|---|---|
+| כותרת | שם המוצר |
+| Slug | מזהה קבוע. הופך לכתובת `/products/<slug>/` |
+| תמונה ראשית | **חובה** |
+| קטגוריה | אחת לכל מוצר |
+| `image_alt` | טקסט חלופי. ריק = נלקח מספריית המדיה |
+| `benefit_1/2/3` | עד שלושה יתרונות |
+| `label_1/2/3_text` + `_tone` | תגיות בפינת התמונה. הצבע נבחר מרשימה |
+| `featured_order` | 1/2/3 = מופיע בדף הבית. ריק = לא |
+
+**הסתרת מוצר:** להעביר לטיוטה. הסקריפט מושך רק מוצרים שפורסמו.
+
+## שדות עמוד המוצר
+
+אופציונליים. מוצר בלי `page_lede` נשאר בקטלוג בלבד, בלי עמוד משלו — ועמוד
+שנכתב ידנית לא נדרס.
+
+**ראש העמוד**
+
+| שדה | מה זה |
+|---|---|
+| `page_subtitle` | למשל "60 כמוסות רכות" |
+| `page_tagline` | משפט הפתיחה, בפונט הסריפי |
+| `page_lede` | פסקת הפתיחה. **ריק = אין עמוד מוצר** |
+| `hero_icon_1` … `_6` | שם קובץ מתוך `assets/icons/product/` |
+| `hero_icon_1_alt` … | טקסט חלופי — **חובה**, כי הכיתוב מוטמע בתוך ה-SVG ולא נקרא ע"י גוגל וקוראי מסך |
+
+**שמונת הטאבים**
+
+| טאב | שדות |
+|---|---|
+| תיאור | `tab_description_heading` + `_body` (עורך) |
+| למי מתאים | `tab_audience_heading` + `_body` (עורך) |
+| יתרונות | `tab_benefits_heading` + `tab_benefits_items` |
+| הוראות שימוש | `tab_usage_heading` + `_body` + `tab_usage_notice_title` / `_text` / `_items` / `_footer` |
+| רכיבים ומידע | `tab_ingredients_heading` + `_body` (עורך) |
+| כשרות ואישורים | `tab_kosher_heading` + `_body` (עורך) |
+| תווית | `tab_label_heading` + `tab_label_image` + `tab_label_alt` |
+| שאלות נפוצות | `tab_faq_heading` + `tab_faq_items` |
+
+טאב שנשאר ריק פשוט לא יופיע בעמוד.
+**CTA:** `quote_heading`, `quote_sub` — אופציונליים, יש ברירות מחדל.
+
+### שדות היתרונות והשאלות
+
+במקום 24 שדות ממוספרים — שדה אחד. **פריטים מופרדים בשורה ריקה. השורה הראשונה
+היא הכותרת, השאר הטקסט.**
+
+```
+ספיגה עוצמתית עד פי 185
+הפורמולה מבוססת על טכנולוגיית המיקרו־מיצלה של NovaSOL.
+
+זמינות ביולוגית למשך עד 24 שעות
+הטכנולוגיה מאפשרת נוכחות ממושכת של הרכיב הפעיל.
 ```
 
-## 2. השדות
+אותו פורמט ל-`tab_faq_items`: שאלה בשורה הראשונה, תשובה אחריה.
+ב-`tab_usage_notice_items` כל שורה היא פריט — בלי שורות ריקות.
 
-הסקריפט קורא גם מ‑ACF וגם מ‑post meta רגיל, אז כל אחד מהם יעבוד.
+לכורכומין לבדו יש 11 יתרונות. בשדות ממוספרים זה היה 22 שדות ורישיון ACF Pro.
 
-| שדה בוורדפרס | סוג | מה זה |
-|---|---|---|
-| כותרת | — | שם המוצר |
-| Slug | — | מזהה קבוע. הופך לכתובת `/products/<slug>/` |
-| תמונה ראשית | — | תמונת המוצר. **חובה** |
-| קטגוריה | טקסונומיה | אחת בלבד לכל מוצר |
-| `image_alt` | טקסט | טקסט חלופי. אם ריק — נלקח מהמדיה |
-| `benefit_1/2/3` | טקסט | עד שלושה יתרונות |
-| `label_1_text` … `label_3_text` | טקסט | תגיות בפינת התמונה |
-| `label_1_tone` … `label_3_tone` | טקסט | `natural` \| `reg` \| `commercial` \| `neutral` \| `sand` |
-| `featured_order` | מספר | 1/2/3 = מופיע בדף הבית. ריק = לא |
+### שדות העורך נשמרים כ-HTML
 
-**למה שדות נפרדים ולא שדה חוזר:** שדה חוזר ב‑ACF הוא תכונה בתשלום. יש מקסימום
-שלושה יתרונות ושלוש תגיות, אז שלושה שדות פשוטים חוסכים את הרישיון.
+כותרות, פסקאות, רשימות ואפילו טבלאות — נשמרים כפי שהעורך יצר אותם ומעוצבים לפי
+הטיפוגרפיה של האתר. הלקוחה כותבת כמו בוורד.
 
-**הסתרת מוצר:** להעביר לטיוטה. הסקריפט מושך רק `status=publish`.
+---
 
-## 3. הפעלת הבנייה בשמירה
+## סודות בצד GitHub
 
-צריך GitHub Personal Access Token עם הרשאת `repo`, שמור ב‑`wp-config.php`:
-
-```php
-define( 'BIOGREEN_GH_TOKEN', 'ghp_xxxxxxxxxxxx' );
-```
-
-```php
-add_action( 'save_post_product', function ( $post_id, $post ) {
-	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
-		return;
-	}
-
-	wp_remote_post(
-		'https://api.github.com/repos/goodfellow73/biogreen-site/dispatches',
-		[
-			'headers' => [
-				'Accept'        => 'application/vnd.github+json',
-				'Authorization' => 'Bearer ' . BIOGREEN_GH_TOKEN,
-				'Content-Type'  => 'application/json',
-				'User-Agent'    => 'biogreen-wp',
-			],
-			'body'    => wp_json_encode( [ 'event_type' => 'wp-content-updated' ] ),
-			'timeout' => 15,
-		]
-	);
-}, 10, 2 );
-```
-
-השמירה לא מחכה לבנייה. האתר מתעדכן תוך כדקה.
-
-## 4. סודות בצד GitHub
-
-ב‑`Settings → Secrets and variables → Actions`:
+ב-`Settings → Secrets and variables → Actions`:
 
 | Secret | ערך |
 |---|---|
 | `WP_URL` | `https://cms.biogreen.co.il` — בלי לוכסן בסוף |
-| `WP_USER` | שם משתמש עם הרשאת עריכה |
+| `WP_USER` | משתמש עם הרשאת עריכה |
 | `WP_APP_PASSWORD` | Application Password מפרופיל המשתמש |
 
-השניים האחרונים נחוצים רק אם ה‑REST API סגור לאנונימיים.
-
----
+השניים האחרונים נחוצים רק אם ה-REST API סגור לאנונימיים.
 
 ## בדיקה
 
 ```bash
-# מקומית, מול ההתקנה
 WP_URL=https://cms.biogreen.co.il python tools/pull-from-wp.py
-python tools/build-products.py
+python tools/build-products.py && python tools/build-product-pages.py
 ```
 
-ב‑GitHub אפשר להריץ ידנית: `Actions → Build site from data → Run workflow`,
-ולסמן **Pull products from WordPress**.
-
-## מה הסקריפט לא נוגע בו
-
-`data/product-pages/<slug>.json` — תוכן שמונת הטאבים של עמוד המוצר. הוא עדיין
-נכתב ידנית. העברה שלו לוורדפרס היא השלב הבא, ודורשת עוד כ‑20 שדות למוצר.
+ב-GitHub אפשר גם ידנית: `Actions → Build site from data → Run workflow`,
+לסמן **Pull products from WordPress**.
 
 ## שתי הגנות מובנות
 
 - אם וורדפרס מחזיר **אפס** מוצרים, הסקריפט נעצר ולא כותב. אחרת תקלה בהגדרות
   הייתה יכולה למחוק את הקטלוג מהאתר החי.
-- כל תמונה שמועלית **יורדת לריפו ומוקטנת** ל‑900px ברוחב. התמונה של 4MB
-  שהלקוחה תעלה לא תגיע לאתר, וגם לא תיווצר תלות בשרת הוורדפרס.
+- כל תמונה **יורדת לריפו ומוקטנת** ל-900px. התמונה של 4MB שהלקוחה תעלה לא
+  מגיעה לגולש, ולא נוצרת תלות בשרת הוורדפרס.
+
+בנוסף, הסקריפט נעצר עם הודעה שמציינת את המוצר אם יש slug כפול, קטגוריה חסרה,
+תמונה ראשית חסרה, צבע תגית לא חוקי, או אייקון שלא קיים בריפו.
