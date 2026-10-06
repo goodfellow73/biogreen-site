@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.3.1
+ * Version:      1.3.2
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,8 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.3.2  The tagline field no longer claims to render in the serif face; the
+ *        product page now sets it in the same family as its other headings.
  * 1.3.1  Force every editing field right to left. The admin runs in English,
  *        so the fields inherited its direction and put the caret and the
  *        punctuation on the wrong side of Hebrew copy. Also drops the
@@ -44,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.3.1';
+const BIOGREEN_VERSION = '1.3.2';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -68,7 +70,7 @@ function biogreen_fields() {
 
 	$page = [
 		'page_subtitle' => [ 'תת-כותרת (למשל: 60 כמוסות רכות)', 'text' ],
-		'page_tagline'  => [ 'משפט פתיחה (מוצג בפונט סריפי)', 'text' ],
+		'page_tagline'  => [ 'משפט פתיחה (מוצג גדול, מתחת לשם המוצר)', 'text' ],
 		'page_lede'     => [ 'פסקת פתיחה — ריק = לא נוצר עמוד מוצר', 'textarea' ],
 	];
 	for ( $i = 1; $i <= 6; $i++ ) {

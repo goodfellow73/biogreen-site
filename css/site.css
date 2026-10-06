@@ -651,8 +651,13 @@
   font-family: var(--font-display); font-size: var(--fs-h4);
   color: var(--text-muted); font-weight: var(--fw-medium); margin-bottom: 18px;
 }
+/* Heebo like every other heading on the page. This was the one place a third
+   family appeared, and against the h1 right above it it read as a mistake
+   rather than as emphasis. The serif is kept for pull quotes, where it has
+   something to contrast with. */
 .pp-hero__tagline {
-  font-family: var(--font-serif); font-size: 24px; line-height: var(--lh-snug);
+  font-family: var(--font-display); font-weight: var(--fw-medium);
+  font-size: 24px; line-height: var(--lh-snug);
   color: var(--color-green-deep); margin-bottom: 14px;
 }
 .pp-hero__lede {
@@ -848,6 +853,28 @@
   .pp-panels { padding-block: 32px 56px; }
   .pp-quote { padding-block: 48px; }
   .pp-form { padding: 20px; }
+
+  /* Eight tabs need 865px and a phone gives 335, so more than half of them sat
+     off-screen behind a scroll nobody could see. Wrap them instead: every tab
+     is visible at once, which is the only way to know the page has eight
+     sections. The underline marker cannot survive wrapping — rows above the
+     last one have no container edge to sit on — so each tab becomes its own
+     outlined pill and the active one fills in. */
+  .pp-tabbar { position: static; border-bottom: none; }
+  .pp-tabbar .bg-tabs {
+    flex-wrap: wrap; overflow-x: visible; gap: 8px;
+    border-bottom: none; padding-block: 14px;
+  }
+  .pp-tabbar .bg-tab {
+    white-space: normal;
+    font-size: 13px; padding: 9px 13px;
+    border: 1px solid var(--border-card); border-radius: 999px;
+    margin-bottom: 0; background: #fff;
+  }
+  .pp-tabbar .bg-tab--active {
+    color: #fff; background: var(--color-green);
+    border-color: var(--color-green);
+  }
 }
 
 @media (max-width: 420px) {
