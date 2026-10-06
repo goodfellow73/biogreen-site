@@ -33,10 +33,17 @@ _hashes = {}
 
 
 def stamp_for(abs_path):
-    """Eight hex characters of the file's content hash."""
+    """Eight hex characters of the file's content hash.
+
+    Line endings are normalised first. Git hands a Windows checkout CRLF and a
+    Linux one LF, so hashing the bytes on disk gives a different answer here
+    than in CI — and the two would then rewrite each other's stamps on every
+    push, forever. What is hashed is the file as the repository stores it.
+    """
     if abs_path not in _hashes:
         with open(abs_path, 'rb') as f:
-            _hashes[abs_path] = hashlib.sha256(f.read()).hexdigest()[:8]
+            content = f.read().replace(b'\r\n', b'\n')
+        _hashes[abs_path] = hashlib.sha256(content).hexdigest()[:8]
     return _hashes[abs_path]
 
 
