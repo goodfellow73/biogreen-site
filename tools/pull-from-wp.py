@@ -425,6 +425,18 @@ def main():
         json.dump(doc, f, ensure_ascii=False, indent=2)
         f.write('\n')
 
+    # A product deleted in WordPress has to take its page copy with it.
+    # WordPress is the whole truth here, so anything left over in
+    # data/product-pages is for a product that no longer exists — and the page
+    # generator refuses to run while a page JSON has no product, which would
+    # freeze the site at its last good build instead of publishing the deletion.
+    live = {p['slug'] for p in products}
+    for name in sorted(os.listdir(PAGE_DIR)):
+        if not name.endswith('.json') or name[:-5] in live:
+            continue
+        os.remove(os.path.join(PAGE_DIR, name))
+        print(f'  removed page copy for deleted product: {name[:-5]}')
+
     print(f'\n{len(products)} products, {len(categories)} categories -> data/products.json')
     print('Now run: python tools/build-products.py')
 
