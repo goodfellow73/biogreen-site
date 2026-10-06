@@ -1,9 +1,9 @@
 /* BioGreen design system — entry point (copied from the design-system package).
    Do not edit these token files by hand; site-specific styles live in site.css. */
 
-@import url("fonts.css");
-@import url("colors.css");
-@import url("typography.css");
-@import url("spacing.css");
-@import url("base.css");
-@import url("components.css");
+@import url("fonts.css?v=6bdf9d07");
+@import url("colors.css?v=f3b04d3a");
+@import url("typography.css?v=27977000");
+@import url("spacing.css?v=ac5b2dce");
+@import url("base.css?v=ec695e4b");
+@import url("components.css?v=221d7398");

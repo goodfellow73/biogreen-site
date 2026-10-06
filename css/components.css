@@ -33,6 +33,15 @@
 .bg-btn--whatsapp { background: #1FA855; color: #fff; }
 .bg-btn--whatsapp:hover { background: #178043; }
 
+/* A WhatsApp link wearing the outline variant — the hero pairs one with the
+   quote CTA, so it cannot be solid green at rest. On hover it fills with the
+   WhatsApp green instead of the usual pale tint, because white text is what is
+   wanted here and white on that tint would be invisible. #178043 is the same
+   green the solid button hovers to, and carries white at 4.99:1. */
+.bg-btn--secondary[data-wa]:hover {
+  background: #178043; border-color: #178043; color: #fff;
+}
+
 .bg-btn[disabled], .bg-btn[aria-disabled="true"] {
   opacity: 0.5; pointer-events: none; box-shadow: none;
 }
