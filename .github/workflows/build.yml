@@ -77,11 +77,14 @@ jobs:
       # The generators validate before writing — duplicate slugs, unknown
       # categories, unknown label tones, missing images — and exit non-zero, so
       # a bad save fails here instead of publishing a broken page.
+      # stamp-assets runs last: the steps above rewrite whole regions of these
+      # pages, and it only edits the asset links.
       - name: Generate pages from data
         run: |
           python tools/sync-shell.py
           python tools/build-products.py
           python tools/build-product-pages.py
+          python tools/stamp-assets.py
 
       - name: Commit regenerated HTML
         run: |

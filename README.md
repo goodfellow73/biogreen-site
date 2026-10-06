@@ -26,7 +26,8 @@ site/
 ├── tools/
 │   ├── build-products.py      מייצר את הכרטיסיות מה-JSON
 │   ├── build-product-pages.py מייצר את עמודי המוצר
-│   └── sync-shell.py          מעתיק הדר/פוטר/טופס מ-index.html לשאר העמודים
+│   ├── sync-shell.py          מעתיק הדר/פוטר/טופס מ-index.html לשאר העמודים
+│   └── stamp-assets.py        חותם גרסה על קישורי ה-CSS/JS נגד קאש
 ├── css/
 │   ├── design-system.css נקודת כניסה — מייבאת את שאר קבצי הטוקנים
 │   ├── colors.css  typography.css  spacing.css  fonts.css  base.css  components.css
@@ -172,8 +173,12 @@ python tools/build-product-pages.py
 **`index.html` הוא המקור** — אחרי שינוי באחד מהם מריצים:
 
 ```bash
-python tools/sync-shell.py && python tools/build-products.py && python tools/build-product-pages.py
+python tools/sync-shell.py && python tools/build-products.py && \n  python tools/build-product-pages.py && python tools/stamp-assets.py
 ```
+
+`stamp-assets.py` רץ אחרון ומוסיף `?v=<hash>` לכל קישור CSS/JS, כדי שדפדפן עם
+קאש יקבל את הקובץ החדש מיד אחרי פריסה. ה-hash הוא של תוכן הקובץ, אז קובץ שלא
+השתנה שומר על החותמת שלו ואין קומיט מיותר.
 
 `sync-shell.py` מעתיק את ארבעת הבלוקים לשאר העמודים, מוסיף `../` לנתיבים לפי
 עומק העמוד, ומעביר את `aria-current="page"` לפריט התפריט הנכון. עמוד חדש צריך
