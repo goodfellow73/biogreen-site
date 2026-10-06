@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.2.1
+ * Version:      1.3.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.3.0  Hero icons are picked from a grid of the twelve icons the site ships,
+ *        instead of typing a filename blind, and the alt text fills itself in
+ *        from the caption drawn in the icon. The label photo uses WordPress's
+ *        own media modal rather than a pasted URL.
  * 1.2.1  A "steps title" field per prose tab, and an [icon-name] prefix for a
  *        highlight box's title. 1.2.0 carried the blocks across but dropped
  *        both of these, so the kosher boxes came back without their badges.
@@ -36,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.2.1';
+const BIOGREEN_VERSION = '1.3.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -64,7 +68,7 @@ function biogreen_fields() {
 		'page_lede'     => [ 'פסקת פתיחה — ריק = לא נוצר עמוד מוצר', 'textarea' ],
 	];
 	for ( $i = 1; $i <= 6; $i++ ) {
-		$page[ "hero_icon_$i" ]     = [ "אייקון $i — שם קובץ", 'text' ];
+		$page[ "hero_icon_$i" ]     = [ "אייקון $i", 'icon' ];
 		$page[ "hero_icon_{$i}_alt" ] = [ "אייקון $i — טקסט חלופי", 'text' ];
 	}
 
@@ -159,12 +163,128 @@ add_action( 'init', function () {
 	}
 } );
 
+/* ----------------------------------------------------------------- icons */
+
+/**
+ * The product hero icons, with the caption each one carries.
+ *
+ * These are not interchangeable stock icons: the site ships a fixed set, and
+ * every caption is baked into the SVG as vector outlines. That is why the
+ * editor picks from this list rather than uploading — an uploaded file would
+ * neither match the design nor exist in the repository the site builds from,
+ * and the build would reject it.
+ *
+ * The caption doubles as the default alt text, which is otherwise retyped by
+ * hand for every product and is the one thing a screen reader has to go on.
+ */
+function biogreen_icons() {
+	return [
+		'01_absorption_pi_185.svg' => 'ספיגה פי 185',
+		'02_research_proven.svg'   => 'הוכח מחקרית',
+		'03_stability_24h.svg'     => 'יציבות לאורך 24 שעות',
+		'04_supergel.svg'          => 'סופטג\'ל',
+		'05_kosher.svg'            => 'כשר',
+		'06_safe_use.svg'          => 'בטיחות בשימוש',
+		'07_made_in_japan.svg'     => 'טכנולוגיה יפנית מקורית',
+		'08_sporilife_patent.svg'  => 'רכיב Sporolife® פטנטי',
+		'09_night_time.svg'        => 'ניקוי רעלים בזמן השינה',
+		'10_100_natural.svg'       => '100% רכיבים טבעיים',
+		'11_relief_pain.svg'       => 'הקלה על נפיחות וכאב',
+		'12_medical_quality.svg'   => 'דרגת איכות רפואית',
+	];
+}
+
 /* ----------------------------------------------------------- admin boxes */
 
 add_action( 'add_meta_boxes', function () {
 	foreach ( biogreen_fields() as $id => $box ) {
 		add_meta_box( $id, $box[0], 'biogreen_render_box', 'product', 'normal', 'high', [ 'id' => $id ] );
 	}
+} );
+
+// The icon grid and the media picker are the only scripted fields, so this
+// loads on the product editor and nowhere else.
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ], true )
+		|| get_post_type() !== 'product' ) {
+		return;
+	}
+	wp_enqueue_media();
+	wp_add_inline_style( 'wp-admin', '
+		.bg-iconpick { display:grid; gap:8px;
+		               grid-template-columns:repeat(auto-fill,minmax(116px,1fr));
+		               max-width:760px; }
+		.bg-iconpick__opt { display:block; width:100%; cursor:pointer;
+		                    background:#fff; border:1px solid #dcdcde;
+		                    border-radius:6px; padding:8px 4px; text-align:center;
+		                    font:inherit; color:#1d2327; }
+		.bg-iconpick__opt:hover { border-color:#8c8f94; }
+		.bg-iconpick__opt.is-on { border-color:#1a7f4b; box-shadow:0 0 0 2px #1a7f4b33; }
+		.bg-iconpick__opt img { width:100%; height:62px; object-fit:contain; display:block; }
+		.bg-iconpick__opt span { display:block; margin-top:4px; font-size:11px;
+		                         line-height:1.3; color:#50575e; }
+		.bg-iconpick__opt.is-on span { color:#1a7f4b; font-weight:600; }
+		.bg-mediapick img { max-width:260px; height:auto; display:block;
+		                    border:1px solid #dcdcde; border-radius:6px; margin-bottom:8px; }
+	' );
+	wp_add_inline_script( 'jquery-core', <<<'JS'
+jQuery(function ($) {
+	// Icon grid. Clicking the chosen icon again clears the field, so there is
+	// a way back to "no icon" without a separate control.
+	$(document).on('click', '.bg-iconpick__opt', function () {
+		var $b = $(this), $wrap = $b.closest('.bg-iconpick');
+		var $input = $('#' + $wrap.data('for'));
+		var on = $b.hasClass('is-on');
+
+		$wrap.find('.bg-iconpick__opt').removeClass('is-on').attr('aria-pressed', 'false');
+		$input.val(on ? '' : $b.data('file'));
+		if (!on) {
+			$b.addClass('is-on').attr('aria-pressed', 'true');
+
+			// Keep the alt in step with the icon. It is replaced when it is
+			// empty or still holds some icon's caption, and left alone only
+			// once somebody has written their own words — otherwise switching
+			// icons would leave the previous caption behind, describing the
+			// wrong picture to every screen reader.
+			var $alt = $('#' + $wrap.data('for') + '_alt');
+			if ($alt.length) {
+				var auto = $wrap.find('.bg-iconpick__opt').map(function () {
+					return $(this).data('caption');
+				}).get();
+				if (!$alt.val() || auto.indexOf($alt.val()) !== -1) {
+					$alt.val($b.data('caption'));
+				}
+			}
+		}
+	});
+
+	// Label photo, through WordPress's own media modal.
+	$(document).on('click', '.bg-mediapick__pick', function () {
+		var $wrap = $(this).closest('.bg-mediapick');
+		var frame = wp.media({
+			title: 'בחירת תמונה',
+			library: { type: 'image' },
+			button: { text: 'השתמשו בתמונה' },
+			multiple: false
+		});
+		frame.on('select', function () {
+			var img = frame.state().get('selection').first().toJSON();
+			$('#' + $wrap.data('for')).val(img.url);
+			$wrap.find('img').attr('src', img.url).prop('hidden', false);
+			$wrap.find('.bg-mediapick__clear').prop('hidden', false);
+		});
+		frame.open();
+	});
+
+	$(document).on('click', '.bg-mediapick__clear', function () {
+		var $wrap = $(this).closest('.bg-mediapick');
+		$('#' + $wrap.data('for')).val('');
+		$wrap.find('img').prop('hidden', true).attr('src', '');
+		$(this).prop('hidden', true);
+	});
+});
+JS
+	);
 } );
 
 function biogreen_render_box( $post, $meta ) {
@@ -216,11 +336,45 @@ function biogreen_render_box( $post, $meta ) {
 				echo '</select>';
 				break;
 
+			case 'icon':
+				printf(
+					'<input type="hidden" id="%1$s" name="%1$s" value="%2$s">
+					 <div class="bg-iconpick" data-for="%1$s">',
+					esc_attr( $key ), esc_attr( $value )
+				);
+				foreach ( biogreen_icons() as $file => $caption ) {
+					printf(
+						'<button type="button" class="bg-iconpick__opt%1$s"
+						         data-file="%2$s" data-caption="%3$s"
+						         title="%3$s" aria-pressed="%4$s">
+						   <img src="%5$s" alt=""><span>%3$s</span>
+						 </button>',
+						$value === $file ? ' is-on' : '',
+						esc_attr( $file ),
+						esc_attr( $caption ),
+						$value === $file ? 'true' : 'false',
+						esc_url( plugins_url( 'icons/' . $file, __FILE__ ) )
+					);
+				}
+				echo '</div><p class="description">
+					לחצו על אייקון לבחירה, ושוב כדי לנקות.
+					הטקסט החלופי מתמלא לבד ואפשר לשנות אותו.</p>';
+				break;
+
 			case 'media':
 				printf(
-					'<input type="url" id="%1$s" name="%1$s" value="%2$s" class="large-text">
-					 <p class="description">הדביקו כתובת קובץ מספריית המדיה</p>',
-					esc_attr( $key ), esc_attr( $value )
+					'<input type="hidden" id="%1$s" name="%1$s" value="%2$s">
+					 <div class="bg-mediapick" data-for="%1$s">
+					   <img src="%2$s" alt=""%3$s>
+					   <p>
+					     <button type="button" class="button bg-mediapick__pick">בחרו תמונה מהמדיה</button>
+					     <button type="button" class="button-link bg-mediapick__clear"%4$s>הסרה</button>
+					   </p>
+					 </div>',
+					esc_attr( $key ),
+					esc_attr( $value ),
+					$value ? '' : ' hidden',
+					$value ? '' : ' hidden'
 				);
 				break;
 
@@ -264,6 +418,12 @@ add_action( 'save_post_product', function ( $post_id ) {
 				break;
 			case 'media':
 				$value = esc_url_raw( $raw );
+				break;
+			case 'icon':
+				// Only a file the site actually ships. Anything else would pass
+				// REST and then fail the build, which is a much later and much
+				// less obvious place to find out.
+				$value = isset( biogreen_icons()[ $raw ] ) ? $raw : '';
 				break;
 			case 'select':
 				$value = isset( BIOGREEN_TONES[ $raw ] ) ? $raw : '';
