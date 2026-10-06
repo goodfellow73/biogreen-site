@@ -14,7 +14,11 @@ const CONTACT = {
   // wa.me needs the international form with no +, no dashes and no leading 0,
   // so the local 072-2503833 becomes 972 72 2503833.
   whatsapp: '972722503833',          // 072-2503833
-  whatsappMessage: 'שלום, הגעתי מהאתר ואשמח לקבל פרטים.',
+  // The opening line of the chat. {page} is the page's data-page-label on
+  // <body>, so the team sees where the visitor was before they wrote a word.
+  // A page without a label falls back to the generic line.
+  whatsappMessage: 'שלום, הגעתי מ{page} באתר, אשמח לקבל פרטים.',
+  whatsappMessageFallback: 'שלום, הגעתי מהאתר ואשמח לקבל פרטים.',
 };
 
 /* --------------------------------------------------------------------------
@@ -136,8 +140,12 @@ const FORMS = {
 
   /* ---------- contact links ---------- */
 
+  const pageLabel = (document.body.getAttribute('data-page-label') || '').trim();
+  const waText = pageLabel
+    ? CONTACT.whatsappMessage.replace('{page}', pageLabel)
+    : CONTACT.whatsappMessageFallback;
   const waHref = 'https://wa.me/' + CONTACT.whatsapp +
-    '?text=' + encodeURIComponent(CONTACT.whatsappMessage);
+    '?text=' + encodeURIComponent(waText);
 
   document.querySelectorAll('[data-wa]').forEach(function (el) {
     el.href = waHref;
