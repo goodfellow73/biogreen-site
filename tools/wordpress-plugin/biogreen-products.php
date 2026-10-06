@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.3.0
+ * Version:      1.3.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.3.1  Force every editing field right to left. The admin runs in English,
+ *        so the fields inherited its direction and put the caret and the
+ *        punctuation on the wrong side of Hebrew copy. Also drops the
+ *        monospace class from the textareas.
  * 1.3.0  Hero icons are picked from a grid of the twelve icons the site ships,
  *        instead of typing a filename blind, and the alt text fills itself in
  *        from the caption drawn in the icon. The label photo uses WordPress's
@@ -40,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.3.0';
+const BIOGREEN_VERSION = '1.3.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -226,6 +230,22 @@ add_action( 'admin_enqueue_scripts', function ( $hook ) {
 		.bg-iconpick__opt.is-on span { color:#1a7f4b; font-weight:600; }
 		.bg-mediapick img { max-width:260px; height:auto; display:block;
 		                    border:1px solid #dcdcde; border-radius:6px; margin-bottom:8px; }
+
+		/* Every field here holds Hebrew, whatever language the admin runs in.
+		   On an English admin they would otherwise be left to right, which
+		   puts the cursor and the punctuation on the wrong side. */
+		.bg-fields input[type="text"],
+		.bg-fields input[type="url"],
+		.bg-fields input[type="number"],
+		.bg-fields textarea,
+		.bg-fields select { direction:rtl; text-align:right; }
+		/* Stated rather than inherited: a textarea does not take the page font
+		   on its own, and the browser default for one is monospace. */
+		.bg-fields textarea { font-family:inherit; font-size:14px; line-height:1.6; }
+		.bg-fields th,
+		.bg-fields .description { direction:rtl; text-align:right; }
+		/* The editor is an iframe, so its own body has to be told as well. */
+		.bg-fields .wp-editor-area { direction:rtl; text-align:right; }
 	' );
 	wp_add_inline_script( 'jquery-core', <<<'JS'
 jQuery(function ($) {
@@ -292,7 +312,7 @@ function biogreen_render_box( $post, $meta ) {
 	$fields = $boxes[ $meta['args']['id'] ][1];
 
 	wp_nonce_field( 'biogreen_save', 'biogreen_nonce' );
-	echo '<table class="form-table"><tbody>';
+	echo '<table class="form-table bg-fields"><tbody>';
 
 	foreach ( $fields as $key => $def ) {
 		[ $label, $type ] = $def;
@@ -307,12 +327,19 @@ function biogreen_render_box( $post, $meta ) {
 					'textarea_name' => $key,
 					'textarea_rows' => 10,
 					'media_buttons' => false,
+					// Everything typed here is Hebrew, whatever language the
+					// admin itself is in. Without this the editor inherits the
+					// admin's direction and writes the content left to right.
+					'tinymce'       => [ 'directionality' => 'rtl' ],
+					'quicktags'     => true,
 				] );
 				break;
 
 			case 'textarea':
 				printf(
-					'<textarea id="%1$s" name="%1$s" rows="6" class="large-text code">%2$s</textarea>',
+					// No `code` class: it is monospace, which renders Hebrew
+					// badly and buys nothing — these hold prose, not markup.
+					'<textarea id="%1$s" name="%1$s" rows="6" class="large-text">%2$s</textarea>',
 					esc_attr( $key ), esc_textarea( $value )
 				);
 				break;
