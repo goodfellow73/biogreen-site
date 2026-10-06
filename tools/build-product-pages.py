@@ -164,6 +164,46 @@ def render_block(b):
     sys.exit(f'unknown block type: {t!r}')
 
 
+def has_content(b):
+    """Whether a block would put anything real on the page.
+
+    The editor leaves traces that look like content and are not: an emptied
+    visual editor saves "<p>&nbsp;</p>", and the label tab carries an image
+    block whose only job is to show a placeholder until a photo exists.
+    Neither is something anyone wrote for this product.
+    """
+    t = b.get('type')
+    if t == 'image':
+        return bool(b.get('src'))
+    if t == 'html':
+        text = re.sub(r'<[^>]+>', '', b.get('value') or '')
+        return bool(text.replace('&nbsp;', '').replace('\xa0', '').strip())
+    if t == 'text':
+        return bool((b.get('value') or '').strip())
+    if t in ('list', 'steps', 'cards', 'faq'):
+        return bool(b.get('items'))
+    if t == 'note':
+        return bool((b.get('title') or '').strip() or (b.get('text') or '').strip())
+    if t == 'notice':
+        return bool((b.get('title') or '').strip() or (b.get('text') or '').strip()
+                    or b.get('items'))
+    return True
+
+
+def visible_tabs(tabs):
+    """Only the tabs that have something in them.
+
+    A heading alone does not count: every tab has one by default, so a tab the
+    editor never filled in would otherwise show a title over an empty panel.
+    """
+    out = []
+    for t in tabs:
+        blocks = [b for b in t.get('blocks', []) if has_content(b)]
+        if blocks:
+            out.append(dict(t, blocks=blocks))
+    return out
+
+
 def render_tabs(tabs):
     bar, panels = [], []
     for n, t in enumerate(tabs):
@@ -222,7 +262,27 @@ def build(page, prod, cats, sprite, header, footer):
         f'        <li><img src="{UP}assets/icons/product/{esc(i["file"])}"'
         f' alt="{esc(i["alt"])}" loading="lazy"></li>' for i in page['heroIcons'])
 
-    bar, panels = render_tabs(page['tabs'])
+    tabs = visible_tabs(page['tabs'])
+    bar, panels = render_tabs(tabs)
+
+    # With every tab empty there is nothing to switch between, so the bar and
+    # the panel area go too rather than leaving an empty strip on the page.
+    dossier = f'''<!-- ============================================================
+     Product dossier — the design system's own tabs, switching the
+     panel below without leaving the page.
+     ============================================================ -->
+<div class="pp-tabbar">
+  <div class="shell">
+    <div class="bg-tabs" role="tablist" aria-label="מידע על המוצר">
+{bar}
+    </div>
+  </div>
+</div>
+
+<div class="shell pp-panels">
+{panels}
+</div>
+''' if tabs else ''
     q = page['quote']
 
     html = f'''<!DOCTYPE html>
@@ -283,22 +343,7 @@ def build(page, prod, cats, sprite, header, footer):
   </div>
 </section>
 
-<!-- ============================================================
-     Product dossier — the design system's own tabs, switching the
-     panel below without leaving the page.
-     ============================================================ -->
-<div class="pp-tabbar">
-  <div class="shell">
-    <div class="bg-tabs" role="tablist" aria-label="מידע על המוצר">
-{bar}
-    </div>
-  </div>
-</div>
-
-<div class="shell pp-panels">
-{panels}
-</div>
-
+{dossier}
 <!-- ============================================================
      Quote request
      ============================================================ -->
@@ -387,7 +432,7 @@ def build(page, prod, cats, sprite, header, footer):
 
 {product_jsonld(prod, page, cat_label)}
 
-{faq_jsonld(page['tabs'])}
+{faq_jsonld(tabs)}
 
 </body>
 </html>

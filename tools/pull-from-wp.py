@@ -219,7 +219,9 @@ def build_page(post, slug, name):
 
         if tid in PROSE_TABS:
             body = field(post, f'tab_{tid}_body')
-            if body:
+            # An emptied visual editor still saves "<p>&nbsp;</p>", which is
+            # markup, not copy.
+            if body and clean(body).replace('\xa0', '').strip():
                 blocks.append({'type': 'html', 'value': str(body)})
 
             # Numbered cards — the "evolution" treatment on the description tab.
