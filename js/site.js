@@ -17,8 +17,122 @@ const CONTACT = {
   whatsappMessage: 'שלום, הגעתי מהאתר ואשמח לקבל פרטים.',
 };
 
+/* --------------------------------------------------------------------------
+   FORMS — where submissions go.
+
+   Every form posts the same JSON shape to one Make webhook, and says which
+   form it is in `form_type`. A new form needs no change here: give its <form>
+   a data-form-type and it is routed in Make on that value alone.
+   -------------------------------------------------------------------------- */
+const FORMS = {
+  endpoint: 'https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm',
+};
+
 (function () {
   'use strict';
+
+  /* ---------- form submission ---------- */
+
+  /* Build the payload for one form.
+
+     Checkboxes are the awkward part: an unticked box is simply absent from
+     FormData, so reading the entries alone would send newsletter_consent only
+     when it is true and leave Make unable to tell "declined" from "that form
+     has no such field". Every checkbox is therefore written explicitly as a
+     boolean. Fields hidden by the current intent are disabled by applyIntent
+     and drop out on their own, which is what we want — an answer to a question
+     that was never shown is not an answer. */
+  function payloadOf(form) {
+    const data = { form_type: form.getAttribute('data-form-type') || 'unknown' };
+
+    new FormData(form).forEach(function (value, key) {
+      data[key] = typeof value === 'string' ? value.trim() : value;
+    });
+
+    form.querySelectorAll('input[type="checkbox"]').forEach(function (box) {
+      if (box.name) data[box.name] = box.checked;
+    });
+
+    if (form.hasAttribute('data-product')) {
+      data.product = form.getAttribute('data-product');
+    }
+
+    data.page_url = window.location.href;
+    data.submitted_at = new Date().toISOString();
+    return data;
+  }
+
+  function send(form) {
+    return fetch(FORMS.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payloadOf(form)),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res;
+    });
+  }
+
+  /* Show the invalid fields, or return true when the form is ready to send. */
+  function validate(form) {
+    form.querySelectorAll('.bg-field').forEach(function (f) {
+      f.classList.remove('bg-field--error');
+    });
+    if (form.checkValidity()) return true;
+
+    form.querySelectorAll(':invalid').forEach(function (f) {
+      const field = f.closest('.bg-field');
+      if (field) field.classList.add('bg-field--error');
+    });
+    const first = form.querySelector(':invalid');
+    if (first) first.focus();
+    return false;
+  }
+
+  /* A failed send must not look like a success. The thank-you panel stays
+     hidden, the typed details stay in the fields, and the visitor is told to
+     try again or use WhatsApp — losing an enquiry silently is the one outcome
+     worth real effort to avoid. */
+  function failureNote(form) {
+    let note = form.querySelector('[data-send-error]');
+    if (!note) {
+      note = document.createElement('p');
+      note.setAttribute('data-send-error', '');
+      note.className = 'form-error';
+      note.setAttribute('role', 'alert');
+      note.textContent = 'השליחה נכשלה. נסו שוב, או דברו איתנו בוואטסאפ.';
+      form.querySelector('button[type="submit"]').insertAdjacentElement('afterend', note);
+    }
+    note.hidden = false;
+    return note;
+  }
+
+  function wireForm(form, onSuccess) {
+    const button = form.querySelector('button[type="submit"]');
+    const label = button && button.querySelector('span');
+    const original = label && label.textContent;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validate(form)) return;
+
+      const note = form.querySelector('[data-send-error]');
+      if (note) note.hidden = true;
+      if (button) button.disabled = true;
+      if (label) label.textContent = 'שולח…';
+
+      send(form).then(function () {
+        form.reset();
+        onSuccess();
+      }).catch(function (err) {
+        console.error('[BioGreen] form send failed', err);
+        failureNote(form).focus && failureNote(form).focus();
+      }).then(function () {
+        if (button) button.disabled = false;
+        if (label) label.textContent = original;
+      });
+    });
+  }
 
   /* ---------- contact links ---------- */
 
@@ -142,33 +256,12 @@ const CONTACT = {
   if (productForm) {
     const doneBox = document.querySelector('.pp-form__done');
 
-    productForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      productForm.querySelectorAll('.bg-field').forEach(function (f) {
-        f.classList.remove('bg-field--error');
-      });
-      if (!productForm.checkValidity()) {
-        productForm.querySelectorAll(':invalid').forEach(function (f) {
-          const field = f.closest('.bg-field');
-          if (field) field.classList.add('bg-field--error');
-        });
-        const firstInvalid = productForm.querySelector(':invalid');
-        if (firstInvalid) firstInvalid.focus();
-        return;
-      }
-
-      // TODO: wire to the CRM / mail endpoint. The payload is ready here.
-      const payload = Object.fromEntries(new FormData(productForm).entries());
-      payload.product = productForm.getAttribute('data-product');
-      console.info('[BioGreen] product quote request', payload);
-
+    wireForm(productForm, function () {
       productForm.hidden = true;
       if (doneBox) {
         doneBox.hidden = false;
         doneBox.scrollIntoView({ block: 'center' });
       }
-      productForm.reset();
     });
   }
 
@@ -270,29 +363,10 @@ const CONTACT = {
       radio.addEventListener('change', function () { applyIntent(radio.value); });
     });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      // Native validation first, styled by .bg-field--error.
-      form.querySelectorAll('.bg-field').forEach(function (f) { f.classList.remove('bg-field--error'); });
-      if (!form.checkValidity()) {
-        form.querySelectorAll(':invalid').forEach(function (f) {
-          const field = f.closest('.bg-field');
-          if (field) field.classList.add('bg-field--error');
-        });
-        const firstInvalid = form.querySelector(':invalid');
-        if (firstInvalid) firstInvalid.focus();
-        return;
-      }
-
-      // TODO: wire to the CRM / mail endpoint. The payload is ready here.
-      const payload = Object.fromEntries(new FormData(form).entries());
-      console.info('[BioGreen] quote request', payload);
-
+    wireForm(form, function () {
       form.hidden = true;
       done.hidden = false;
       done.querySelector('h2').focus && done.querySelector('h2').focus();
-      form.reset();
     });
   }
 })();

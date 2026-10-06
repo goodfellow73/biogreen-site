@@ -880,3 +880,12 @@
 @media (max-width: 420px) {
   .pp-icons img { height: 64px; }
 }
+
+/* Shown only when a submission fails to reach the webhook. The form stays on
+   screen with the typed details intact, so nothing has to be retyped. */
+.form-error {
+  margin: 10px 0 0; padding: 10px 14px;
+  border: 1px solid #D9534F; border-radius: var(--radius-md);
+  background: #FDF3F3; color: #A33A36;
+  font-size: var(--fs-card); line-height: var(--lh-snug);
+}

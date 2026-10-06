@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="css/site.css?v=fc5551d9">
+<link rel="stylesheet" href="css/site.css?v=0261be33">
 </head>
 <body>
 
@@ -772,7 +772,7 @@
       </button>
     </div>
 
-    <form class="modal__form" id="quote-form" novalidate>
+    <form class="modal__form" id="quote-form" novalidate data-form-type="quote_modal">
       <fieldset class="form-step" style="border:0;padding:0;margin:0">
         <legend class="form-step__title"><span class="form-step__num">1</span>סוג הפנייה</legend>
         <div class="choice-row">
@@ -791,7 +791,7 @@
           </div>
           <div class="bg-field">
             <label class="bg-field__label" for="q-link">קישור למוצר / אתר הספק</label>
-            <input class="bg-input" id="q-link" name="link" type="url" placeholder="אופציונלי">
+            <input class="bg-input" id="q-link" name="product_link" type="url" placeholder="אופציונלי">
           </div>
         </div>
       </div>
@@ -823,23 +823,23 @@
 
         <div class="form-grid form-grid--full" data-step4="import">
           <div class="choice-row">
-            <label class="choice"><input type="radio" name="supplier" value="yes">כן</label>
-            <label class="choice"><input type="radio" name="supplier" value="no">לא</label>
-            <label class="choice"><input type="radio" name="supplier" value="checking">עדיין בודקים</label>
+            <label class="choice"><input type="radio" name="supplier_status" value="yes">כן</label>
+            <label class="choice"><input type="radio" name="supplier_status" value="no">לא</label>
+            <label class="choice"><input type="radio" name="supplier_status" value="checking">עדיין בודקים</label>
           </div>
         </div>
 
         <div class="form-grid form-grid--full" data-step4="products" hidden>
           <div class="bg-field">
             <label class="bg-field__label sr-only" for="q-looking">מה אתם מחפשים?</label>
-            <input class="bg-input" id="q-looking" name="looking" placeholder="קטגוריה, סוג מוצר או צורך עסקי">
+            <input class="bg-input" id="q-looking" name="looking_for" placeholder="קטגוריה, סוג מוצר או צורך עסקי">
           </div>
         </div>
 
         <div class="form-grid form-grid--full" data-step4="raw" hidden>
           <div class="bg-field">
             <label class="bg-field__label sr-only" for="q-raw">איזה חומר גלם אתם מחפשים?</label>
-            <input class="bg-input" id="q-raw" name="raw" placeholder="שם החומר, תקן או מפרט">
+            <input class="bg-input" id="q-raw" name="raw_material" placeholder="שם החומר, תקן או מפרט">
           </div>
         </div>
       </div>
@@ -851,6 +851,11 @@
           <textarea class="bg-textarea" id="q-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
         </div>
       </div>
+
+      <label class="pp-consent">
+        <input type="checkbox" name="newsletter_consent">
+        <span>אני מעוניין/ת לקבל מביוגרין עדכונים, מידע מקצועי והצעות.</span>
+      </label>
 
       <button class="bg-btn bg-btn--primary bg-btn--block bg-btn--lg" type="submit">
         <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שלחו את הפרטים</span>
@@ -890,7 +895,7 @@
   </button>
 </div>
 
-<script src="js/site.js?v=4e1f2ab4"></script>
+<script src="js/site.js?v=89a63426"></script>
 <script src="a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">

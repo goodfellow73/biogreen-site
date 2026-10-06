@@ -309,7 +309,8 @@ def build(page, prod, cats, sprite, header, footer):
       <p>{esc(q['sub'])}</p>
     </div>
 
-    <form class="pp-form" novalidate data-product-form data-product="{esc(prod['name'])}">
+    <form class="pp-form" novalidate data-form-type="product_inquiry"
+          data-product-form data-product="{esc(prod['name'])}">
       <div class="form-grid">
         <div class="bg-field">
           <label class="bg-field__label" for="pq-name">שם<span class="bg-field__req">*</span></label>
@@ -339,7 +340,7 @@ def build(page, prod, cats, sprite, header, footer):
       </div>
 
       <label class="pp-consent">
-        <input type="checkbox" name="consent" value="yes">
+        <input type="checkbox" name="newsletter_consent">
         <span>{esc(q['consent'])}</span>
       </label>
 
