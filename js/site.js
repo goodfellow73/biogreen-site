@@ -11,7 +11,9 @@
 const CONTACT = {
   phone: '03-0000000',               // shown to the user (local format)
   phoneDial: '+97230000000',         // used for tel:
-  whatsapp: '97250000000',           // international format, digits only
+  // wa.me needs the international form with no +, no dashes and no leading 0,
+  // so the local 072-2503833 becomes 972 72 2503833.
+  whatsapp: '972722503833',          // 072-2503833
   whatsappMessage: 'שלום, הגעתי מהאתר ואשמח לקבל פרטים.',
 };
 
