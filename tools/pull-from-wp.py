@@ -100,6 +100,14 @@ def grab_image(url, slug):
     name = f'product-{slug}{".jpg" if ext != ".png" else ".png"}'
     dest = os.path.join(IMG_DIR, name)
 
+    # WordPress keeps the uploaded filename, so a photo saved as
+    # "אבקת-אננס.png" arrives with Hebrew in its URL, and urllib cannot put
+    # that on the wire. Percent-encode the path; '%' is left alone so a URL
+    # WordPress already encoded is not encoded twice.
+    parts = urllib.parse.urlsplit(url)
+    url = urllib.parse.urlunsplit(parts._replace(
+        path=urllib.parse.quote(parts.path, safe='/%')))
+
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'biogreen-build'})
         with urllib.request.urlopen(req, timeout=60) as r:
@@ -334,12 +342,17 @@ def main():
             die(f'post {p.get("id")} has no slug or title.')
 
         # A Hebrew title gives WordPress a Hebrew slug, which it percent-encodes.
-        # That string would become the public URL and the data filename, so ask
-        # for a Latin one instead of quietly producing %d7%aa%d7%95%d7%a1…
+        # That string would become the public URL and the data filename, so it
+        # cannot be used — but refusing the whole build over it meant one new
+        # product froze every other edit too, and the editor saving it had no
+        # idea why nothing changed. Use product-<id> instead, which is what
+        # plugin 1.4.0 writes into WordPress itself, so the two agree.
         if not re.fullmatch(r'[a-z0-9-]+', slug):
-            die(f"'{name}' has the slug '{slug}'. Set a Latin slug in the "
-                f"WordPress editor (lowercase letters, digits and hyphens) — "
-                f"it becomes the page address, e.g. /products/curcumin-185/.")
+            fallback = f'product-{p.get("id")}'
+            print(f"  note: '{name}' has the slug '{slug}'; publishing it as "
+                  f"/products/{fallback}/. Set an English slug in WordPress for "
+                  f"a nicer address.")
+            slug = fallback
 
         term_ids = (p.get('product_category') or [])
         cat = by_term_id.get(term_ids[0]) if term_ids else None

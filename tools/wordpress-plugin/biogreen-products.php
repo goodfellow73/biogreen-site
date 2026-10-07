@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.3.2
+ * Version:      1.4.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.4.0  A product saved with a Hebrew slug gets product-<ID> automatically,
+ *        matching what the build now falls back to. The old warning asked the
+ *        editor to type an English slug; it was ignored, and every save
+ *        failed the build. It is now a hint, not a requirement.
  * 1.3.2  The tagline field no longer claims to render in the serif face; the
  *        product page now sets it in the same family as its other headings.
  * 1.3.1  Force every editing field right to left. The admin runs in English,
@@ -46,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.3.2';
+const BIOGREEN_VERSION = '1.4.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -466,6 +470,36 @@ add_action( 'save_post_product', function ( $post_id ) {
 	}
 }, 10, 1 );
 
+/* ---------------------------------------------------------- automatic slug */
+
+/**
+ * Give a product a Latin address when WordPress derived a Hebrew one.
+ *
+ * Asking the editor to type an English slug did not work: the warning below
+ * was there, the product was saved five times anyway, and every save failed
+ * the build. So the plugin settles it: a slug that is not plain Latin becomes
+ * product-<ID>, which is what the build itself falls back to, so the two
+ * always agree. An English slug the editor does write is left alone.
+ *
+ * Written straight to the row rather than through wp_update_post, which would
+ * fire save_post again and send a second rebuild. Runs at priority 5, ahead of
+ * the rebuild at 99, so GitHub never sees the Hebrew one.
+ */
+add_action( 'save_post_product', function ( $post_id, $post ) {
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id )
+		|| $post->post_status === 'auto-draft' || ! $post->post_name ) {
+		return;
+	}
+	if ( preg_match( '/^[a-z0-9-]+$/', urldecode( $post->post_name ) ) ) {
+		return;
+	}
+
+	global $wpdb;
+	$wpdb->update( $wpdb->posts, [ 'post_name' => 'product-' . $post_id ],
+	               [ 'ID' => $post_id ] );
+	clean_post_cache( $post_id );
+}, 5, 2 );
+
 /* ------------------------------------------------------------ slug warning */
 
 /**
@@ -480,42 +514,22 @@ add_action( 'admin_notices', function () {
 		return;
 	}
 
-	$bad = [];
-
-	if ( $screen->base === 'post' ) {
-		$post = get_post();
-		if ( $post && $post->post_name && ! preg_match( '/^[a-z0-9-]+$/', urldecode( $post->post_name ) ) ) {
-			$bad[] = $post;
-		}
-	} elseif ( $screen->base === 'edit' ) {
-		foreach ( get_posts( [ 'post_type' => 'product', 'numberposts' => 100,
-		                       'post_status' => [ 'publish', 'draft' ] ] ) as $post ) {
-			if ( $post->post_name && ! preg_match( '/^[a-z0-9-]+$/', urldecode( $post->post_name ) ) ) {
-				$bad[] = $post;
-			}
-		}
+	// Only on the edit screen of one product, and only once its address was
+	// assigned for it. Nothing here blocks anything any more — it is a hint.
+	if ( $screen->base !== 'post' ) {
+		return;
 	}
-
-	if ( ! $bad ) {
+	$post = get_post();
+	if ( ! $post || ! preg_match( '/^product-\d+$/', $post->post_name ) ) {
 		return;
 	}
 
-	echo '<div class="notice notice-warning"><p><strong>הכתובת של המוצר צריכה להיות באנגלית.</strong><br>';
-	echo 'בסרגל הצד, תחת <em>קישור → מזהה כתובת</em>, יש לכתוב מזהה באותיות אנגליות קטנות ';
-	echo 'עם מקפים — למשל <code>curcumin-185</code>. הכתובת באתר תהיה ';
-	echo '<code>/products/curcumin-185/</code>. בלי זה הבנייה נעצרת.</p>';
-
-	if ( count( $bad ) > 1 || ( $screen->base === 'edit' ) ) {
-		echo '<p>מוצרים שצריך לתקן: ';
-		$links = [];
-		foreach ( $bad as $post ) {
-			$links[] = '<a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">'
-				. esc_html( $post->post_title ) . '</a>';
-		}
-		echo wp_kses_post( implode( ', ', $links ) ) . '</p>';
-	}
-
-	echo '</div>';
+	printf(
+		'<div class="notice notice-info"><p>כתובת העמוד באתר נקבעה אוטומטית: <code>/products/%1$s/</code>.<br>'
+		. 'לכתובת ברורה יותר: לחצו <em>Edit</em> ליד הקישור שמתחת לשם המוצר וכתבו שם באנגלית '
+		. '(אותיות אנגליות קטנות ומקפים, למשל <code>pineapple-powder</code>). זה לא חובה.</p></div>',
+		esc_html( $post->post_name )
+	);
 } );
 
 /* ------------------------------------------------- rebuild the static site */
