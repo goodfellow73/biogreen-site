@@ -33,6 +33,30 @@
   ],
   "products": [
     {
+      "slug": "product-32",
+      "name": "אבקת אננס",
+      "category": "raw-materials",
+      "image": "assets/img/product-product-32.png",
+      "imageAlt": "אבקת אננס",
+      "labels": [
+        {
+          "text": "חומר גלם",
+          "tone": "commercial"
+        },
+        {
+          "text": "טהור",
+          "tone": "natural"
+        }
+      ],
+      "benefits": [
+        "לתעשית המזון והתוספים",
+        "אספקה בכמויות",
+        "אישורי איכות"
+      ],
+      "featured": 3,
+      "published": true
+    },
+    {
       "slug": "plant-extracts",
       "name": "תמציות צמחים מיובשות",
       "category": "raw-materials",
