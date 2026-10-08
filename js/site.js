@@ -6,11 +6,11 @@
 
 /* --------------------------------------------------------------------------
    CONTACT — the only place the phone / WhatsApp number lives.
-   TODO: replace with the client's real details before launch.
    -------------------------------------------------------------------------- */
 const CONTACT = {
-  phone: '03-0000000',               // shown to the user (local format)
-  phoneDial: '+97230000000',         // used for tel:
+  // The same line takes calls and WhatsApp.
+  phone: '072-2503833',              // shown to the user (local format)
+  phoneDial: '+972722503833',        // used for tel:
   // wa.me needs the international form with no +, no dashes and no leading 0,
   // so the local 072-2503833 becomes 972 72 2503833.
   whatsapp: '972722503833',          // 072-2503833
@@ -56,6 +56,18 @@ const FORMS = {
     form.querySelectorAll('input[type="checkbox"]').forEach(function (box) {
       if (box.name) data[box.name] = box.checked;
     });
+
+    // An optional choice left unanswered is absent from FormData too. Send it
+    // as an empty string so every submission of a form has the same keys —
+    // but only for groups that are enabled, since a disabled group is a
+    // question this visitor was never shown.
+    form.querySelectorAll('input[type="radio"]:not(:disabled)').forEach(function (r) {
+      if (r.name && !(r.name in data)) data[r.name] = '';
+    });
+
+    // Promised to Make on every submission, including forms with no box to
+    // tick (the quick-contact band). No box means no consent was given.
+    if (!('newsletter_consent' in data)) data.newsletter_consent = false;
 
     if (form.hasAttribute('data-product')) {
       data.product = form.getAttribute('data-product');
@@ -137,6 +149,21 @@ const FORMS = {
       });
     });
   }
+
+  /* Every other form is wired from its markup: a <form data-form-type> that
+     names its thank-you element in data-form-done needs no code here. The
+     quote modal and the product form keep their own handlers above and below,
+     because their success states do more than reveal one element. */
+  document.querySelectorAll('form[data-form-type][data-form-done]').forEach(function (form) {
+    const done = document.getElementById(form.getAttribute('data-form-done'));
+    wireForm(form, function () {
+      form.hidden = true;
+      if (done) {
+        done.hidden = false;
+        if (done.focus) done.focus();
+      }
+    });
+  });
 
   /* ---------- contact links ---------- */
 

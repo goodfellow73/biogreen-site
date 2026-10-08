@@ -28,15 +28,20 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = {
     'import-regulation/index.html': 'import-regulation/',
     'products/index.html': 'products/',
+    'contact/index.html': 'contact/',
 }
 
 # block name -> (first line starts with, last line contains)
+# A head may be a tuple of alternatives, tried in order: the footer block now
+# opens with the quick-contact band, but a page synced before the band existed
+# still opens at <footer>, and the first sync has to find it to replace it.
 # The tail is a substring test, not startswith: the same block ends with a
 # deeper path ("../js/…") on pages one directory down.
 BOUNDS = {
     'sprite': ('<svg xmlns="http://www.w3.org/2000/svg" hidden', '</svg>'),
     'header': ('<a class="skip-link"', '</header>'),
-    'footer': ('<footer class="site-footer">', '</footer>'),
+    'footer': (('<section class="quick-contact"', '<footer class="site-footer">'),
+               '</footer>'),
     # ends on the a11y panel tag, which follows site.js
     'modal':  ('<div class="modal" id="quote-modal"', 'a11y-panel.js'),
 }
@@ -45,10 +50,14 @@ BOUNDS = {
 def locate(lines, name):
     """Return the inclusive 0-based line span of a block, or exit with why not."""
     head, tail = BOUNDS[name]
-    try:
-        a = next(i for i, l in enumerate(lines) if l.startswith(head))
-    except StopIteration:
-        sys.exit(f'  cannot find the start of {name!r} ({head!r})')
+    heads = head if isinstance(head, tuple) else (head,)
+    a = None
+    for h in heads:
+        a = next((i for i, l in enumerate(lines) if l.startswith(h)), None)
+        if a is not None:
+            break
+    if a is None:
+        sys.exit(f'  cannot find the start of {name!r} ({heads!r})')
     try:
         b = next(i for i, l in enumerate(lines[a:], a) if tail in l)
     except StopIteration:

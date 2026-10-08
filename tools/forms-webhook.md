@@ -16,13 +16,17 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 |---|---|
 | `quote_modal` | טופס הצעת המחיר הראשי (נפתח מכל כפתור באתר) |
 | `product_inquiry` | הטופס בתחתית עמוד מוצר |
+| `contact_page` | הטופס בעמוד צור קשר |
+| `quick_contact` | הטופס הקצר שמעל הפוטר בכל עמוד (חוץ מעמוד צור קשר) |
 
 **הוספת טופס חדש בעתיד** (ידע מקצועי, רגולציה, מאמרים) לא דורשת שינוי קוד:
-מוסיפים ל-`<form>` את התכונה `data-form-type="…"` וזהו. הערך נשלח כמו שהוא
+מוסיפים ל-`<form>` את `data-form-type="…"`, ואת `data-form-done="…"` עם ה-id של
+אלמנט התודה שיוצג אחרי שליחה מוצלחת. הערך של `form_type` נשלח כמו שהוא
 וב-Make מנתבים לפיו. למשל:
 
 ```html
-<form data-form-type="knowledge_article" novalidate> … </form>
+<form data-form-type="knowledge_article" data-form-done="article-done" novalidate> … </form>
+<p id="article-done" hidden>תודה!</p>
 ```
 
 ## שמות השדות
@@ -32,7 +36,7 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 | שדה | סוג | הערה |
 |---|---|---|
 | `form_type` | טקסט | ראו הטבלה למעלה |
-| `newsletter_consent` | **true / false** | תמיד נשלח, גם כשלא סומן |
+| `newsletter_consent` | **true / false** | תמיד נשלח, גם כשלא סומן, וגם מטופס שאין בו תיבה (אז `false`) |
 | `page_url` | טקסט | הכתובת המלאה שממנה נשלח |
 | `submitted_at` | טקסט | ISO 8601, ‎UTC‎ (למשל `2026-10-06T07:40:14.280Z`) |
 
@@ -56,6 +60,27 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 | `import` | `supplier_status` | `yes` / `no` / `checking` |
 | `products` | `looking_for` | טקסט חופשי |
 | `raw` | `raw_material` | טקסט חופשי |
+
+### `contact_page`
+
+| שדה | חובה | ערכים |
+|---|---|---|
+| `intent` | | `import` / `products` / `raw` / `other`, או ריק אם לא נבחר |
+| `name` | ✓ | |
+| `company` | | |
+| `phone` | ✓ | |
+| `email` | | |
+| `notes` | | "איך נוכל לעזור?" |
+
+### `quick_contact`
+
+| שדה | חובה |
+|---|---|
+| `name` | ✓ |
+| `phone` | ✓ |
+| `email` | |
+
+אין בו תיבת דיוור, אז `newsletter_consent` תמיד `false`.
 
 ### `product_inquiry`
 
@@ -89,11 +114,15 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 }
 ```
 
-## שתי נקודות למיפוי ב-Make
+## שלוש נקודות למיפוי ב-Make
 
 **שדה שלא הוצג לא נשלח.** בטופס הראשי נשלח רק אחד מתוך
 `supplier_status` / `looking_for` / `raw_material`, לפי ה-`intent`. ב-Make כדאי
 להתייחס לשלושתם כאופציונליים — תשובה לשאלה שלא הוצגה אינה תשובה.
+
+**שאלה שהוצגה ולא נענתה נשלחת ריקה.** בחירה אופציונלית שהגולש דילג עליה
+(סוג הפנייה בעמוד צור קשר, או "יש לכם כבר ספק?") מגיעה כ-`""` ולא נעלמת, כך
+שלכל שליחה של אותו טופס יש תמיד אותם שדות.
 
 **`newsletter_consent` הוא בוליאני אמיתי**, לא `"yes"` ולא מחרוזת ריקה, והוא
 נשלח תמיד. אפשר לנתב עליו ישירות.

@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="css/site.css?v=0261be33">
+<link rel="stylesheet" href="css/site.css?v=dc95321e">
 </head>
 <body data-page-label="דף הבית">
 
@@ -133,6 +133,18 @@
     <symbol id="i-droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path>
       <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path>
+    </symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+    </symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
     </symbol>
     <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>
@@ -698,17 +710,53 @@
 <!-- ============================================================
      Footer
      ============================================================ -->
+<section class="quick-contact" aria-labelledby="quick-contact-title">
+  <div class="shell quick-contact__inner">
+    <div class="quick-contact__head">
+      <h2 class="quick-contact__title" id="quick-contact-title">צרו קשר</h2>
+      <p>השאירו פרטים ונחזור אליכם בהקדם.</p>
+    </div>
+
+    <form class="quick-contact__form" id="quick-contact-form" novalidate
+          data-form-type="quick_contact" data-form-done="quick-contact-done">
+      <div class="bg-field">
+        <label class="bg-field__label sr-only" for="qc-name">שם</label>
+        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="שם *">
+      </div>
+      <div class="bg-field">
+        <label class="bg-field__label sr-only" for="qc-phone">טלפון</label>
+        <input class="bg-input" id="qc-phone" name="phone" type="tel" required autocomplete="tel" placeholder="טלפון *">
+      </div>
+      <div class="bg-field">
+        <label class="bg-field__label sr-only" for="qc-email">אימייל</label>
+        <input class="bg-input" id="qc-email" name="email" type="email" autocomplete="email" placeholder="אימייל">
+      </div>
+      <button class="bg-btn bg-btn--primary" type="submit">
+        <svg class="icon" width="19" height="19"><use href="#i-clipboard-pen"></use></svg><span>שליחת פנייה</span>
+      </button>
+    </form>
+
+    <p class="quick-contact__done" id="quick-contact-done" hidden tabindex="-1">
+      <svg class="icon" width="20" height="20"><use href="#i-circle-check-big"></use></svg>
+      תודה, קיבלנו את הפרטים. נחזור אליכם בהקדם.
+    </p>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="shell">
+    <nav class="footer-social" aria-label="ביוגרין ברשתות ובערוצי קשר">
+      <a href="https://www.facebook.com/Bio.Green.IL/" target="_blank" rel="noopener" aria-label="ביוגרין בפייסבוק"><svg class="icon" width="20" height="20"><use href="#i-facebook"></use></svg></a>
+      <a href="https://www.instagram.com/biogreen.official.il/" target="_blank" rel="noopener" aria-label="ביוגרין באינסטגרם"><svg class="icon" width="20" height="20"><use href="#i-instagram"></use></svg></a>
+      <a href="mailto:info@bio-green.co.il" aria-label="אימייל: info@bio-green.co.il"><svg class="icon" width="20" height="20"><use href="#i-mail"></use></svg></a>
+      <a data-tel href="tel:+972722503833" aria-label="טלפון: 072-2503833"><svg class="icon" width="20" height="20"><use href="#i-phone"></use></svg></a>
+      <a data-wa href="#" aria-label="WhatsApp"><svg class="icon" width="20" height="20"><use href="#i-message-circle"></use></svg></a>
+    </nav>
+
     <div class="site-footer__top">
       <div class="site-footer__brand">
         <img src="assets/logo/biogreen-logo-trim.png" alt="BioGreen" width="160" height="40" loading="lazy">
         <p>יבוא, רגולציה ואספקה של מוצרים טבעיים לעסקים בישראל. הבחירה הטבעית.</p>
-        <!-- TODO: replace with the real phone / e-mail -->
-        <div class="site-footer__contact">
-          <a data-tel href="#"><svg class="icon" width="16" height="16"><use href="#i-phone"></use></svg><span data-tel-text dir="ltr">03-0000000</span></a>
-          <a href="mailto:info@biogreen.co.il"><svg class="icon" width="16" height="16"><use href="#i-mail"></use></svg>info@biogreen.co.il</a>
-        </div>
       </div>
 
       <nav class="footer-col" aria-label="שירותים">
@@ -737,10 +785,18 @@
         <a href="knowledge/glossary/">מילון מושגים</a>
         <a href="knowledge/quality/">כשרות ואיכות</a>
         <a href="knowledge/absorption/">טכנולוגיות ספיגה</a>
-        <a href="contact/">יצירת קשר</a>
       </nav>
-    </div>
 
+      <address class="footer-col footer-contact">
+        <div class="footer-col__title">צרו קשר</div>
+        <a class="footer-contact__phone" data-tel href="tel:+972722503833"><svg class="icon" width="16" height="16"><use href="#i-phone"></use></svg><span data-tel-text dir="ltr">072-2503833</span></a>
+        <span class="footer-contact__note">טלפון ו-<a data-wa href="#">WhatsApp</a></span>
+        <a href="mailto:info@bio-green.co.il"><svg class="icon" width="16" height="16"><use href="#i-mail"></use></svg><span dir="ltr">info@bio-green.co.il</span></a>
+        <span><svg class="icon" width="16" height="16"><use href="#i-clock"></use></svg>א׳–ה׳ | 9:00–17:00</span>
+        <span><svg class="icon" width="16" height="16"><use href="#i-map-pin"></use></svg>רשפון</span>
+        <a class="footer-contact__more" href="contact/">לכל דרכי הקשר</a>
+      </address>
+    </div>
     <p class="site-footer__disclaimer">
       המידע באתר נועד למטרות מידע כללי בלבד ואינו מהווה ייעוץ רפואי או תחליף להתייעצות
       עם רופא או איש מקצוע מוסמך. אין לראות במידע באתר המלצה לשינוי או הפסקת טיפול תרופתי.
@@ -896,7 +952,7 @@
   </button>
 </div>
 
-<script src="js/site.js?v=50bf5190"></script>
+<script src="js/site.js?v=6b1484ac"></script>
 <script src="a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">

@@ -50,7 +50,8 @@ def shell():
 
     sprite = block(find('<svg xmlns="http://www.w3.org/2000/svg" hidden'), find('</svg>'))
     header = block(find('<a class="skip-link"'), find('</header>'))
-    footer = block(find('<footer class="site-footer">'), find('</footer>'))
+    # Opens with the quick-contact band, which belongs to every page's foot.
+    footer = block(find('<section class="quick-contact"'), find('</footer>'))
 
     def up(html):
         def fix(m):

@@ -398,7 +398,7 @@
 
 .site-footer { background: var(--color-green-deep); color: var(--text-on-dark); padding-block: 56px; }
 .site-footer__top {
-  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px;
+  display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1.1fr; gap: 36px;
   padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .site-footer__brand { display: flex; flex-direction: column; gap: 16px; }
@@ -888,4 +888,141 @@
   border: 1px solid #D9534F; border-radius: var(--radius-md);
   background: #FDF3F3; color: #A33A36;
   font-size: var(--fs-card); line-height: var(--lh-snug);
+}
+
+/* ==========================================================================
+   Quick contact — the short form above every page's footer
+   ========================================================================== */
+.quick-contact {
+  background: var(--color-green-tint);
+  border-top: 1px solid var(--border-card);
+  padding-block: 40px;
+}
+.quick-contact__inner {
+  display: grid; grid-template-columns: minmax(220px, 0.8fr) 2fr;
+  gap: 32px; align-items: center;
+}
+.quick-contact__title { font-size: var(--fs-h3); color: var(--color-green-deep); margin: 0 0 6px; }
+.quick-contact__head p { margin: 0; color: var(--text-muted); }
+.quick-contact__form {
+  display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: start;
+}
+.quick-contact__form .bg-btn { white-space: nowrap; }
+.quick-contact__form .form-error { grid-column: 1 / -1; }
+.quick-contact__done {
+  grid-column: 2; margin: 0; display: flex; gap: 10px; align-items: center;
+  font-weight: var(--fw-semibold); color: var(--color-green-deep);
+}
+.quick-contact__done .icon { color: var(--color-green); flex: none; }
+
+/* The contact page has the full form; a second one under it would only
+   compete with it. */
+.page-contact .quick-contact { display: none; }
+
+/* ==========================================================================
+   Footer — social / contact strip and the contact column
+   ========================================================================== */
+.footer-social {
+  display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 32px; margin-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.footer-social a {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(247, 248, 243, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+}
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  background: #fff; color: var(--color-green-deep); border-color: #fff;
+}
+
+.footer-contact { font-style: normal; }
+.footer-contact a,
+.footer-contact > span {
+  display: inline-flex; gap: 8px; align-items: center;
+  font-size: 15px; color: rgba(247, 248, 243, 0.85);
+}
+.footer-contact .icon { flex: none; opacity: 0.85; }
+.footer-contact a:hover { color: #fff; }
+.footer-contact__phone { font-weight: var(--fw-semibold); }
+/* Numbers and addresses are LTR runs inside RTL text. */
+.footer-contact [dir="ltr"] { unicode-bidi: isolate; }
+.footer-contact > .footer-contact__note {
+  margin-top: -6px; padding-inline-start: 24px;
+  font-size: 13px; color: rgba(247, 248, 243, 0.6);
+}
+.footer-contact__note a { font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
+.footer-contact__more { margin-top: 4px; font-size: 14px; color: var(--color-logo-light-green) !important; }
+
+/* ==========================================================================
+   Contact page
+   ========================================================================== */
+.contact-hero {
+  background: var(--surface-page);
+  border-bottom: 1px solid var(--border-card);
+  padding-block: 56px 40px;
+}
+.contact-hero h1 { margin: 10px 0 8px; }
+.contact-hero__sub { font-size: var(--fs-subtitle); color: var(--text-muted); margin: 0; }
+
+.contact-body { padding-block: 48px 72px; }
+.contact-grid {
+  display: grid; grid-template-columns: 1.55fr 1fr; gap: 32px; align-items: start;
+}
+.contact-card,
+.contact-details {
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-form); padding: 28px;
+}
+.contact-form { display: grid; gap: 18px; }
+.contact-intent { border: 0; padding: 0; margin: 0; }
+.contact-optional { font-weight: var(--fw-regular); color: var(--text-muted); font-size: 14px; }
+.choice-row--4 { grid-template-columns: 1fr 1fr; }
+
+.contact-done { display: grid; gap: 12px; justify-items: center; text-align: center; padding-block: 24px; }
+.contact-done h2 { margin: 0; font-size: var(--fs-h3); }
+.contact-done p { margin: 0; color: var(--text-muted); max-width: 420px; }
+
+.contact-details h2 { font-size: var(--fs-h4); color: var(--color-green-deep); margin: 0 0 18px; }
+.contact-details__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.contact-details__list li { display: flex; gap: 14px; align-items: flex-start; }
+.contact-details__list div { display: grid; gap: 2px; }
+.contact-details__list strong { font-family: var(--font-display); font-size: 15px; color: var(--text-body); }
+.contact-details__list a,
+.contact-details__list span:not(.contact-details__icon) { color: var(--text-muted); }
+.contact-details__list a:hover { color: var(--color-green-deep); }
+.contact-details__list [dir="ltr"] { unicode-bidi: isolate; }
+.contact-details__wa { font-size: 14px; color: var(--color-green) !important; }
+.contact-details__icon {
+  width: 44px; height: 44px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-green-tint); color: var(--color-green);
+}
+
+@media (max-width: 1080px) {
+  .site-footer__top { grid-template-columns: 1fr 1fr 1fr; }
+  .site-footer__brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 900px) {
+  .site-footer__top { grid-template-columns: 1fr 1fr; }
+  .quick-contact__inner { grid-template-columns: 1fr; gap: 18px; }
+  .quick-contact__form { grid-template-columns: 1fr 1fr; }
+  .quick-contact__form .bg-btn { grid-column: 1 / -1; }
+  .quick-contact__done { grid-column: 1; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-hero { padding-block: 36px 28px; }
+  .contact-body { padding-block: 28px 56px; }
+}
+
+@media (max-width: 620px) {
+  .quick-contact__form { grid-template-columns: 1fr; }
+  .choice-row--4 { grid-template-columns: 1fr; }
+  .contact-card, .contact-details { padding: 20px; }
+  .site-footer__top { grid-template-columns: 1fr; }
 }
