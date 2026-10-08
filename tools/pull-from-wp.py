@@ -30,6 +30,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -52,6 +53,37 @@ def die(msg):
     sys.exit('pull-from-wp: ' + msg)
 
 
+# Waits between attempts. A shared host answers 504 when a request queues
+# behind others for too long — which is exactly what happens while an editor
+# saves several products in a row and each save sets off a build. Those clear
+# within seconds, so a build that waits briefly and asks again succeeds, where
+# failing outright meant a false-alarm email for an edit that was fine.
+RETRY_WAITS = (5, 15, 30)
+TRANSIENT = {429, 500, 502, 503, 504}
+
+
+def fetch(req, timeout):
+    """urlopen with retries on the failures that pass on their own.
+
+    A 4xx other than 429 is never retried: asking again cannot fix a missing
+    endpoint or a refused password.
+    """
+    for attempt, wait in enumerate((0,) + RETRY_WAITS):
+        if wait:
+            print(f'  WordPress was slow to answer — retrying in {wait}s '
+                  f'(attempt {attempt + 1} of {len(RETRY_WAITS) + 1})')
+            time.sleep(wait)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in TRANSIENT or attempt == len(RETRY_WAITS):
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            if attempt == len(RETRY_WAITS):
+                raise
+
+
 def api(path, **params):
     if not WP_URL:
         die('WP_URL is not set.')
@@ -64,14 +96,23 @@ def api(path, **params):
         token = base64.b64encode(f'{WP_USER}:{WP_PASS}'.encode()).decode()
         req.add_header('Authorization', 'Basic ' + token)
 
+    # A failure here stops the run before anything is committed, so the
+    # published site stays exactly as it was.
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return json.loads(r.read().decode('utf-8'))
+        return json.loads(fetch(req, timeout=30).decode('utf-8'))
     except urllib.error.HTTPError as e:
-        die(f'{url} returned HTTP {e.code}. '
-            f'Check that the post type is registered with show_in_rest => true.')
-    except urllib.error.URLError as e:
-        die(f'cannot reach {url}: {e.reason}')
+        if e.code in TRANSIENT:
+            die(f'{url} kept returning HTTP {e.code} after '
+                f'{len(RETRY_WAITS) + 1} attempts — the WordPress server is '
+                f'overloaded or down. Nothing was published; the site is '
+                f'unchanged and the next save in WordPress will try again.')
+        if e.code in (401, 403):
+            die(f'{url} returned HTTP {e.code}: WordPress refused the request.')
+        die(f'{url} returned HTTP {e.code}. Check that the BioGreen plugin is '
+            f'active — it registers this endpoint.')
+    except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        die(f'cannot reach {url} after {len(RETRY_WAITS) + 1} attempts: '
+            f'{getattr(e, "reason", e)}')
 
 
 def clean(html):
@@ -110,8 +151,7 @@ def grab_image(url, slug):
 
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'biogreen-build'})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            blob = r.read()
+        blob = fetch(req, timeout=60)
     except Exception as e:
         die(f'could not download {url}: {e}')
 
