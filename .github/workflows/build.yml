@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: write
+  actions: read          # to see whether a newer save is waiting (below)
 
 # Lifted to the job env so a step's `if:` can test whether WordPress is
 # configured at all — the secrets context is not usable in those conditions.
@@ -35,38 +36,52 @@ env:
   WP_USER: ${{ secrets.WP_USER }}
   WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
 
-# A newer run cancels one that has not finished, so a burst of saves in
-# WordPress becomes a single build instead of one per save, each pulling the
-# whole catalogue from a shared host. That is only safe because every run pulls
-# the complete current state (see the pull step below): whichever run survives
-# publishes every edit, including those whose own runs were cancelled.
+# One run at a time, and GitHub keeps only the newest waiting run, cancelling
+# older waiting ones before they start. A run already under way is left to
+# finish — cancelling it mid-push gains nothing — and steps aside on its own
+# instead (see "Wait for the editor to finish").
 concurrency:
   group: build-site
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Before anything else, so a run cancelled by the next save has cost
-      # nothing. Sixty seconds covers the pause between saves when an editor
-      # works through several products, and gives WordPress time to finish
-      # resizing a photo just uploaded — the request that hit a 504 arrived
-      # exactly then. Only for saves; a push or a manual run builds at once.
+      # A burst of saves should cost WordPress one build, not one per save.
+      # Wait sixty seconds — the pause between saves when an editor works
+      # through several products, and long enough for WordPress to finish
+      # resizing a photo just uploaded, which is when a request hit a 504 —
+      # then step aside if a newer run has been started meanwhile: it will
+      # pull the same edits and anything saved since. Done here rather than
+      # with cancel-in-progress because GitHub was seen to request the cancel
+      # and still let the waiting run go on to pull. Saves only; a push or a
+      # manual run builds at once.
       - name: Wait for the editor to finish
+        id: debounce
         if: github.event_name == 'repository_dispatch'
-        run: sleep 60
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 60
+          newest=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/runs?per_page=1" --jq '.workflow_runs[0].id')
+          if [ "$newest" != "$GITHUB_RUN_ID" ]; then
+            echo "::notice::A newer run ($newest) will publish these edits too — not pulling twice."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/checkout@v4
+        if: steps.debounce.outputs.skip != 'true'
 
       - uses: actions/setup-python@v5
+        if: steps.debounce.outputs.skip != 'true'
         with:
           python-version: '3.12'
 
       # Only needed for the WordPress pull, which resizes uploaded photos.
       - name: Install Pillow
-        if: env.WP_URL != ''
+        if: env.WP_URL != '' && steps.debounce.outputs.skip != 'true'
         run: pip install --quiet pillow
 
       # On every run, not only on saves: with cancel-in-progress, a code push
@@ -75,11 +90,11 @@ jobs:
       # so the site still builds from the data in the repo; once it is set, a
       # WordPress that cannot be reached is a real error and stops the run.
       - name: Pull products from WordPress
-        if: env.WP_URL != ''
+        if: env.WP_URL != '' && steps.debounce.outputs.skip != 'true'
         run: python tools/pull-from-wp.py
 
       - name: Note that WordPress is not configured
-        if: env.WP_URL == '' && github.event_name == 'repository_dispatch'
+        if: env.WP_URL == '' && github.event_name == 'repository_dispatch' && steps.debounce.outputs.skip != 'true'
         run: |
           echo "::notice::WP_URL is not set, so nothing was pulled from WordPress."
           echo "Rebuilt from the data already in the repository."
@@ -90,6 +105,7 @@ jobs:
       # stamp-assets runs last: the steps above rewrite whole regions of these
       # pages, and it only edits the asset links.
       - name: Generate pages from data
+        if: steps.debounce.outputs.skip != 'true'
         run: |
           python tools/sync-shell.py
           python tools/build-products.py
@@ -97,6 +113,7 @@ jobs:
           python tools/stamp-assets.py
 
       - name: Commit regenerated HTML
+        if: steps.debounce.outputs.skip != 'true'
         run: |
           if [ -z "$(git status --porcelain)" ]; then
             echo "Nothing to regenerate — the HTML already matches the data."
