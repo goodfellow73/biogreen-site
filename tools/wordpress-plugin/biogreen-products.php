@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.4.0
+ * Version:      1.4.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,9 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.4.1  Says the site updates within about two minutes, not one: the build
+ *        now waits a minute after the last save so a run of saves
+ *        publishes once.
  * 1.4.0  A product saved with a Hebrew slug gets product-<ID> automatically,
  *        matching what the build now falls back to. The old warning asked the
  *        editor to type an English slug; it was ignored, and every save
@@ -50,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.4.0';
+const BIOGREEN_VERSION = '1.4.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -575,7 +578,7 @@ function biogreen_trigger_build() {
 			422 => 'GitHub דחה את הבקשה. ודאו ששם הריפו נכון.',
 		];
 		$out = $code === 204
-			? [ 'ok' => true, 'message' => 'הבנייה הופעלה. האתר יתעדכן תוך כדקה.' ]
+			? [ 'ok' => true, 'message' => 'הבנייה הופעלה. האתר יתעדכן תוך כשתי דקות.' ]
 			: [ 'ok' => false, 'message' => $errors[ $code ] ?? "GitHub החזיר שגיאה {$code}." ];
 	}
 
@@ -655,7 +658,7 @@ add_action( 'admin_menu', function () {
 			</p>
 			<?php echo wp_kses_post( $notice ); ?>
 
-			<p>שמירת מוצר מפעילה בנייה של האתר הסטטי. האתר מתעדכן תוך כדקה.</p>
+			<p>שמירת מוצר מפעילה בנייה של האתר הסטטי. האתר מתעדכן תוך כשתי דקות — הבנייה ממתינה דקה אחרי השמירה האחרונה, כך שכמה שמירות ברצף מתפרסמות יחד.</p>
 
 			<?php if ( $last ) : ?>
 				<p>

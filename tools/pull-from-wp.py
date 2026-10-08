@@ -40,6 +40,20 @@ IMG_DIR = os.path.join(ROOT, 'assets', 'img')
 OUT = os.path.join(ROOT, 'data', 'products.json')
 PAGE_DIR = os.path.join(ROOT, 'data', 'product-pages')
 
+# Which WordPress upload each image in assets/img/ was made from. WordPress
+# never changes an upload in place — replacing or editing a photo gives it a
+# new URL — so an image whose URL matches the one recorded here is already
+# in the repo exactly as it should be, and is not downloaded again. On a
+# shared host that is most of what a build used to cost: every photo, on
+# every save.
+SOURCES = os.path.join(ROOT, 'data', 'image-sources.json')
+try:
+    with open(SOURCES, encoding='utf-8') as _f:
+        _seen_sources = json.load(_f)
+except (OSError, ValueError):
+    _seen_sources = {}
+_used_sources = {}
+
 WP_URL = (os.environ.get('WP_URL') or '').rstrip('/')
 WP_USER = os.environ.get('WP_USER') or ''
 WP_PASS = os.environ.get('WP_APP_PASSWORD') or ''
@@ -140,6 +154,13 @@ def grab_image(url, slug):
         ext = '.jpg'
     name = f'product-{slug}{".jpg" if ext != ".png" else ".png"}'
     dest = os.path.join(IMG_DIR, name)
+    rel = f'assets/img/{name}'
+
+    if _seen_sources.get(rel) == url and os.path.exists(dest):
+        _used_sources[rel] = url
+        print(f'  image {name}  unchanged, not downloaded')
+        return rel
+    source = url
 
     # WordPress keeps the uploaded filename, so a photo saved as
     # "אבקת-אננס.png" arrives with Hebrew in its URL, and urllib cannot put
@@ -163,7 +184,8 @@ def grab_image(url, slug):
             f.write(blob)
         print(f'  ! Pillow missing — saved {name} unoptimised '
               f'({len(blob)/1024:.0f} KB)')
-        return f'assets/img/{name}'
+        _used_sources[rel] = source
+        return rel
 
     im = Image.open(io.BytesIO(blob))
     if im.mode in ('RGBA', 'P', 'LA') and ext == '.png':
@@ -186,7 +208,8 @@ def grab_image(url, slug):
     im.save(dest, fmt, **save_args)
     print(f'  image {name}  {im.width}x{im.height}  '
           f'{os.path.getsize(dest)/1024:.0f} KB (was {len(blob)/1024:.0f} KB)')
-    return f'assets/img/{name}'
+    _used_sources[rel] = source
+    return rel
 
 
 def field(post, *names):
@@ -364,7 +387,9 @@ def main():
     categories = [{'id': t['slug'], 'label': clean(t['name'])} for t in terms]
     by_term_id = {t['id']: t['slug'] for t in terms}
 
-    posts = api('product', per_page=100, status='publish', _embed=1)
+    # Only the featured image is embedded. _embed=1 also has WordPress fetch
+    # and serialise the author and every term link, which nothing here reads.
+    posts = api('product', per_page=100, status='publish', _embed='wp:featuredmedia')
     if not isinstance(posts, list):
         die('unexpected response shape for the product list.')
     if not posts:
@@ -478,6 +503,11 @@ def main():
     }
     with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
+        f.write('\n')
+
+    # Only images this run used, so a deleted product's entry goes with it.
+    with open(SOURCES, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(dict(sorted(_used_sources.items())), f, ensure_ascii=False, indent=2)
         f.write('\n')
 
     # A product deleted in WordPress has to take its page copy with it.

@@ -24,11 +24,6 @@ on:
   repository_dispatch:
     types: [wp-content-updated]
   workflow_dispatch:
-    inputs:
-      pull_from_wp:
-        description: 'Pull products from WordPress before building'
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -40,15 +35,29 @@ env:
   WP_USER: ${{ secrets.WP_USER }}
   WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
 
+# A newer run cancels one that has not finished, so a burst of saves in
+# WordPress becomes a single build instead of one per save, each pulling the
+# whole catalogue from a shared host. That is only safe because every run pulls
+# the complete current state (see the pull step below): whichever run survives
+# publishes every edit, including those whose own runs were cancelled.
 concurrency:
   group: build-site
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Before anything else, so a run cancelled by the next save has cost
+      # nothing. Sixty seconds covers the pause between saves when an editor
+      # works through several products, and gives WordPress time to finish
+      # resizing a photo just uploaded — the request that hit a 504 arrived
+      # exactly then. Only for saves; a push or a manual run builds at once.
+      - name: Wait for the editor to finish
+        if: github.event_name == 'repository_dispatch'
+        run: sleep 60
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -57,15 +66,16 @@ jobs:
 
       # Only needed for the WordPress pull, which resizes uploaded photos.
       - name: Install Pillow
-        if: env.WP_URL != '' && (github.event_name == 'repository_dispatch' || inputs.pull_from_wp)
+        if: env.WP_URL != ''
         run: pip install --quiet pillow
 
-      # Skipped while WP_URL is unset, so a webhook that arrives before
-      # WordPress is wired up still rebuilds from the data already in the repo
-      # instead of failing. Once WP_URL exists, a WordPress that cannot be
-      # reached is a real error and stops the run.
+      # On every run, not only on saves: with cancel-in-progress, a code push
+      # can cancel a run that was about to publish an edit, so the run that
+      # replaces it has to carry that edit too. Skipped while WP_URL is unset,
+      # so the site still builds from the data in the repo; once it is set, a
+      # WordPress that cannot be reached is a real error and stops the run.
       - name: Pull products from WordPress
-        if: env.WP_URL != '' && (github.event_name == 'repository_dispatch' || inputs.pull_from_wp)
+        if: env.WP_URL != ''
         run: python tools/pull-from-wp.py
 
       - name: Note that WordPress is not configured
