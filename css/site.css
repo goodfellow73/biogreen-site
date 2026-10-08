@@ -915,9 +915,6 @@
 }
 .quick-contact__done .icon { color: var(--color-green); flex: none; }
 
-/* The contact page has the full form; a second one under it would only
-   compete with it. */
-.page-contact .quick-contact { display: none; }
 
 /* ==========================================================================
    Footer — social / contact strip and the contact column
