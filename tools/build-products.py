@@ -64,9 +64,10 @@ def esc(s):
 
 
 def has_page(slug):
-    """True when data/product-pages/<slug>.json exists — i.e. the product has
-    its own page, so the card can offer a link to it."""
-    return os.path.exists(os.path.join(ROOT, 'data', 'product-pages', slug + '.json'))
+    """Every published product has a page — build-product-pages.py builds a
+    basic one from catalogue data when there is no page copy — so every card
+    links. Kept as a function so a future exception has one place to go."""
+    return True
 
 
 def card(p, cats, prefix, indent='      '):

@@ -157,7 +157,7 @@
 
 .clients { background: var(--surface-card); border-block: 1px solid var(--border-card); }
 .clients__grid {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; margin-top: 40px;
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 16px; margin-top: 40px;
 }
 .client {
   display: flex; align-items: center; justify-content: center; text-align: center;
@@ -206,15 +206,26 @@
 .product__link:focus-visible { outline: none; }
 .product:has(.product__link:focus-visible) { box-shadow: var(--shadow-focus); }
 .product:has(.product__link:hover) h3 { color: var(--color-green); }
+/* Every card's photo sits in the same box, below a strip kept for the tags.
+   The tags used to be laid over the photo, and since each photo has its own
+   amount of white space around the product, one would start under the tags
+   and the next well below them. Now the strip is reserved whether or not a
+   product has tags, the photo is contained in what is left, and it is
+   anchored to the top of that area — so in a row of cards every product
+   starts at the same height and none is cropped. */
 .product__media {
-  position: relative; aspect-ratio: 4 / 3; background: #fff;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  position: relative; aspect-ratio: 4 / 3; background: #fff; overflow: hidden;
+  padding: 54px 16px 14px;
 }
-.product__media img { width: 100%; height: 100%; object-fit: contain; padding: 14px; }
+.product__media img {
+  display: block; width: 100%; height: 100%;
+  object-fit: contain; object-position: 50% 0;
+}
 .product__labels {
-  position: absolute; inset-inline-start: 12px; top: 12px;
-  display: flex; gap: 6px; flex-wrap: wrap; max-width: 80%;
+  position: absolute; inset-inline: 12px; top: 12px;
+  display: flex; gap: 6px; flex-wrap: nowrap; overflow: hidden;
 }
+.product__labels .bg-label { white-space: nowrap; }
 .product__body {
   padding: var(--space-5); display: flex; flex-direction: column;
   gap: var(--space-3); flex: 1;
@@ -981,7 +992,6 @@
 }
 .contact-form { display: grid; gap: 18px; }
 .contact-intent { border: 0; padding: 0; margin: 0; }
-.contact-optional { font-weight: var(--fw-regular); color: var(--text-muted); font-size: 14px; }
 .choice-row--4 { grid-template-columns: 1fr 1fr; }
 
 .contact-done { display: grid; gap: 12px; justify-items: center; text-align: center; padding-block: 24px; }
@@ -1026,3 +1036,13 @@
   .contact-card, .contact-details { padding: 20px; }
   .site-footer__top { grid-template-columns: 1fr; }
 }
+
+/* Phone and e-mail fields. Browsers set a phone field left to right, so in
+   this right-to-left site its placeholder and number sat at the far left of
+   the box. The digits and the address are typed left to right — that keeps
+   "050-1234567" and "name@company.co.il" in the right order — but the box
+   lines them up on the right, with every other field. */
+.bg-input[type="tel"],
+.bg-input[type="email"] { direction: ltr; text-align: right; }
+.bg-input[type="tel"]::placeholder,
+.bg-input[type="email"]::placeholder { direction: rtl; }

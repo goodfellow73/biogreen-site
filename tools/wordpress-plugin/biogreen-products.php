@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.4.1
+ * Version:      1.4.2
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,9 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.4.2  The opening-paragraph field no longer says an empty value means no
+ *        product page: every product now gets one, a basic page built
+ *        from its catalogue data until page copy is written.
  * 1.4.1  Says the site updates within about two minutes, not one: the build
  *        now waits a minute after the last save so a run of saves
  *        publishes once.
@@ -53,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.4.1';
+const BIOGREEN_VERSION = '1.4.2';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -78,7 +81,7 @@ function biogreen_fields() {
 	$page = [
 		'page_subtitle' => [ 'תת-כותרת (למשל: 60 כמוסות רכות)', 'text' ],
 		'page_tagline'  => [ 'משפט פתיחה (מוצג גדול, מתחת לשם המוצר)', 'text' ],
-		'page_lede'     => [ 'פסקת פתיחה — ריק = לא נוצר עמוד מוצר', 'textarea' ],
+		'page_lede'     => [ 'פסקת פתיחה — ריק = עמוד בסיסי מנתוני הקטלוג (שם, תמונה, יתרונות וטופס)', 'textarea' ],
 	];
 	for ( $i = 1; $i <= 6; $i++ ) {
 		$page[ "hero_icon_$i" ]     = [ "אייקון $i", 'icon' ];

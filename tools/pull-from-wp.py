@@ -270,7 +270,8 @@ def blocks_from_text(raw):
 
 
 def build_page(post, slug, name):
-    """Assemble data/product-pages/<slug>.json, or None if WP has no page copy."""
+    """Assemble data/product-pages/<slug>.json, or None if WP has no page copy
+    — in which case build-product-pages.py builds a basic page instead."""
     if not clean(field(post, 'page_lede')):
         return None
 

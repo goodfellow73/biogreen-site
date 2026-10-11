@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../css/site.css?v=b84a7302">
+<link rel="stylesheet" href="../css/site.css?v=e8d00568">
 </head>
 <body data-page-label="עמוד צור קשר" class="page-contact">
 
@@ -245,7 +245,7 @@
             data-form-type="contact_page" data-form-done="contact-done">
 
         <fieldset class="form-step contact-intent">
-          <legend class="form-step__title">סוג הפנייה <span class="contact-optional">(לא חובה)</span></legend>
+          <legend class="form-step__title">סוג הפנייה</legend>
           <div class="choice-row choice-row--4">
             <label class="choice"><input type="radio" name="intent" value="import">אני רוצה לייבא מוצר</label>
             <label class="choice"><input type="radio" name="intent" value="products">אני מחפש מוצר לעסק</label>
@@ -256,26 +256,26 @@
 
         <div class="form-grid">
           <div class="bg-field">
-            <label class="bg-field__label" for="c-name">שם<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="c-name" name="name" required autocomplete="name" placeholder="ישראל ישראלי">
+            <label class="bg-field__label sr-only" for="c-name">שם</label>
+            <input class="bg-input" id="c-name" name="name" required autocomplete="name" placeholder="שם *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="c-company">חברה / עסק</label>
-            <input class="bg-input" id="c-company" name="company" autocomplete="organization" placeholder="אופציונלי">
+            <label class="bg-field__label sr-only" for="c-company">חברה / עסק</label>
+            <input class="bg-input" id="c-company" name="company" autocomplete="organization" placeholder="חברה / עסק">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="c-phone">טלפון<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="c-phone" name="phone" type="tel" required autocomplete="tel" placeholder="050-0000000">
+            <label class="bg-field__label sr-only" for="c-phone">טלפון</label>
+            <input class="bg-input" id="c-phone" name="phone" type="tel" required autocomplete="tel" placeholder="טלפון *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="c-email">אימייל</label>
-            <input class="bg-input" id="c-email" name="email" type="email" autocomplete="email" placeholder="name@company.co.il">
+            <label class="bg-field__label sr-only" for="c-email">אימייל</label>
+            <input class="bg-input" id="c-email" name="email" type="email" autocomplete="email" placeholder="אימייל">
           </div>
         </div>
 
         <div class="bg-field">
-          <label class="bg-field__label" for="c-notes">איך נוכל לעזור?</label>
-          <textarea class="bg-textarea" id="c-notes" name="notes" rows="4" placeholder="ספרו לנו בקצרה במה מדובר"></textarea>
+          <label class="bg-field__label sr-only" for="c-notes">תוכן הפנייה</label>
+          <textarea class="bg-textarea" id="c-notes" name="notes" rows="4" placeholder="תוכן הפנייה"></textarea>
         </div>
 
         <label class="pp-consent">
@@ -470,12 +470,12 @@
         <div class="form-step__title"><span class="form-step__num">2</span>פרטי המוצר</div>
         <div class="form-grid">
           <div class="bg-field">
-            <label class="bg-field__label" for="q-product">שם המוצר / חומר הגלם<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="q-product" name="product" required placeholder="לדוגמה: כורכומין בספיגה גבוהה">
+            <label class="bg-field__label sr-only" for="q-product">שם המוצר / חומר הגלם</label>
+            <input class="bg-input" id="q-product" name="product" required placeholder="שם המוצר / חומר הגלם *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="q-link">קישור למוצר / אתר הספק</label>
-            <input class="bg-input" id="q-link" name="product_link" type="url" placeholder="אופציונלי">
+            <label class="bg-field__label sr-only" for="q-link">קישור למוצר / אתר הספק</label>
+            <input class="bg-input" id="q-link" name="product_link" type="url" placeholder="קישור למוצר / אתר הספק">
           </div>
         </div>
       </div>
@@ -484,20 +484,20 @@
         <div class="form-step__title"><span class="form-step__num">3</span>פרטי העסק והלקוח</div>
         <div class="form-grid">
           <div class="bg-field">
-            <label class="bg-field__label" for="q-company">שם החברה / העסק<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="q-company" name="company" required placeholder="שם החברה">
+            <label class="bg-field__label sr-only" for="q-company">שם החברה / העסק</label>
+            <input class="bg-input" id="q-company" name="company" required placeholder="שם החברה / העסק *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="q-name">שם איש קשר<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="q-name" name="name" required placeholder="ישראל ישראלי">
+            <label class="bg-field__label sr-only" for="q-name">שם איש קשר</label>
+            <input class="bg-input" id="q-name" name="name" required placeholder="שם איש קשר *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="q-phone">טלפון<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="q-phone" name="phone" type="tel" required placeholder="050-0000000">
+            <label class="bg-field__label sr-only" for="q-phone">טלפון</label>
+            <input class="bg-input" id="q-phone" name="phone" type="tel" required placeholder="טלפון *">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label" for="q-email">אימייל<span class="bg-field__req">*</span></label>
-            <input class="bg-input" id="q-email" name="email" type="email" required placeholder="name@company.co.il">
+            <label class="bg-field__label sr-only" for="q-email">אימייל</label>
+            <input class="bg-input" id="q-email" name="email" type="email" required placeholder="אימייל *">
           </div>
         </div>
       </div>
@@ -505,8 +505,8 @@
       <div class="form-step">
         <div class="form-step__title"><span class="form-step__num">4</span>פרטים נוספים</div>
         <div class="bg-field">
-          <label class="bg-field__label" for="q-notes">כמות רצויה, לוחות זמנים, דרישות מיוחדות</label>
-          <textarea class="bg-textarea" id="q-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
+          <label class="bg-field__label sr-only" for="q-notes">כמות רצויה, לוחות זמנים, דרישות מיוחדות</label>
+          <textarea class="bg-textarea" id="q-notes" name="notes" rows="3" placeholder="כמות רצויה, לוחות זמנים, דרישות מיוחדות"></textarea>
         </div>
       </div>
 
