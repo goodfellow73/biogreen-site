@@ -460,9 +460,12 @@
 }
 .modal__head h2 { font-size: var(--fs-h3); margin: 0 0 6px; }
 .modal__head p { font-size: var(--fs-small); color: var(--text-muted); margin: 0; }
+/* Pinned to the far end, so it stays in its corner after a send, when the
+   intro beside it is hidden and nothing is left to space it against. */
 .modal__close {
   background: none; border: none; cursor: pointer; color: var(--text-muted);
   padding: 4px; border-radius: var(--radius-sm); flex: none;
+  margin-inline-start: auto;
 }
 .modal__close:hover { color: var(--color-green-deep); background: var(--color-green-tint); }
 

@@ -43,9 +43,8 @@ const FORMS = {
      FormData, so reading the entries alone would send newsletter_consent only
      when it is true and leave Make unable to tell "declined" from "that form
      has no such field". Every checkbox is therefore written explicitly as a
-     boolean. Fields hidden by the current intent are disabled by applyIntent
-     and drop out on their own, which is what we want — an answer to a question
-     that was never shown is not an answer. */
+     boolean. Disabled fields drop out on their own, which is what we want —
+     an answer to a question that was never shown is not an answer. */
   function payloadOf(form) {
     const data = { form_type: form.getAttribute('data-form-type') || 'unknown' };
 
@@ -306,33 +305,23 @@ const FORMS = {
   const form = document.getElementById('quote-form');
   const done = document.getElementById('quote-done');
   const productField = document.getElementById('q-product');
+  const intro = modal && modal.querySelector('.modal__intro');
 
-  // Step 4 adapts to the selected intent.
-  const STEP4_TITLES = {
-    import: 'יש לכם כבר ספק?',
-    products: 'מה אתם מחפשים?',
-    raw: 'איזה חומר גלם אתם מחפשים?',
-  };
+  const INTENTS = ['import', 'products', 'raw'];
 
   let lastFocused = null;
 
   function applyIntent(intent) {
-    if (!STEP4_TITLES[intent]) intent = 'import';
-
+    if (INTENTS.indexOf(intent) === -1) intent = 'import';
     const radio = form.querySelector('input[name="intent"][value="' + intent + '"]');
     if (radio) radio.checked = true;
+  }
 
-    const title = form.querySelector('[data-step4-title]');
-    if (title) title.textContent = STEP4_TITLES[intent];
-
-    form.querySelectorAll('[data-step4]').forEach(function (group) {
-      const match = group.getAttribute('data-step4') === intent;
-      group.hidden = !match;
-      // Keep hidden inputs out of validation and out of the payload.
-      group.querySelectorAll('input, textarea, select').forEach(function (f) {
-        f.disabled = !match;
-      });
-    });
+  // The intro above the form and the thank-you below it name the same
+  // dialog at different moments; the dialog's label follows whichever shows.
+  function showIntro(on) {
+    if (intro) intro.hidden = !on;
+    modal.setAttribute('aria-labelledby', on ? 'quote-title' : 'quote-done-title');
   }
 
   function openModal(trigger) {
@@ -341,6 +330,7 @@ const FORMS = {
 
     form.hidden = false;
     done.hidden = true;
+    showIntro(true);
 
     applyIntent((trigger && trigger.getAttribute('data-intent')) || 'import');
 
@@ -386,7 +376,7 @@ const FORMS = {
   // Deep link: /?intent=import|products|raw opens the form on that type,
   // so campaign and e-mail links can land straight on the right request.
   const deepIntent = new URLSearchParams(location.search).get('intent');
-  if (deepIntent && STEP4_TITLES[deepIntent]) {
+  if (deepIntent && INTENTS.indexOf(deepIntent) !== -1) {
     const proxy = document.createElement('button');
     proxy.setAttribute('data-intent', deepIntent);
     openModal(proxy);
@@ -398,10 +388,13 @@ const FORMS = {
       radio.addEventListener('change', function () { applyIntent(radio.value); });
     });
 
+    // After a send only the thank-you and the close button remain: the
+    // "let's see how we can help" intro asks for details already given.
     wireForm(form, function () {
       form.hidden = true;
       done.hidden = false;
-      done.querySelector('h2').focus && done.querySelector('h2').focus();
+      showIntro(false);
+      document.getElementById('quote-done-title').focus();
     });
   }
 })();

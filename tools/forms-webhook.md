@@ -53,14 +53,6 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 | `email` | ✓ | |
 | `notes` | | כמות, לוחות זמנים, דרישות |
 
-שדה אחד נוסף, **לפי ה-`intent` שנבחר**. נשלח רק זה שמתאים, כי רק הוא הוצג:
-
-| `intent` | השדה | ערכים |
-|---|---|---|
-| `import` | `supplier_status` | `yes` / `no` / `checking` |
-| `products` | `looking_for` | טקסט חופשי |
-| `raw` | `raw_material` | טקסט חופשי |
-
 ### `contact_page`
 
 | שדה | חובה | ערכים |
@@ -106,7 +98,6 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
   "name": "ישראל ישראלי",
   "phone": "050-1234567",
   "email": "test@example.com",
-  "supplier_status": "checking",
   "notes": "בדיקת חיווט",
   "newsletter_consent": true,
   "page_url": "https://goodfellow73.github.io/biogreen-site/",
@@ -114,15 +105,14 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 }
 ```
 
-## שלוש נקודות למיפוי ב-Make
-
-**שדה שלא הוצג לא נשלח.** בטופס הראשי נשלח רק אחד מתוך
-`supplier_status` / `looking_for` / `raw_material`, לפי ה-`intent`. ב-Make כדאי
-להתייחס לשלושתם כאופציונליים — תשובה לשאלה שלא הוצגה אינה תשובה.
+## שתי נקודות למיפוי ב-Make
 
 **שאלה שהוצגה ולא נענתה נשלחת ריקה.** בחירה אופציונלית שהגולש דילג עליה
-(סוג הפנייה בעמוד צור קשר, או "יש לכם כבר ספק?") מגיעה כ-`""` ולא נעלמת, כך
-שלכל שליחה של אותו טופס יש תמיד אותם שדות.
+(סוג הפנייה בעמוד צור קשר) מגיעה כ-`""` ולא נעלמת, כך שלכל שליחה של אותו
+טופס יש תמיד אותם שדות.
+
+**השדות `supplier_status`, `looking_for` ו-`raw_material` הוסרו** (2026-10-11)
+יחד עם שלב 4 בטופס הראשי. אם הם ממופים ב-Make, אפשר להסיר אותם משם.
 
 **`newsletter_consent` הוא בוליאני אמיתי**, לא `"yes"` ולא מחרוזת ריקה, והוא
 נשלח תמיד. אפשר לנתב עליו ישירות.

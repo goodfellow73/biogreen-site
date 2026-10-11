@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../css/site.css?v=44b97a81">
+<link rel="stylesheet" href="../css/site.css?v=b84a7302">
 </head>
 <body data-page-label="עמוד קטלוג המוצרים">
 
@@ -563,7 +563,7 @@
 <div class="modal" id="quote-modal" hidden role="dialog" aria-modal="true" aria-labelledby="quote-title">
   <div class="modal__panel">
     <div class="modal__head">
-      <div>
+      <div class="modal__intro">
         <span class="bg-eyebrow" style="margin-bottom:6px"><span class="bg-eyebrow__dot"></span>ללא התחייבות</span>
         <h2 id="quote-title">בואו נבדוק איך נוכל לעזור</h2>
         <p>השאירו פרטים ונחזור אליכם לבדיקת היתכנות ולהמשך הדרך.</p>
@@ -620,33 +620,7 @@
       </div>
 
       <div class="form-step">
-        <div class="form-step__title"><span class="form-step__num">4</span><span data-step4-title>יש לכם כבר ספק?</span></div>
-
-        <div class="form-grid form-grid--full" data-step4="import">
-          <div class="choice-row">
-            <label class="choice"><input type="radio" name="supplier_status" value="yes">כן</label>
-            <label class="choice"><input type="radio" name="supplier_status" value="no">לא</label>
-            <label class="choice"><input type="radio" name="supplier_status" value="checking">עדיין בודקים</label>
-          </div>
-        </div>
-
-        <div class="form-grid form-grid--full" data-step4="products" hidden>
-          <div class="bg-field">
-            <label class="bg-field__label sr-only" for="q-looking">מה אתם מחפשים?</label>
-            <input class="bg-input" id="q-looking" name="looking_for" placeholder="קטגוריה, סוג מוצר או צורך עסקי">
-          </div>
-        </div>
-
-        <div class="form-grid form-grid--full" data-step4="raw" hidden>
-          <div class="bg-field">
-            <label class="bg-field__label sr-only" for="q-raw">איזה חומר גלם אתם מחפשים?</label>
-            <input class="bg-input" id="q-raw" name="raw_material" placeholder="שם החומר, תקן או מפרט">
-          </div>
-        </div>
-      </div>
-
-      <div class="form-step">
-        <div class="form-step__title"><span class="form-step__num">5</span>פרטים נוספים</div>
+        <div class="form-step__title"><span class="form-step__num">4</span>פרטים נוספים</div>
         <div class="bg-field">
           <label class="bg-field__label" for="q-notes">כמות רצויה, לוחות זמנים, דרישות מיוחדות</label>
           <textarea class="bg-textarea" id="q-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
@@ -666,7 +640,7 @@
 
     <div class="modal__done" id="quote-done" hidden>
       <span class="modal__done-mark"><svg class="icon" width="34" height="34"><use href="#i-circle-check-big"></use></svg></span>
-      <h2 style="margin:0;font-size:var(--fs-h3)">תודה, קיבלנו את הפרטים</h2>
+      <h2 id="quote-done-title" tabindex="-1" style="margin:0;font-size:var(--fs-h3)">תודה, קיבלנו את הפרטים</h2>
       <p>נחזור אליכם בהקדם עם מענה מקצועי לפי סוג הבקשה. אם מדובר בנושא דחוף, ניתן לפנות אלינו גם בוואטסאפ.</p>
       <div class="btn-row">
         <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
@@ -696,7 +670,7 @@
   </button>
 </div>
 
-<script src="../js/site.js?v=6b1484ac"></script>
+<script src="../js/site.js?v=128c095f"></script>
 <script src="../a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="../accessibility/" data-bottom="92" defer></script>
 
 <!-- products:jsonld:start -->
