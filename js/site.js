@@ -185,6 +185,35 @@ const FORMS = {
     });
   });
 
+  /* ---------- information pop-ups ----------
+     <a data-dialog="some-id"> opens <dialog id="some-id">. The browser looks
+     after focus and Esc; this adds the close button, a click on the dimmed
+     backdrop, and holding the page still behind it. */
+  document.querySelectorAll('[data-dialog]').forEach(function (trigger) {
+    const dialog = document.getElementById(trigger.getAttribute('data-dialog'));
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      dialog.showModal();
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  document.querySelectorAll('dialog').forEach(function (dialog) {
+    dialog.addEventListener('close', function () { document.body.style.overflow = ''; });
+    dialog.querySelectorAll('[data-dialog-close]').forEach(function (btn) {
+      btn.addEventListener('click', function () { dialog.close(); });
+    });
+    // A click on the backdrop lands on the <dialog> itself, outside its box.
+    dialog.addEventListener('click', function (e) {
+      if (e.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+        dialog.close();
+      }
+    });
+  });
+
   /* ---------- contact links ---------- */
 
   const pageLabel = (document.body.getAttribute('data-page-label') || '').trim();

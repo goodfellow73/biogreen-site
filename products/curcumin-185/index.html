@@ -10,7 +10,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../../css/site.css?v=30ea8dca">
+<link rel="stylesheet" href="../../css/site.css?v=c97d2eab">
 </head>
 <body data-page-label="עמוד מוצר כורכומין 185">
 
@@ -611,6 +611,22 @@
   </div>
 </section>
 
+<dialog class="info-dialog" id="importer-dialog" aria-labelledby="importer-title">
+  <div class="info-dialog__head">
+    <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span>יבואן נאות</span>
+    <button class="modal__close" type="button" data-dialog-close aria-label="סגירה">
+      <svg class="icon" width="24" height="24"><use href="#i-x"></use></svg>
+    </button>
+  </div>
+  <div class="info-dialog__body">
+    <h2 id="importer-title">יבוא תוספי תזונה במסלול יבואן נאות</h2>
+    <p class="info-dialog__lead">במקום להמתין בממוצע 8 חודשים לרישיון יבוא — מקדמים את היבוא באופן מיידי.</p>
+    <p>בעבר, תהליך קבלת רישיון יבוא לתוספי תזונה ארך בממוצע כ־8 חודשים. כיום, באמצעות מסלול היבואן הנאות של ביוגרין מוצרים טבעיים בע"מ, ניתן לקבל אישור יבוא באופן מיידי, ללא המתנה ממושכת להליך הרישוי הקודם.</p>
+    <p>ביוגרין מוצרים טבעיים בע"מ רשומה כיבואן נאות לתוספי תזונה מטעם משרד הבריאות ומאפשרת ללקוחותיה לקדם את יבוא מוצריהם באמצעות המסלול, בכפוף לבדיקה ולאישור מראש של מסמכי היצרן ותיק היבוא על ידי צוות החברה.</p>
+    <p class="info-dialog__benefit"><strong>היתרון עבורכם:</strong> חיסכון משמעותי בזמן וקידום מהיר של תהליך היבוא, בליווי המקצועי והרגולטורי של ביוגרין מוצרים טבעיים בע"מ.</p>
+  </div>
+</dialog>
+
 <footer class="site-footer">
   <div class="shell">
     <nav class="footer-social" aria-label="ביוגרין ברשתות ובערוצי קשר">
@@ -634,7 +650,7 @@
         <a href="../../import-regulation/raw-materials/">יבוא חומרי גלם</a>
         <a href="../../import-regulation/project-management/">ניהול פרויקטים</a>
         <a href="../../import-regulation/moh-approval/">אישור משרד הבריאות</a>
-        <a href="../../knowledge/importer-status/">יבואן נאות</a>
+        <a href="#importer" data-dialog="importer-dialog" aria-haspopup="dialog">יבואן נאות</a>
       </nav>
 
       <nav class="footer-col" aria-label="מוצרים">
@@ -697,7 +713,7 @@
   </a>
 </div>
 
-<script src="../../js/site.js?v=54409dc5"></script>
+<script src="../../js/site.js?v=9a5d6f99"></script>
 <script src="../../a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="../../accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">
