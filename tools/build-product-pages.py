@@ -397,30 +397,30 @@ def build(page, prod, cats, sprite, header, footer):
           data-product-form data-product="{esc(prod['name'])}">
       <div class="form-grid">
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-name">שם<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-name" name="name" required placeholder="ישראל ישראלי">
+          <label class="bg-field__label sr-only" for="pq-name">שם</label>
+          <input class="bg-input" id="pq-name" name="name" required placeholder="* שם">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-company">חברה</label>
-          <input class="bg-input" id="pq-company" name="company" placeholder="אופציונלי">
+          <label class="bg-field__label sr-only" for="pq-company">חברה</label>
+          <input class="bg-input" id="pq-company" name="company" placeholder="חברה">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-phone">טלפון<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-phone" name="phone" type="tel" required placeholder="050-0000000">
+          <label class="bg-field__label sr-only" for="pq-phone">טלפון</label>
+          <input class="bg-input" id="pq-phone" name="phone" type="tel" required placeholder="* טלפון">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-email">אימייל<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="name@company.co.il">
+          <label class="bg-field__label sr-only" for="pq-email">אימייל</label>
+          <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="* אימייל">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-qty">כמות מבוקשת</label>
-          <input class="bg-input" id="pq-qty" name="quantity" placeholder="לדוגמה: 200 יחידות">
+          <label class="bg-field__label sr-only" for="pq-qty">כמות מבוקשת</label>
+          <input class="bg-input" id="pq-qty" name="quantity" placeholder="כמות מבוקשת">
         </div>
       </div>
 
       <div class="bg-field">
-        <label class="bg-field__label" for="pq-notes">הערות</label>
-        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
+        <label class="bg-field__label sr-only" for="pq-notes">הערות</label>
+        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="הערות"></textarea>
       </div>
 
       <label class="pp-consent">

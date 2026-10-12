@@ -30,6 +30,18 @@ const CONTACT = {
    -------------------------------------------------------------------------- */
 const FORMS = {
   endpoint: 'https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm',
+
+  // Every submission carries every one of these, whichever form sent it; a
+  // field the form does not have arrives empty. The four forms feed one CRM
+  // table through Make, and one fixed shape means Make learns a single data
+  // structure and every column is mapped once. Add a field here, not only to
+  // a form, or Make will not expect it.
+  fields: [
+    'form_type', 'submitted_at', 'page_url',
+    'intent', 'product', 'product_link',
+    'name', 'company', 'phone', 'email',
+    'quantity', 'notes', 'newsletter_consent',
+  ],
 };
 
 (function () {
@@ -74,7 +86,16 @@ const FORMS = {
 
     data.page_url = window.location.href;
     data.submitted_at = new Date().toISOString();
-    return data;
+
+    // The fixed shape, in a fixed order.
+    const out = {};
+    FORMS.fields.forEach(function (k) {
+      out[k] = k in data ? data[k] : (k === 'newsletter_consent' ? false : '');
+    });
+    // Anything a form sends beyond the list still goes through rather than
+    // being silently dropped.
+    Object.keys(data).forEach(function (k) { if (!(k in out)) out[k] = data[k]; });
+    return out;
   }
 
   function send(form) {

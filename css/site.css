@@ -1037,12 +1037,11 @@
   .site-footer__top { grid-template-columns: 1fr; }
 }
 
-/* Phone and e-mail fields. Browsers set a phone field left to right, so in
-   this right-to-left site its placeholder and number sat at the far left of
-   the box. The digits and the address are typed left to right — that keeps
-   "050-1234567" and "name@company.co.il" in the right order — but the box
-   lines them up on the right, with every other field. */
+/* Phone and e-mail fields run right to left like every other field.
+   Browsers set a phone field left to right, which put its placeholder at the
+   far left and, worse, flipped the placeholder's asterisk to the other end
+   from the rest — "* טלפון" read as "טלפון *" there. A typed number or address
+   still displays in its own order inside a right-to-left box: "050-1234567"
+   and "name@company.co.il" are each one left-to-right run. */
 .bg-input[type="tel"],
-.bg-input[type="email"] { direction: ltr; text-align: right; }
-.bg-input[type="tel"]::placeholder,
-.bg-input[type="email"]::placeholder { direction: rtl; }
+.bg-input[type="email"] { direction: rtl; text-align: right; }

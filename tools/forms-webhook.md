@@ -29,93 +29,65 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 <p id="article-done" hidden>תודה!</p>
 ```
 
-## שמות השדות
+## שמות השדות — מבנה אחד לכל הטפסים
 
-### נשלחים תמיד
+**כל פנייה, מכל אחד מארבעת הטפסים, מגיעה עם אותם 13 שדות ובאותו סדר.** שדה
+שאין בטופס מסוים מגיע ריק (`""`), ו-`newsletter_consent` מגיע `false`. כך Make
+לומד מבנה אחד, וכל עמודה בטבלת ה-CRM ממופה פעם אחת.
 
-| שדה | סוג | הערה |
-|---|---|---|
-| `form_type` | טקסט | ראו הטבלה למעלה |
-| `newsletter_consent` | **true / false** | תמיד נשלח, גם כשלא סומן, וגם מטופס שאין בו תיבה (אז `false`) |
-| `page_url` | טקסט | הכתובת המלאה שממנה נשלח |
-| `submitted_at` | טקסט | ISO 8601, ‎UTC‎ (למשל `2026-10-06T07:40:14.280Z`) |
+✓ = חובה בטופס · ○ = קיים, לא חובה · — = לא קיים בטופס, מגיע ריק
 
-### `quote_modal`
+| שדה | תוכן | `quote_modal` הצעת מחיר כללית | `product_inquiry` הצעת מחיר מעמוד מוצר | `contact_page` צור קשר | `quick_contact` צור קשר מקוצר |
+|---|---|:-:|:-:|:-:|:-:|
+| `form_type` | מאיזה טופס | אוטומטי | אוטומטי | אוטומטי | אוטומטי |
+| `submitted_at` | זמן השליחה, ISO 8601 ב-UTC | אוטומטי | אוטומטי | אוטומטי | אוטומטי |
+| `page_url` | הכתובת שממנה נשלח | אוטומטי | אוטומטי | אוטומטי | אוטומטי |
+| `intent` | סוג הפנייה | ✓ | — | ○ | — |
+| `product` | שם מוצר / חומר גלם | ✓ (הגולש כותב) | אוטומטי (שם המוצר בעמוד) | — | — |
+| `product_link` | קישור למוצר / אתר הספק | ○ | — | — | — |
+| `name` | שם איש קשר | ✓ | ✓ | ✓ | ✓ |
+| `company` | חברה / עסק | ○ | ○ | ○ | — |
+| `phone` | טלפון | ✓ | ✓ | ✓ | ✓ |
+| `email` | אימייל | ✓ | ✓ | ○ | ○ |
+| `quantity` | כמות מבוקשת | — | ○ | — | — |
+| `notes` | טקסט חופשי | ○ "כמות, לוחות זמנים, דרישות" | ○ "הערות" | ○ "תוכן הפנייה" | — |
+| `newsletter_consent` | אישור דיוור, **true / false** | ○ | ○ | ○ | — (תמיד `false`) |
 
-| שדה | חובה | ערכים |
-|---|---|---|
-| `intent` | ✓ | `import` / `products` / `raw` |
-| `product` | ✓ | שם המוצר או חומר הגלם |
-| `product_link` | | קישור למוצר או לאתר הספק |
-| `company` | ✓ | |
-| `name` | ✓ | איש קשר |
-| `phone` | ✓ | |
-| `email` | ✓ | |
-| `notes` | | כמות, לוחות זמנים, דרישות |
+**ערכי `intent`:** `import` (לייבא מוצר), `products` (מוצר לעסק), `raw` (חומרי גלם),
+ו-`other` (אחר — רק בעמוד צור קשר). ריק אם לא נבחר או אם בטופס אין שאלה כזו.
 
-### `contact_page`
+**שדות קבועים** (בכל פנייה יש בהם ערך): `form_type`, `submitted_at`, `page_url`,
+`name`, `phone`, `newsletter_consent`. **כל השאר משתנים** לפי הטופס ולפי מה שמולא.
 
-| שדה | חובה | ערכים |
-|---|---|---|
-| `intent` | | `import` / `products` / `raw` / `other`, או ריק אם לא נבחר |
-| `name` | ✓ | |
-| `company` | | |
-| `phone` | ✓ | |
-| `email` | | |
-| `notes` | | "איך נוכל לעזור?" |
-
-### `quick_contact`
-
-| שדה | חובה |
-|---|---|
-| `name` | ✓ |
-| `phone` | ✓ |
-| `email` | |
-
-אין בו תיבת דיוור, אז `newsletter_consent` תמיד `false`.
-
-### `product_inquiry`
-
-| שדה | חובה |
-|---|---|
-| `product` | ✓ (שם המוצר, אוטומטי מהעמוד) |
-| `name` | ✓ |
-| `company` | |
-| `phone` | ✓ |
-| `email` | ✓ |
-| `quantity` | |
-| `notes` | |
+**שדה חדש בעתיד** צריך להיכנס לרשימה `FORMS.fields` בתחילת `js/site.js`, ולא
+רק לטופס — אחרת הוא יישלח, אבל לא כחלק מהמבנה הקבוע.
 
 ## דוגמה
 
 ```json
 {
-  "form_type": "quote_modal",
-  "intent": "import",
-  "product": "כורכומין בספיגה גבוהה",
-  "product_link": "https://example.com/x",
-  "company": "בדיקה בעמ",
+  "form_type": "product_inquiry",
+  "submitted_at": "2026-10-12T09:14:03.512Z",
+  "page_url": "https://goodfellow73.github.io/biogreen-site/products/curcumin-185/",
+  "intent": "",
+  "product": "כורכומין 185",
+  "product_link": "",
   "name": "ישראל ישראלי",
+  "company": "",
   "phone": "050-1234567",
-  "email": "test@example.com",
-  "notes": "בדיקת חיווט",
-  "newsletter_consent": true,
-  "page_url": "https://goodfellow73.github.io/biogreen-site/",
-  "submitted_at": "2026-10-06T07:40:14.280Z"
+  "email": "israel@example.com",
+  "quantity": "200 יחידות",
+  "notes": "",
+  "newsletter_consent": false
 }
 ```
 
-## שתי נקודות למיפוי ב-Make
+## מיפוי ב-Make
 
-**שאלה שהוצגה ולא נענתה נשלחת ריקה.** בחירה אופציונלית שהגולש דילג עליה
-(סוג הפנייה בעמוד צור קשר) מגיעה כ-`""` ולא נעלמת, כך שלכל שליחה של אותו
-טופס יש תמיד אותם שדות.
-
-**השדות `supplier_status`, `looking_for` ו-`raw_material` הוסרו** (2026-10-11)
-יחד עם שלב 4 בטופס הראשי. אם הם ממופים ב-Make, אפשר להסיר אותם משם.
-
-**`newsletter_consent` הוא בוליאני אמיתי**, לא `"yes"` ולא מחרוזת ריקה, והוא
-נשלח תמיד. אפשר לנתב עליו ישירות.
+ב-webhook לחצו **Redetermine data structure** ושלחו פנייה אחת מכל טופס. מכיוון
+שכל הטפסים שולחים את אותו מבנה, מספיקה למעשה פנייה אחת — אבל ארבע מוודאות
+שכל `form_type` הגיע. השדות `supplier_status`, `looking_for` ו-`raw_material`
+הוסרו ב-2026-10-11; אם הם עדיין ממופים, אפשר להסיר אותם.
 
 ## כשהשליחה נכשלת
 

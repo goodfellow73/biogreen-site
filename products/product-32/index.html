@@ -10,7 +10,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../../css/site.css?v=e8d00568">
+<link rel="stylesheet" href="../../css/site.css?v=30ea8dca">
 </head>
 <body data-page-label="עמוד מוצר אבקת אננס">
 
@@ -272,30 +272,30 @@
           data-product-form data-product="אבקת אננס">
       <div class="form-grid">
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-name">שם<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-name" name="name" required placeholder="ישראל ישראלי">
+          <label class="bg-field__label sr-only" for="pq-name">שם</label>
+          <input class="bg-input" id="pq-name" name="name" required placeholder="* שם">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-company">חברה</label>
-          <input class="bg-input" id="pq-company" name="company" placeholder="אופציונלי">
+          <label class="bg-field__label sr-only" for="pq-company">חברה</label>
+          <input class="bg-input" id="pq-company" name="company" placeholder="חברה">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-phone">טלפון<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-phone" name="phone" type="tel" required placeholder="050-0000000">
+          <label class="bg-field__label sr-only" for="pq-phone">טלפון</label>
+          <input class="bg-input" id="pq-phone" name="phone" type="tel" required placeholder="* טלפון">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-email">אימייל<span class="bg-field__req">*</span></label>
-          <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="name@company.co.il">
+          <label class="bg-field__label sr-only" for="pq-email">אימייל</label>
+          <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="* אימייל">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label" for="pq-qty">כמות מבוקשת</label>
-          <input class="bg-input" id="pq-qty" name="quantity" placeholder="לדוגמה: 200 יחידות">
+          <label class="bg-field__label sr-only" for="pq-qty">כמות מבוקשת</label>
+          <input class="bg-input" id="pq-qty" name="quantity" placeholder="כמות מבוקשת">
         </div>
       </div>
 
       <div class="bg-field">
-        <label class="bg-field__label" for="pq-notes">הערות</label>
-        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="אופציונלי"></textarea>
+        <label class="bg-field__label sr-only" for="pq-notes">הערות</label>
+        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="הערות"></textarea>
       </div>
 
       <label class="pp-consent">
@@ -334,11 +334,11 @@
           data-form-type="quick_contact" data-form-done="quick-contact-done">
       <div class="bg-field">
         <label class="bg-field__label sr-only" for="qc-name">שם</label>
-        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="שם *">
+        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="* שם">
       </div>
       <div class="bg-field">
         <label class="bg-field__label sr-only" for="qc-phone">טלפון</label>
-        <input class="bg-input" id="qc-phone" name="phone" type="tel" required autocomplete="tel" placeholder="טלפון *">
+        <input class="bg-input" id="qc-phone" name="phone" type="tel" required autocomplete="tel" placeholder="* טלפון">
       </div>
       <div class="bg-field">
         <label class="bg-field__label sr-only" for="qc-email">אימייל</label>
@@ -442,7 +442,7 @@
   </a>
 </div>
 
-<script src="../../js/site.js?v=128c095f"></script>
+<script src="../../js/site.js?v=54409dc5"></script>
 <script src="../../a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="../../accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">
