@@ -84,7 +84,9 @@ const FORMS = {
       data.product = form.getAttribute('data-product');
     }
 
-    data.page_url = window.location.href;
+    // Without the #fragment: a button that jumps to an on-page form leaves one
+    // in the address, and the CRM would then list the same page twice.
+    data.page_url = window.location.href.split('#')[0];
     data.submitted_at = new Date().toISOString();
 
     // The fixed shape, in a fixed order.
