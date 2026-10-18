@@ -12,7 +12,7 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 
 כל פנייה נושאת `form_type`. הערכים כיום:
 
-| `form_type` | הטופס | אוטומטי |
+| `form_type` | הטופס |
 |---|---|
 | `quote_modal` | טופס הצעת המחיר הראשי (נפתח מכל כפתור באתר) |
 | `product_inquiry` | הטופס בתחתית עמוד מוצר |
@@ -86,7 +86,7 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 ## מיפוי ב-Make
 
 ב-webhook לחצו **Redetermine data structure** ושלחו פנייה אחת מכל טופס. מכיוון
-שכל הטפסים שולחים את אותו מבנה, מספיקה למעשה פנייה אחת — אבל ארבע מוודאות
+שכל הטפסים שולחים את אותו מבנה, מספיקה למעשה פנייה אחת — אבל חמש מוודאות
 שכל `form_type` הגיע. השדות `supplier_status`, `looking_for` ו-`raw_material`
 הוסרו ב-2026-10-11; אם הם עדיין ממופים, אפשר להסיר אותם.
 
