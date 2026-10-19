@@ -524,7 +524,39 @@ def main():
         print(f'  removed page copy for deleted product: {name[:-5]}')
 
     print(f'\n{len(products)} products, {len(categories)} categories -> data/products.json')
-    print('Now run: python tools/build-products.py')
+
+    pull_content()
+    print('Now run: python tools/cms.py apply && python tools/build-products.py')
+
+
+def pull_content():
+    """Page texts edited in WordPress -> data/content.json (see tools/cms.py).
+
+    A plugin older than 1.5.0 has no such endpoint; the build then keeps the
+    texts already in the HTML instead of failing over a feature not in use.
+    """
+    url = f'{WP_URL}/wp-json/biogreen/v1/content'
+    req = urllib.request.Request(url, headers={'Accept': 'application/json',
+                                               'User-Agent': 'biogreen-build'})
+    try:
+        data = json.loads(fetch(req, timeout=30).decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print('page texts: not available yet (plugin 1.5.0 or later needed) — '
+                  'the texts in the HTML are kept')
+            return
+        die(f'{url} returned HTTP {e.code} while reading page texts.')
+    except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        die(f'cannot read page texts from {url}: {getattr(e, "reason", e)}')
+
+    if not isinstance(data, dict):
+        die(f'{url} did not return an object of pages.')
+    path = os.path.join(ROOT, 'data', 'content.json')
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2, sort_keys=True)
+        f.write('\n')
+    n = sum(len(v) for v in data.values() if isinstance(v, dict))
+    print(f'page texts: {n} edited in WordPress, on {len(data)} page(s) -> data/content.json')
 
 
 if __name__ == '__main__':

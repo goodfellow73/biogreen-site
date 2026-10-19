@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ביו-גרין | יבוא, רגולציה ואספקת מוצרים טבעיים לעסקים בישראל</title>
-<meta name="description" content="ביו-גרין היא יבואן נאות לתוספי תזונה, ומלווה חברות ועסקים בתהליכי יבוא, רגולציה ואספקה של תוספי תזונה, חומרי גלם ומוצרים טבעיים.">
+<title data-cms="seo.title" data-cms-label="כותרת בגוגל (Title)">ביו-גרין | יבוא, רגולציה ואספקת מוצרים טבעיים לעסקים בישראל</title>
+<meta name="description" data-cms="seo.description" data-cms-label="תיאור בגוגל (Meta Description)" data-cms-type="long" data-cms-attr="content" content="ביו-גרין היא יבואן נאות לתוספי תזונה, ומלווה חברות ועסקים בתהליכי יבוא, רגולציה ואספקה של תוספי תזונה, חומרי גלם ומוצרים טבעיים.">
 <link rel="icon" href="assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="css/design-system.css?v=2d7fce0f">
 <link rel="stylesheet" href="css/site.css?v=98758605">
 </head>
-<body data-page-label="דף הבית">
+<body data-page-label="דף הבית" data-cms-page="home">
 
 <!-- ============================================================
      Icon sprite. Icons are referenced as <use href="#i-NAME">.
@@ -232,36 +232,36 @@
 <!-- ============================================================
      Block 1 — Hero
      ============================================================ -->
-<section class="hero" id="hero">
+<section data-cms-section="hero" data-cms-section-label="באנר ראשי" class="hero" id="hero">
   <img class="hero__bg" src="assets/img/bg-hero-botanical.jpg" alt="" aria-hidden="true">
   <div class="shell hero__grid">
     <div>
-      <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span>יבוא · רגולציה · אספקה לעסקים</span>
-      <h1>אנחנו מנהלים את היבוא והרגולציה —<br>אתם מתמקדים בעסק</h1>
-      <p class="hero__lead">
+      <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span><span data-cms="hero.eyebrow" data-cms-label="שורה קטנה מעל הכותרת">יבוא · רגולציה · אספקה לעסקים</span></span>
+      <h1 data-cms="hero.title" data-cms-label="כותרת ראשית" data-cms-type="para">אנחנו מנהלים את היבוא והרגולציה —<br>אתם מתמקדים בעסק</h1>
+      <p class="hero__lead" data-cms="hero.lead" data-cms-label="פסקה מודגשת" data-cms-type="para">
         יבוא תוספי תזונה, חומרי גלם ומוצרים טבעיים — מרישום מוצר מהיר ועד רישיון יבוא.
       </p>
-      <p class="hero__sub">
+      <p class="hero__sub" data-cms="hero.sub" data-cms-label="פסקה" data-cms-type="para">
         ביו-גרין היא <a href="#importer" data-dialog="importer-dialog" aria-haspopup="dialog">יבואן נאות</a> לתוספי תזונה, ומלווה חברות
         ועסקים בתהליכי יבוא, רגולציה ואספקה.
       </p>
 
       <div class="btn-row">
         <button class="bg-btn bg-btn--primary bg-btn--lg" data-quote>
-          <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
+          <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span data-cms="hero.button" data-cms-label="כפתור ראשי">לקבלת הצעת מחיר</span>
         </button>
-        <a class="bg-btn bg-btn--secondary bg-btn--lg" href="products/">צפה בקטלוג המוצרים</a>
+        <a class="bg-btn bg-btn--secondary bg-btn--lg" href="products/" data-cms="hero.button2" data-cms-label="כפתור משני">צפה בקטלוג המוצרים</a>
       </div>
 
-      <div class="hero__trust">
+      <div class="hero__trust" data-cms="hero.badges" data-cms-label="תגיות" data-cms-type="lines" data-cms-fixed>
         <span class="bg-badge bg-badge--reg">
-          <svg class="icon" width="16" height="16"><use href="#i-shield-check"></use></svg>אישורי משרד הבריאות
+          <svg class="icon" width="16" height="16"><use href="#i-shield-check"></use></svg><span data-cms-slot="1">אישורי משרד הבריאות</span>
         </span>
         <span class="bg-badge">
-          <svg class="icon" width="16" height="16"><use href="#i-handshake"></use></svg>ספקים אמינים
+          <svg class="icon" width="16" height="16"><use href="#i-handshake"></use></svg><span data-cms-slot="1">ספקים אמינים</span>
         </span>
         <span class="bg-badge">
-          <svg class="icon" width="16" height="16"><use href="#i-flask-conical"></use></svg>חומרי גלם איכותיים
+          <svg class="icon" width="16" height="16"><use href="#i-flask-conical"></use></svg><span data-cms-slot="1">חומרי גלם איכותיים</span>
         </span>
       </div>
     </div>
@@ -276,21 +276,21 @@
 <!-- ============================================================
      Block 2 — Three doorways
      ============================================================ -->
-<section class="doorways" aria-label="שערי כניסה">
-  <div class="shell doorways__grid">
+<section data-cms-section="doorways" data-cms-section-label="שערי כניסה" class="doorways" aria-label="שערי כניסה">
+  <div class="shell doorways__grid" data-cms="doorways.titles" data-cms-label="כותרות השערים" data-cms-type="lines" data-cms-fixed>
     <button class="bg-doorway" data-quote data-intent="import">
       <span class="bg-doorway__icon"><svg class="icon" width="28" height="28"><use href="#i-truck"></use></svg></span>
-      <span class="bg-doorway__title">רוצים לייבא מוצר?</span>
+      <span class="bg-doorway__title" data-cms-slot="1">רוצים לייבא מוצר?</span>
       <span class="bg-doorway__arrow"><svg class="icon" width="22" height="22"><use href="#i-arrow-left"></use></svg></span>
     </button>
     <button class="bg-doorway" data-quote data-intent="products">
       <span class="bg-doorway__icon"><svg class="icon" width="28" height="28"><use href="#i-layout-grid"></use></svg></span>
-      <span class="bg-doorway__title">מחפשים מוצרים לעסק?</span>
+      <span class="bg-doorway__title" data-cms-slot="1">מחפשים מוצרים לעסק?</span>
       <span class="bg-doorway__arrow"><svg class="icon" width="22" height="22"><use href="#i-arrow-left"></use></svg></span>
     </button>
     <button class="bg-doorway" data-quote data-intent="raw">
       <span class="bg-doorway__icon"><svg class="icon" width="28" height="28"><use href="#i-flask-conical"></use></svg></span>
-      <span class="bg-doorway__title">צריכים חומרי גלם?</span>
+      <span class="bg-doorway__title" data-cms-slot="1">צריכים חומרי גלם?</span>
       <span class="bg-doorway__arrow"><svg class="icon" width="22" height="22"><use href="#i-arrow-left"></use></svg></span>
     </button>
   </div>
@@ -299,47 +299,47 @@
 <!-- ============================================================
      Block 3 — What we do
      ============================================================ -->
-<section class="section bg-lab-grid" id="services">
+<section data-cms-section="services" data-cms-section-label="מה אנחנו עושים" class="section bg-lab-grid" id="services">
   <div class="shell">
     <div class="section__head--center">
-      <h2>כל תהליך היבוא שלכם, תחת קורת גג אחת</h2>
+      <h2 data-cms="services.title" data-cms-label="כותרת">כל תהליך היבוא שלכם, תחת קורת גג אחת</h2>
     </div>
 
-    <div class="services__grid">
+    <div class="services__grid" data-cms="services.cards" data-cms-label="כרטיסי השירותים" data-cms-type="pairs" data-cms-fixed>
       <article class="bg-card bg-service">
         <span class="bg-service__icon"><svg class="icon" width="26" height="26"><use href="#i-truck"></use></svg></span>
-        <h3>יבוא מוצרים</h3>
-        <p>איתור מוצרים וספקים, תיאום לוגיסטי וניהול היבוא מתחילתו עד סופו.</p>
+        <h3 data-cms-slot="1">יבוא מוצרים</h3>
+        <p data-cms-slot="2">איתור מוצרים וספקים, תיאום לוגיסטי וניהול היבוא מתחילתו עד סופו.</p>
       </article>
 
       <article class="bg-card bg-service">
         <span class="bg-service__icon bg-service__icon--reg"><svg class="icon" width="26" height="26"><use href="#i-file-check"></use></svg></span>
-        <h3>רגולציה ואישורים</h3>
-        <p>בדיקת מסמכים, דרישות משרד הבריאות, סימון וכשרות.</p>
+        <h3 data-cms-slot="1">רגולציה ואישורים</h3>
+        <p data-cms-slot="2">בדיקת מסמכים, דרישות משרד הבריאות, סימון וכשרות.</p>
       </article>
 
       <article class="bg-card bg-service">
         <span class="bg-service__icon"><svg class="icon" width="26" height="26"><use href="#i-boxes"></use></svg></span>
-        <h3>מוצרים מוכנים לשיווק</h3>
-        <p>מוצרים מוכנים לחנויות טבע, בתי מרקחת, קליניקות ועסקים.</p>
+        <h3 data-cms-slot="1">מוצרים מוכנים לשיווק</h3>
+        <p data-cms-slot="2">מוצרים מוכנים לחנויות טבע, בתי מרקחת, קליניקות ועסקים.</p>
       </article>
 
       <article class="bg-card bg-service">
         <span class="bg-service__icon"><svg class="icon" width="26" height="26"><use href="#i-flask-conical"></use></svg></span>
-        <h3>חומרי גלם</h3>
-        <p>חומרי גלם איכותיים לתעשיית המזון, תוספי תזונה ומוצרים טבעיים.</p>
+        <h3 data-cms-slot="1">חומרי גלם</h3>
+        <p data-cms-slot="2">חומרי גלם איכותיים לתעשיית המזון, תוספי תזונה ומוצרים טבעיים.</p>
       </article>
 
       <article class="bg-card bg-service">
         <span class="bg-service__icon bg-service__icon--reg"><svg class="icon" width="26" height="26"><use href="#i-shield-check"></use></svg></span>
-        <h3>ליווי מקצועי</h3>
-        <p>ליווי מקצועי בתהליך הרישום, האישורים והרגולציה.</p>
+        <h3 data-cms-slot="1">ליווי מקצועי</h3>
+        <p data-cms-slot="2">ליווי מקצועי בתהליך הרישום, האישורים והרגולציה.</p>
       </article>
 
       <article class="bg-card bg-service">
         <span class="bg-service__icon bg-service__icon--cta"><svg class="icon" width="26" height="26"><use href="#i-handshake"></use></svg></span>
-        <h3>שותפות עסקית</h3>
-        <p>פתרונות מותאמים לחברות, רשתות ועסקים בתחום הבריאות והטבע.</p>
+        <h3 data-cms-slot="1">שותפות עסקית</h3>
+        <p data-cms-slot="2">פתרונות מותאמים לחברות, רשתות ועסקים בתחום הבריאות והטבע.</p>
       </article>
     </div>
   </div>
@@ -350,26 +350,22 @@
      Names only. Third-party logos are not published until each company has
      approved their use — see the note in README.md.
      ============================================================ -->
-<section class="section section--tight clients" id="clients">
+<section data-cms-section="clients" data-cms-section-label="חברות שעובדות איתנו" class="section section--tight clients" id="clients">
   <div class="shell">
     <div class="section__head--center">
-      <h2>חברות שבחרו לעבוד איתנו</h2>
-      <p class="section__sub">שותפים עסקיים לאורך הדרך — מיבוא ועד אספקה</p>
+      <h2 data-cms="clients.title" data-cms-label="כותרת">חברות שבחרו לעבוד איתנו</h2>
+      <p class="section__sub" data-cms="clients.sub" data-cms-label="כותרת משנה">שותפים עסקיים לאורך הדרך — מיבוא ועד אספקה</p>
     </div>
 
-    <div class="clients__grid">
-      <div class="client"><span class="client__name">סופר-פארם</span></div>
-      <!-- TODO: logo not found online — official file needed from the client -->
-      <div class="client"><span class="client__name">המילניום</span></div>
-      <!-- TODO: logo not found online — official file needed from the client -->
-      <div class="client"><span class="client__name">בודיפלו</span></div>
-      <div class="client"><span class="client__name">טבעקום</span></div>
-      <!-- TODO: logo not found online — official file needed from the client -->
-      <div class="client"><span class="client__name">טבע קסטל</span></div>
-      <!-- TODO: logo not found online — official file needed from the client -->
-      <div class="client"><span class="client__name">עדן טבע</span></div>
-      <div class="client"><span class="client__name">ביוגיאה</span></div>
-      <div class="client"><span class="client__name">גיל הטבע</span></div>
+    <div class="clients__grid" data-cms="clients.names" data-cms-label="שמות החברות" data-cms-type="lines">
+      <div class="client"><span class="client__name" data-cms-slot="1">סופר-פארם</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">המילניום</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">בודיפלו</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">טבעקום</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">טבע קסטל</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">עדן טבע</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">ביוגיאה</span></div>
+      <div class="client"><span class="client__name" data-cms-slot="1">גיל הטבע</span></div>
     </div>
   </div>
 </section>
@@ -377,52 +373,52 @@
 <!-- ============================================================
      Block 5 — Import route
      ============================================================ -->
-<section class="section route-section" id="route">
+<section data-cms-section="route" data-cms-section-label="מסלול היבוא" class="section route-section" id="route">
   <div class="shell">
     <div class="section__head--center">
-      <h2>מסלול היבוא שלכם</h2>
+      <h2 data-cms="route.title" data-cms-label="כותרת">מסלול היבוא שלכם</h2>
     </div>
 
-    <div class="route-wrap bg-route">
+    <div class="route-wrap bg-route" data-cms="route.steps" data-cms-label="שמות השלבים" data-cms-type="lines" data-cms-fixed>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">טופס פנייה</span>
+        <span class="bg-route__label" data-cms-slot="1">טופס פנייה</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">שיחת היכרות</span>
+        <span class="bg-route__label" data-cms-slot="1">שיחת היכרות</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">בדיקת מוצר</span>
+        <span class="bg-route__label" data-cms-slot="1">בדיקת מוצר</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">הצעת מחיר</span>
+        <span class="bg-route__label" data-cms-slot="1">הצעת מחיר</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">בדיקת מסמכים</span>
+        <span class="bg-route__label" data-cms-slot="1">בדיקת מסמכים</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">רגולציה ואישורים</span>
+        <span class="bg-route__label" data-cms-slot="1">רגולציה ואישורים</span>
       </div>
       <div class="bg-route__step bg-route__step--done">
         <span class="bg-route__line"></span>
         <span class="bg-route__node"><svg class="icon" width="20" height="20"><use href="#i-check"></use></svg></span>
-        <span class="bg-route__label">יבוא / ייצור</span>
+        <span class="bg-route__label" data-cms-slot="1">יבוא / ייצור</span>
       </div>
       <div class="bg-route__step bg-route__step--active">
         <span class="bg-route__line"></span>
         <span class="bg-route__node">8</span>
-        <span class="bg-route__label">אספקה</span>
+        <span class="bg-route__label" data-cms-slot="1">אספקה</span>
       </div>
     </div>
   </div>
@@ -431,15 +427,15 @@
 <!-- ============================================================
      Block 6 — Catalogue
      ============================================================ -->
-<section class="section" id="products">
+<section data-cms-section="products" data-cms-section-label="מהקטלוג (הכותרת בלבד — המוצרים מנוהלים במסך המוצרים)" class="section" id="products">
   <div class="shell">
     <div class="products__head">
       <div>
-        <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span>מוצרים נבחרים</span>
-        <h2 style="margin-bottom:0">מהקטלוג שלנו</h2>
+        <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span><span data-cms="products.eyebrow" data-cms-label="שורה קטנה מעל הכותרת">מוצרים נבחרים</span></span>
+        <h2 style="margin-bottom:0" data-cms="products.title" data-cms-label="כותרת">מהקטלוג שלנו</h2>
       </div>
       <a class="bg-btn bg-btn--ghost" href="products/">
-        <span>לכל המוצרים</span>
+        <span data-cms="products.button" data-cms-label="כפתור">לכל המוצרים</span>
         <svg class="icon" width="19" height="19"><use href="#i-arrow-left"></use></svg>
       </a>
     </div>
@@ -526,37 +522,37 @@
 <!-- ============================================================
      Block 7 — Working approach
      ============================================================ -->
-<section class="section" id="approach">
+<section data-cms-section="approach" data-cms-section-label="המוצר הוא רק ההתחלה" class="section" id="approach">
   <div class="shell approach__grid">
     <div class="approach__title">
-      <h2>המוצר הוא רק ההתחלה.</h2>
-      <p>אנחנו בודקים את כל הפרטים החשובים.</p>
+      <h2 data-cms="approach.title" data-cms-label="כותרת">המוצר הוא רק ההתחלה.</h2>
+      <p data-cms="approach.sub" data-cms-label="כותרת משנה">אנחנו בודקים את כל הפרטים החשובים.</p>
     </div>
 
-    <div class="checklist">
+    <div class="checklist" data-cms="approach.items" data-cms-label="רשימת הבדיקות" data-cms-type="lines" data-cms-fixed>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-file-check"></use></svg></span>
-        <span>בדיקת מסמכי מוצר</span>
+        <span data-cms-slot="1">בדיקת מסמכי מוצר</span>
       </div>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-shield-check"></use></svg></span>
-        <span>אישורי משרד הבריאות</span>
+        <span data-cms-slot="1">אישורי משרד הבריאות</span>
       </div>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-file-pen-line"></use></svg></span>
-        <span>סימון ותווית בעברית</span>
+        <span data-cms-slot="1">סימון ותווית בעברית</span>
       </div>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-stamp"></use></svg></span>
-        <span>בדיקת כשרות לפי הצורך</span>
+        <span data-cms-slot="1">בדיקת כשרות לפי הצורך</span>
       </div>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-microscope"></use></svg></span>
-        <span>בדיקת רכיבים</span>
+        <span data-cms-slot="1">בדיקת רכיבים</span>
       </div>
       <div class="checklist__item">
         <span class="checklist__icon"><svg class="icon" width="20" height="20"><use href="#i-truck"></use></svg></span>
-        <span>תיאום אספקה</span>
+        <span data-cms-slot="1">תיאום אספקה</span>
       </div>
     </div>
   </div>
@@ -565,46 +561,46 @@
 <!-- ============================================================
      Block 8 — Why BioGreen
      ============================================================ -->
-<section class="section why" id="why">
+<section data-cms-section="why" data-cms-section-label="למה לבחור בנו" class="section why" id="why">
   <img class="why__bg" src="assets/img/bg-dark-botanical.jpg" alt="" aria-hidden="true" loading="lazy">
   <div class="shell">
     <div class="why__head">
-      <span class="bg-eyebrow why__eyebrow"><span class="bg-eyebrow__dot"></span>למה לבחור בביו-גרין</span>
-      <h2>30 שנות ניסיון ביבוא מוצרים טבעיים</h2>
+      <span class="bg-eyebrow why__eyebrow"><span class="bg-eyebrow__dot"></span><span data-cms="why.eyebrow" data-cms-label="שורה קטנה מעל הכותרת">למה לבחור בביו-גרין</span></span>
+      <h2 data-cms="why.title" data-cms-label="כותרת">30 שנות ניסיון ביבוא מוצרים טבעיים</h2>
     </div>
 
-    <div class="why__grid">
+    <div class="why__grid" data-cms="why.items" data-cms-label="היתרונות" data-cms-type="lines" data-cms-fixed>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-building-2"></use></svg></span>
-        <span>היכרות מעמיקה עם השוק הישראלי</span>
+        <span data-cms-slot="1">היכרות מעמיקה עם השוק הישראלי</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-map-pin"></use></svg></span>
-        <span>ניסיון בעבודה מול ספקים בינלאומיים</span>
+        <span data-cms-slot="1">ניסיון בעבודה מול ספקים בינלאומיים</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-stamp"></use></svg></span>
-        <span>ידע והבנה בתחום הרגולציה</span>
+        <span data-cms-slot="1">ידע והבנה בתחום הרגולציה</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-shield-check"></use></svg></span>
-        <span>היכרות עם דרישות משרד הבריאות</span>
+        <span data-cms-slot="1">היכרות עם דרישות משרד הבריאות</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-microscope"></use></svg></span>
-        <span>בדיקה יסודית לפני שמתקדמים</span>
+        <span data-cms-slot="1">בדיקה יסודית לפני שמתקדמים</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-handshake"></use></svg></span>
-        <span>ליווי מקצועי לאורך התהליך</span>
+        <span data-cms-slot="1">ליווי מקצועי לאורך התהליך</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg></span>
-        <span>מענה מותאם לצרכים של כל עסק</span>
+        <span data-cms-slot="1">מענה מותאם לצרכים של כל עסק</span>
       </div>
       <div class="why__item">
         <span class="why__icon"><svg class="icon" width="22" height="22"><use href="#i-droplets"></use></svg></span>
-        <span>מומחיות במוצרים ליפוזומליים ובספיגה מתקדמת</span>
+        <span data-cms-slot="1">מומחיות במוצרים ליפוזומליים ובספיגה מתקדמת</span>
       </div>
     </div>
   </div>
@@ -613,32 +609,32 @@
 <!-- ============================================================
      Block 9 — FAQ
      ============================================================ -->
-<section class="section bg-lab-grid" id="faq">
+<section data-cms-section="faq" data-cms-section-label="שאלות נפוצות" class="section bg-lab-grid" id="faq">
   <div class="shell" style="max-width:920px">
     <div class="section__head--center">
-      <span class="bg-eyebrow bg-eyebrow--reg"><span class="bg-eyebrow__dot"></span>שאלות נפוצות</span>
-      <h2>מה שואלים אותנו לפני יבוא</h2>
+      <span class="bg-eyebrow bg-eyebrow--reg"><span class="bg-eyebrow__dot"></span><span data-cms="faq.eyebrow" data-cms-label="שורה קטנה מעל הכותרת">שאלות נפוצות</span></span>
+      <h2 data-cms="faq.title" data-cms-label="כותרת">מה שואלים אותנו לפני יבוא</h2>
     </div>
 
-    <div class="faq__list">
+    <div class="faq__list" data-cms="faq.items" data-cms-label="שאלות ותשובות" data-cms-type="pairs">
       <div class="bg-faq bg-faq--open">
         <button class="bg-faq__q" aria-expanded="true" aria-controls="faq-a1">
-          <span>איך מייבאים תוסף תזונה לישראל?</span>
+          <span data-cms-slot="1">איך מייבאים תוסף תזונה לישראל?</span>
           <span class="bg-faq__icon"><svg class="icon" width="22" height="22"><use href="#i-chevron-down"></use></svg></span>
         </button>
         <div class="bg-faq__a" id="faq-a1">
-          <p>תהליך היבוא כולל בדיקת המוצר והמסמכים, התאמה לדרישות בישראל, רישום ואישורים במידת הצורך,
+          <p data-cms-slot="2">תהליך היבוא כולל בדיקת המוצר והמסמכים, התאמה לדרישות בישראל, רישום ואישורים במידת הצורך,
           תיאום מול הספק וניהול תהליך היבוא והאספקה. ביו־גרין מלווה את התהליך מתחילתו ועד סופו.</p>
         </div>
       </div>
 
       <div class="bg-faq">
         <button class="bg-faq__q" aria-expanded="false" aria-controls="faq-a2">
-          <span>כמה זמן לוקח לייבא תוסף תזונה לישראל?</span>
+          <span data-cms-slot="1">כמה זמן לוקח לייבא תוסף תזונה לישראל?</span>
           <span class="bg-faq__icon"><svg class="icon" width="22" height="22"><use href="#i-chevron-down"></use></svg></span>
         </button>
         <div class="bg-faq__a" id="faq-a2" hidden>
-          <p>משך הזמן תלוי בסוג המוצר ובמסמכים הקיימים. לאחר בדיקת היתכנות ראשונית נוכל לתת לכם הערכת
+          <p data-cms-slot="2">משך הזמן תלוי בסוג המוצר ובמסמכים הקיימים. לאחר בדיקת היתכנות ראשונית נוכל לתת לכם הערכת
           זמנים מסודרת לכל שלבי היבוא והרגולציה. אנחנו יבואן נאות, כך שתהליך הרישום לאחר אישור המסמכים
           להגשה הוא בהצהרה ומיידי.</p>
         </div>
@@ -646,33 +642,33 @@
 
       <div class="bg-faq">
         <button class="bg-faq__q" aria-expanded="false" aria-controls="faq-a3">
-          <span>האם אתם מטפלים גם באישורי משרד הבריאות?</span>
+          <span data-cms-slot="1">האם אתם מטפלים גם באישורי משרד הבריאות?</span>
           <span class="bg-faq__icon"><svg class="icon" width="22" height="22"><use href="#i-chevron-down"></use></svg></span>
         </button>
         <div class="bg-faq__a" id="faq-a3" hidden>
-          <p>כן. אנו מלווים את תהליך הרישום והטיפול בדרישות הרלוונטיות מול משרד הבריאות, בהתאם לסוג
+          <p data-cms-slot="2">כן. אנו מלווים את תהליך הרישום והטיפול בדרישות הרלוונטיות מול משרד הבריאות, בהתאם לסוג
           המוצר ולדרישות החלות עליו.</p>
         </div>
       </div>
 
       <div class="bg-faq">
         <button class="bg-faq__q" aria-expanded="false" aria-controls="faq-a4">
-          <span>מה צריך לבדוק לפני יבוא תוסף תזונה?</span>
+          <span data-cms-slot="1">מה צריך לבדוק לפני יבוא תוסף תזונה?</span>
           <span class="bg-faq__icon"><svg class="icon" width="22" height="22"><use href="#i-chevron-down"></use></svg></span>
         </button>
         <div class="bg-faq__a" id="faq-a4" hidden>
-          <p>חשוב לבדוק את הרכב המוצר, מסמכי המוצר, הסימון והתווית בעברית, דרישות משרד הבריאות, כשרות
+          <p data-cms-slot="2">חשוב לבדוק את הרכב המוצר, מסמכי המוצר, הסימון והתווית בעברית, דרישות משרד הבריאות, כשרות
           במידת הצורך והיתכנות היבוא. בדיקה מוקדמת מאפשרת לזהות דרישות או בעיות לפני שמתקדמים בתהליך.</p>
         </div>
       </div>
 
       <div class="bg-faq">
         <button class="bg-faq__q" aria-expanded="false" aria-controls="faq-a5">
-          <span>איך בוחרים ספק תוספי תזונה לעסק?</span>
+          <span data-cms-slot="1">איך בוחרים ספק תוספי תזונה לעסק?</span>
           <span class="bg-faq__icon"><svg class="icon" width="22" height="22"><use href="#i-chevron-down"></use></svg></span>
         </button>
         <div class="bg-faq__a" id="faq-a5" hidden>
-          <p>בחירת ספק מתחילה בבדיקת איכות המוצר, אמינות הספק, המסמכים, התאמת המוצר לדרישות השוק
+          <p data-cms-slot="2">בחירת ספק מתחילה בבדיקת איכות המוצר, אמינות הספק, המסמכים, התאמת המוצר לדרישות השוק
           הישראלי ותנאי האספקה. ביו־גרין מסייעת באיתור ובחינת ספקים בהתאם לצורכי העסק.</p>
         </div>
       </div>
@@ -680,7 +676,7 @@
 
     <div class="faq__foot">
       <a class="bg-btn bg-btn--secondary" href="knowledge/">
-        <span>למרכז ידע מקצועי</span>
+        <span data-cms="faq.button" data-cms-label="כפתור">למרכז ידע מקצועי</span>
         <svg class="icon" width="19" height="19"><use href="#i-arrow-left"></use></svg>
       </a>
     </div>
@@ -690,18 +686,18 @@
 <!-- ============================================================
      Block 10 — Final CTA
      ============================================================ -->
-<section class="final-cta" id="contact-cta">
+<section data-cms-section="cta" data-cms-section-label="קריאה לפעולה בסוף העמוד" class="final-cta" id="contact-cta">
   <div class="shell final-cta__row">
     <div>
-      <h2>יש מוצר שאתם רוצים לייבא?</h2>
-      <p>שלחו פרטים ונחזור אליכם עם בדיקת היתכנות והצעת מחיר</p>
+      <h2 data-cms="cta.title" data-cms-label="כותרת">יש מוצר שאתם רוצים לייבא?</h2>
+      <p data-cms="cta.text" data-cms-label="טקסט">שלחו פרטים ונחזור אליכם עם בדיקת היתכנות והצעת מחיר</p>
     </div>
     <div class="btn-row">
       <button class="bg-btn bg-btn--primary bg-btn--lg" data-quote data-intent="import">
-        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שלחו לנו את פרטי המוצר</span>
+        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span data-cms="cta.button" data-cms-label="כפתור ראשי">שלחו לנו את פרטי המוצר</span>
       </button>
       <a class="bg-btn bg-btn--whatsapp bg-btn--lg" data-wa href="#">
-        <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו בוואטסאפ</span>
+        <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span data-cms="cta.whatsapp" data-cms-label="כפתור וואטסאפ">דברו איתנו בוואטסאפ</span>
       </a>
     </div>
   </div>

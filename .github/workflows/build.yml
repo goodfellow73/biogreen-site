@@ -106,7 +106,12 @@ jobs:
       # pages, and it only edits the asset links.
       - name: Generate pages from data
         if: steps.debounce.outputs.skip != 'true'
+        # cms.py first: the page texts edited in WordPress go into the HTML
+        # before sync-shell copies index.html's shell out, and the field list
+        # the plugin shows is then read back from the result.
         run: |
+          python tools/cms.py apply
+          python tools/cms.py extract
           python tools/sync-shell.py
           python tools/build-products.py
           python tools/build-product-pages.py

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.4.2
+ * Version:      1.5.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,11 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.5.0  "תוכן העמודים": the site's page texts, edited here. The field
+ *        list is read from data/cms-schema.json in the repository, so a
+ *        text marked editable in the HTML appears without a plugin
+ *        update. Saving stores the wording and triggers a build, which
+ *        reads it from /wp-json/biogreen/v1/content. Home page first.
  * 1.4.2  The opening-paragraph field no longer says an empty value means no
  *        product page: every product now gets one, a basic page built
  *        from its catalogue data until page copy is written.
@@ -56,7 +61,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.4.2';
+const BIOGREEN_VERSION = '1.5.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -707,3 +712,245 @@ add_action( 'admin_menu', function () {
 		<?php
 	} );
 } );
+
+/* =========================================================================
+   Page texts (1.5.0)
+
+   The editable texts of each page are marked in the site's HTML; the build
+   lists them in data/cms-schema.json. This screen reads that list from
+   GitHub — so a newly marked text appears here without a plugin update —
+   shows one field per text, and stores the client's wording. The build reads
+   it back from /wp-json/biogreen/v1/content and writes it into the pages.
+   ========================================================================= */
+
+const BIOGREEN_CMS_OPTION = 'biogreen_content';
+
+/**
+ * The field list, from the repository. Cached for ten minutes; ?refresh=1 on
+ * the screen fetches it again at once.
+ */
+function biogreen_cms_schema( $refresh = false ) {
+	if ( ! $refresh ) {
+		$cached = get_transient( 'biogreen_cms_schema' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+	}
+
+	$repo  = get_option( 'biogreen_repo' );
+	$token = get_option( 'biogreen_token' );
+	if ( ! $repo || ! $token ) {
+		return new WP_Error( 'biogreen_cms', 'חסרים ריפו או Access Token בהגדרות (BioGreen).' );
+	}
+
+	$res = wp_remote_get( "https://api.github.com/repos/{$repo}/contents/data/cms-schema.json", [
+		'headers' => [
+			'Accept'        => 'application/vnd.github.raw+json',
+			'Authorization' => 'Bearer ' . $token,
+			'User-Agent'    => 'biogreen-wp',
+		],
+		'timeout' => 15,
+	] );
+	if ( is_wp_error( $res ) ) {
+		return new WP_Error( 'biogreen_cms', 'לא ניתן להגיע ל-GitHub: ' . $res->get_error_message() );
+	}
+	$code = (int) wp_remote_retrieve_response_code( $res );
+	if ( $code !== 200 ) {
+		return new WP_Error( 'biogreen_cms', "לא ניתן לקרוא את רשימת השדות מ-GitHub (שגיאה {$code})." );
+	}
+	$schema = json_decode( wp_remote_retrieve_body( $res ), true );
+	if ( ! is_array( $schema ) || empty( $schema['pages'] ) ) {
+		return new WP_Error( 'biogreen_cms', 'רשימת השדות שהתקבלה מ-GitHub אינה תקינה.' );
+	}
+
+	set_transient( 'biogreen_cms_schema', $schema, 10 * MINUTE_IN_SECONDS );
+	return $schema;
+}
+
+/** The fields of one page, flattened: key => field. */
+function biogreen_cms_page_fields( $schema, $page_id ) {
+	foreach ( $schema['pages'] as $page ) {
+		if ( $page['id'] !== $page_id ) {
+			continue;
+		}
+		$out = [];
+		foreach ( $page['sections'] as $section ) {
+			foreach ( $section['fields'] as $field ) {
+				$out[ $field['key'] ] = $field;
+			}
+		}
+		return $out;
+	}
+	return [];
+}
+
+// The build reads every page's texts from here. Public: they are what the
+// public site shows anyway.
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'biogreen/v1', '/content', [
+		'methods'             => 'GET',
+		'permission_callback' => '__return_true',
+		'callback'            => function () {
+			$content = get_option( BIOGREEN_CMS_OPTION, [] );
+			// An object even when empty: the build expects pages by id.
+			return rest_ensure_response( (object) ( is_array( $content ) ? $content : [] ) );
+		},
+	] );
+} );
+
+add_action( 'admin_menu', function () {
+	add_menu_page( 'תוכן העמודים', 'תוכן העמודים', 'edit_pages', 'biogreen-content',
+		'biogreen_cms_render', 'dashicons-edit-page', 21 );
+} );
+
+add_action( 'admin_post_biogreen_cms_save', function () {
+	if ( ! current_user_can( 'edit_pages' ) ) {
+		wp_die( 'אין הרשאה.' );
+	}
+	check_admin_referer( 'biogreen_cms_save' );
+
+	$page_id = sanitize_key( wp_unslash( $_POST['cms_page'] ?? '' ) );
+	$schema  = biogreen_cms_schema();
+	$back    = admin_url( 'admin.php?page=biogreen-content&cms_page=' . rawurlencode( $page_id ) );
+	if ( is_wp_error( $schema ) ) {
+		wp_safe_redirect( add_query_arg( 'cms_error', rawurlencode( $schema->get_error_message() ), $back ) );
+		exit;
+	}
+
+	$fields = biogreen_cms_page_fields( $schema, $page_id );
+	$posted = isset( $_POST['cms'] ) && is_array( $_POST['cms'] ) ? wp_unslash( $_POST['cms'] ) : [];
+
+	$content = get_option( BIOGREEN_CMS_OPTION, [] );
+	if ( ! is_array( $content ) ) {
+		$content = [];
+	}
+	$values = [];
+	// Only keys the page actually has: anything else in the request is ignored.
+	foreach ( $fields as $key => $field ) {
+		if ( ! isset( $posted[ $key ] ) ) {
+			continue;
+		}
+		$values[ $key ] = $field['type'] === 'text'
+			? sanitize_text_field( $posted[ $key ] )
+			: sanitize_textarea_field( $posted[ $key ] );
+	}
+	$content[ $page_id ] = $values;
+	update_option( BIOGREEN_CMS_OPTION, $content, false );
+
+	$build = biogreen_trigger_build();
+	wp_safe_redirect( add_query_arg( [ 'saved' => 1, 'build_ok' => $build['ok'] ? 1 : 0 ], $back ) );
+	exit;
+} );
+
+function biogreen_cms_render() {
+	if ( ! current_user_can( 'edit_pages' ) ) {
+		return;
+	}
+	$schema = biogreen_cms_schema( ! empty( $_GET['refresh'] ) );
+	?>
+	<div class="wrap bg-cms">
+		<h1>תוכן העמודים</h1>
+		<style>
+			.bg-cms { direction: rtl; }
+			.bg-cms .postbox { max-width: 980px; margin-top: 18px; }
+			.bg-cms .postbox h2 { font-size: 15px; padding: 12px 16px; margin: 0; border-bottom: 1px solid #f0f0f1; }
+			.bg-cms .form-table th { width: 220px; text-align: right; padding-right: 16px; }
+			.bg-cms input[type="text"], .bg-cms textarea {
+				width: 100%; direction: rtl; text-align: right; font-family: inherit;
+				font-size: 14px; line-height: 1.6;
+			}
+			.bg-cms .description { direction: rtl; text-align: right; }
+			.bg-cms .nav-tab-wrapper { margin-bottom: 4px; }
+			.bg-cms .bg-cms__bar { display: flex; gap: 12px; align-items: center; margin-top: 18px; }
+		</style>
+		<?php
+		if ( ! empty( $_GET['saved'] ) ) {
+			$last = get_option( 'biogreen_last_build' );
+			if ( ! empty( $_GET['build_ok'] ) ) {
+				echo '<div class="notice notice-success"><p>הטקסטים נשמרו. האתר יתעדכן תוך כשתי דקות.</p></div>';
+			} else {
+				echo '<div class="notice notice-error"><p>הטקסטים נשמרו, אבל הבנייה לא הופעלה: '
+					. esc_html( $last['message'] ?? '' ) . '</p></div>';
+			}
+		}
+		if ( ! empty( $_GET['cms_error'] ) ) {
+			echo '<div class="notice notice-error"><p>' . esc_html( wp_unslash( $_GET['cms_error'] ) ) . '</p></div>';
+		}
+		if ( is_wp_error( $schema ) ) {
+			echo '<div class="notice notice-error"><p>' . esc_html( $schema->get_error_message() ) . '</p></div></div>';
+			return;
+		}
+
+		$pages   = $schema['pages'];
+		$page_id = sanitize_key( wp_unslash( $_GET['cms_page'] ?? $pages[0]['id'] ) );
+		$page    = null;
+		foreach ( $pages as $p ) {
+			if ( $p['id'] === $page_id ) {
+				$page = $p;
+			}
+		}
+		if ( ! $page ) {
+			$page    = $pages[0];
+			$page_id = $page['id'];
+		}
+
+		$stored = get_option( BIOGREEN_CMS_OPTION, [] );
+		$stored = is_array( $stored ) && isset( $stored[ $page_id ] ) && is_array( $stored[ $page_id ] )
+			? $stored[ $page_id ] : [];
+
+		echo '<nav class="nav-tab-wrapper">';
+		foreach ( $pages as $p ) {
+			printf( '<a class="nav-tab%s" href="%s">%s</a>',
+				$p['id'] === $page_id ? ' nav-tab-active' : '',
+				esc_url( admin_url( 'admin.php?page=biogreen-content&cms_page=' . rawurlencode( $p['id'] ) ) ),
+				esc_html( $p['label'] ?: $p['id'] ) );
+		}
+		echo '</nav>';
+		?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="biogreen_cms_save">
+			<input type="hidden" name="cms_page" value="<?php echo esc_attr( $page_id ); ?>">
+			<?php wp_nonce_field( 'biogreen_cms_save' ); ?>
+
+			<?php foreach ( $page['sections'] as $section ) : ?>
+				<div class="postbox">
+					<h2><?php echo esc_html( $section['label'] ); ?></h2>
+					<table class="form-table"><tbody>
+					<?php foreach ( $section['fields'] as $field ) :
+						$key   = $field['key'];
+						$id    = 'cms-' . preg_replace( '/[^a-z0-9_-]/i', '-', $key );
+						$name  = 'cms[' . $key . ']';
+						$value = array_key_exists( $key, $stored ) && $stored[ $key ] !== '' ? $stored[ $key ] : $field['value'];
+						$rows  = [ 'long' => 3, 'para' => 3, 'pairs' => 12 ][ $field['type'] ] ?? 0;
+						if ( $field['type'] === 'lines' ) {
+							$rows = max( 4, substr_count( $value, "\n" ) + 2 );
+						}
+						?>
+						<tr>
+							<th><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
+							<td>
+								<?php if ( $field['type'] === 'text' ) : ?>
+									<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
+										value="<?php echo esc_attr( $value ); ?>">
+								<?php else : ?>
+									<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
+										rows="<?php echo (int) $rows; ?>"><?php echo esc_textarea( $value ); ?></textarea>
+								<?php endif; ?>
+								<?php if ( ! empty( $field['help'] ) ) : ?>
+									<p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody></table>
+				</div>
+			<?php endforeach; ?>
+
+			<div class="bg-cms__bar">
+				<?php submit_button( 'שמירה ופרסום', 'primary', 'submit', false ); ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=biogreen-content&refresh=1&cms_page=' . rawurlencode( $page_id ) ) ); ?>">רענון רשימת השדות</a>
+			</div>
+		</form>
+	</div>
+	<?php
+}
