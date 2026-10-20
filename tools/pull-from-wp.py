@@ -98,14 +98,31 @@ def fetch(req, timeout):
                 raise
 
 
+def fresh(url):
+    """`url` made uncacheable.
+
+    Hostinger runs LiteSpeed Cache, which kept the page-texts endpoint for a
+    week (Cache-Control: max-age=604800) and is not told when those texts are
+    saved — so every build after the first was handed the same old copy and
+    the client's edits never reached the site. A query string unique to this
+    run is a different cache key, so the answer always comes from WordPress
+    itself; the header asks any cache in between to revalidate as well.
+    """
+    return f'{url}{"&" if "?" in url else "?"}_build={int(time.time())}'
+
+
+NO_CACHE = {'Accept': 'application/json', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+
+
 def api(path, **params):
     if not WP_URL:
         die('WP_URL is not set.')
     url = f'{WP_URL}/wp-json/wp/v2/{path}'
     if params:
         url += '?' + urllib.parse.urlencode(params)
+    url = fresh(url)
 
-    req = urllib.request.Request(url, headers={'Accept': 'application/json'})
+    req = urllib.request.Request(url, headers=dict(NO_CACHE))
     if WP_USER and WP_PASS:
         token = base64.b64encode(f'{WP_USER}:{WP_PASS}'.encode()).decode()
         req.add_header('Authorization', 'Basic ' + token)
@@ -535,9 +552,8 @@ def pull_content():
     A plugin older than 1.5.0 has no such endpoint; the build then keeps the
     texts already in the HTML instead of failing over a feature not in use.
     """
-    url = f'{WP_URL}/wp-json/biogreen/v1/content'
-    req = urllib.request.Request(url, headers={'Accept': 'application/json',
-                                               'User-Agent': 'biogreen-build'})
+    url = fresh(f'{WP_URL}/wp-json/biogreen/v1/content')
+    req = urllib.request.Request(url, headers=dict(NO_CACHE, **{'User-Agent': 'biogreen-build'}))
     try:
         data = json.loads(fetch(req, timeout=30).decode('utf-8'))
     except urllib.error.HTTPError as e:
