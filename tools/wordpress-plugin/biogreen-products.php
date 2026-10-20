@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.5.0
+ * Version:      1.5.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.5.1  "תוכן העמודים" opens on a list of pages, each edited on its own
+ *        screen. The page-texts endpoint is no longer cached: Hostinger's
+ *        LiteSpeed kept it for a week, so saved edits never reached the
+ *        build; saving also purges it. Adds the import & regulation page.
  * 1.5.0  "תוכן העמודים": the site's page texts, edited here. The field
  *        list is read from data/cms-schema.json in the repository, so a
  *        text marked editable in the HTML appears without a plugin
@@ -61,7 +65,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.5.0';
+const BIOGREEN_VERSION = '1.5.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -791,9 +795,15 @@ add_action( 'rest_api_init', function () {
 		'methods'             => 'GET',
 		'permission_callback' => '__return_true',
 		'callback'            => function () {
-			$content = get_option( BIOGREEN_CMS_OPTION, [] );
+			// Never cached. Hostinger's LiteSpeed kept this for a week and
+			// nothing purged it on save, so the build kept reading the first
+			// copy and the client's edits never reached the site.
+			do_action( 'litespeed_control_set_nocache', 'BioGreen page texts change on every save' );
+			$content  = get_option( BIOGREEN_CMS_OPTION, [] );
 			// An object even when empty: the build expects pages by id.
-			return rest_ensure_response( (object) ( is_array( $content ) ? $content : [] ) );
+			$response = rest_ensure_response( (object) ( is_array( $content ) ? $content : [] ) );
+			$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+			return $response;
 		},
 	] );
 } );
@@ -837,6 +847,15 @@ add_action( 'admin_post_biogreen_cms_save', function () {
 	$content[ $page_id ] = $values;
 	update_option( BIOGREEN_CMS_OPTION, $content, false );
 
+	// When each page was last saved, for the list of pages.
+	$saved_at             = get_option( 'biogreen_content_saved', [] );
+	$saved_at             = is_array( $saved_at ) ? $saved_at : [];
+	$saved_at[ $page_id ] = time();
+	update_option( 'biogreen_content_saved', $saved_at, false );
+
+	// And out of any cached copy, in case one was stored before 1.5.1.
+	do_action( 'litespeed_purge_url', rest_url( 'biogreen/v1/content' ) );
+
 	$build = biogreen_trigger_build();
 	wp_safe_redirect( add_query_arg( [ 'saved' => 1, 'build_ok' => $build['ok'] ? 1 : 0 ], $back ) );
 	exit;
@@ -862,6 +881,11 @@ function biogreen_cms_render() {
 			.bg-cms .description { direction: rtl; text-align: right; }
 			.bg-cms .nav-tab-wrapper { margin-bottom: 4px; }
 			.bg-cms .bg-cms__bar { display: flex; gap: 12px; align-items: center; margin-top: 18px; }
+			.bg-cms .bg-cms__back { margin: 14px 0 0; }
+			.bg-cms .bg-cms__back a { text-decoration: none; }
+			.bg-cms .bg-cms__page { font-size: 20px; margin: 4px 0 0; }
+			.bg-cms .bg-cms__list { max-width: 980px; margin-top: 12px; }
+			.bg-cms .bg-cms__list th, .bg-cms .bg-cms__list td { text-align: right; vertical-align: middle; }
 		</style>
 		<?php
 		if ( ! empty( $_GET['saved'] ) ) {
@@ -882,30 +906,28 @@ function biogreen_cms_render() {
 		}
 
 		$pages   = $schema['pages'];
-		$page_id = sanitize_key( wp_unslash( $_GET['cms_page'] ?? $pages[0]['id'] ) );
+		$page_id = sanitize_key( wp_unslash( $_GET['cms_page'] ?? '' ) );
 		$page    = null;
 		foreach ( $pages as $p ) {
 			if ( $p['id'] === $page_id ) {
 				$page = $p;
 			}
 		}
+
+		// No page chosen: the list of pages to pick from.
 		if ( ! $page ) {
-			$page    = $pages[0];
-			$page_id = $page['id'];
+			biogreen_cms_render_list( $pages );
+			echo '</div>';
+			return;
 		}
 
 		$stored = get_option( BIOGREEN_CMS_OPTION, [] );
 		$stored = is_array( $stored ) && isset( $stored[ $page_id ] ) && is_array( $stored[ $page_id ] )
 			? $stored[ $page_id ] : [];
 
-		echo '<nav class="nav-tab-wrapper">';
-		foreach ( $pages as $p ) {
-			printf( '<a class="nav-tab%s" href="%s">%s</a>',
-				$p['id'] === $page_id ? ' nav-tab-active' : '',
-				esc_url( admin_url( 'admin.php?page=biogreen-content&cms_page=' . rawurlencode( $p['id'] ) ) ),
-				esc_html( $p['label'] ?: $p['id'] ) );
-		}
-		echo '</nav>';
+		printf( '<p class="bg-cms__back"><a href="%s">→ כל העמודים</a></p><h2 class="bg-cms__page">%s</h2>',
+			esc_url( admin_url( 'admin.php?page=biogreen-content' ) ),
+			esc_html( $page['label'] ?: $page['id'] ) );
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="biogreen_cms_save">
@@ -952,5 +974,37 @@ function biogreen_cms_render() {
 			</div>
 		</form>
 	</div>
+	<?php
+}
+
+/** The page list "תוכן העמודים" opens on. */
+function biogreen_cms_render_list( $pages ) {
+	$stored   = get_option( BIOGREEN_CMS_OPTION, [] );
+	$saved_at = get_option( 'biogreen_content_saved', [] );
+	?>
+	<p>בחרו עמוד לעריכה. כל שמירה מתפרסמת באתר תוך כשתי דקות.</p>
+	<table class="widefat striped bg-cms__list">
+		<thead><tr><th>עמוד</th><th>טקסטים לעריכה</th><th>נשמר לאחרונה</th><th></th></tr></thead>
+		<tbody>
+		<?php foreach ( $pages as $p ) :
+			$count = 0;
+			foreach ( $p['sections'] as $section ) {
+				$count += count( $section['fields'] );
+			}
+			$when = is_array( $saved_at ) && ! empty( $saved_at[ $p['id'] ] )
+				? wp_date( 'j.n.Y, H:i', (int) $saved_at[ $p['id'] ] )
+				: ( is_array( $stored ) && ! empty( $stored[ $p['id'] ] ) ? 'נשמר' : 'עדיין לא נערך' );
+			$url  = admin_url( 'admin.php?page=biogreen-content&cms_page=' . rawurlencode( $p['id'] ) );
+			?>
+			<tr>
+				<td><strong><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $p['label'] ?: $p['id'] ); ?></a></strong></td>
+				<td><?php echo (int) $count; ?></td>
+				<td><?php echo esc_html( $when ); ?></td>
+				<td style="text-align:left"><a class="button" href="<?php echo esc_url( $url ); ?>">עריכה</a></td>
+			</tr>
+		<?php endforeach; ?>
+		</tbody>
+	</table>
+	<p class="bg-cms__bar"><a href="<?php echo esc_url( admin_url( 'admin.php?page=biogreen-content&refresh=1' ) ); ?>">רענון רשימת העמודים</a></p>
 	<?php
 }
