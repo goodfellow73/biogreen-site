@@ -1209,3 +1209,77 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 @media (max-width: 620px) {
   .fit-grid, .checklist--wide { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Glossary (/knowledge/glossary/)
+   ========================================================================== */
+
+/* The topic tabs park under the header like the catalogue's filters. */
+.glossary__filters {
+  position: sticky; top: 76px; z-index: 10;
+  background: var(--surface-page); padding-top: 12px;
+}
+.glossary__filters .bg-tabs { overflow-x: auto; scrollbar-width: none; }
+.glossary__filters .bg-tabs::-webkit-scrollbar { display: none; }
+.glossary__filters .bg-tab { white-space: nowrap; }
+
+/* No buttons under the intro here, so no room left for them. */
+.glossary-hero .page-hero__sub { margin-bottom: 0; }
+
+.glossary-topic { padding-block: 44px 8px; }
+.glossary-topic:last-child { padding-bottom: 80px; }
+.glossary-topic__title { margin-bottom: 22px; }
+
+/* One colour per topic, as on the knowledge page. */
+.glossary-topic--import     { --term-bg: var(--color-sky);        --term-border: var(--border-reg); }
+.glossary-topic--quality    { --term-bg: var(--color-sand);       --term-border: #E0D2B4; }
+.glossary-topic--absorption { --term-bg: var(--color-green-tint); --term-border: #CBE3D5; }
+
+.terms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.term {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--term-bg); border: 1px solid var(--term-border);
+  border-radius: var(--radius-card); padding: 22px 22px 20px;
+}
+/* scroll-margin clears the sticky header and tab bar when a link lands on
+   the term's anchor. */
+.term__name {
+  margin: 0; font-size: 20px; line-height: 1.3; color: var(--color-green-deep);
+  scroll-margin-top: 150px;
+}
+.term__def { margin: 0; line-height: 1.6; color: var(--text-body); }
+/* Green-deep, not the link green: the lighter green falls under 4.5:1 on
+   the sand cards. */
+.term__more { margin: auto 0 0; padding-top: 4px; }
+.term__more a {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--color-green-deep); font-weight: var(--fw-semibold);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.term:has(.term__name:target) { outline: 2px solid var(--color-green); outline-offset: 3px; }
+
+@media (max-width: 1080px) {
+  .terms { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .terms { grid-template-columns: 1fr; }
+  .glossary-topic { padding-top: 32px; }
+
+  /* Every tab in view at once, as pills, like the product page's tabs.
+     Two rows of pills would hold a third of a phone screen, so the bar
+     scrolls away instead of sticking. */
+  .glossary__filters { position: static; }
+  .glossary__filters .bg-tabs {
+    flex-wrap: wrap; overflow-x: visible; gap: 8px;
+    border-bottom: none; padding-bottom: 12px;
+  }
+  .glossary__filters .bg-tab {
+    white-space: normal; font-size: 14px; padding: 8px 13px;
+    border: 1px solid var(--border-card); border-radius: 999px;
+    margin-bottom: 0; background: #fff;
+  }
+  .glossary__filters .bg-tab--active {
+    color: #fff; background: var(--color-green); border-color: var(--color-green);
+  }
+}

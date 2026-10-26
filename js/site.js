@@ -303,6 +303,38 @@ const FORMS = {
     });
   }
 
+  /* ---------- glossary topic filter ---------- */
+
+  // Same idea for the glossary's topics: every term stays in the markup.
+  const topicTabs = document.querySelectorAll('.glossary__filters .bg-tab');
+
+  if (topicTabs.length) {
+    const topics = document.querySelectorAll('.glossary-topic[data-topic]');
+    const bar = document.querySelector('.glossary__filters');
+
+    topicTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const want = tab.getAttribute('data-filter');
+
+        topicTabs.forEach(function (t) {
+          const on = t === tab;
+          t.classList.toggle('bg-tab--active', on);
+          t.setAttribute('aria-selected', String(on));
+        });
+
+        topics.forEach(function (s) {
+          s.hidden = want !== 'all' && s.getAttribute('data-topic') !== want;
+        });
+
+        // Picked from far down the page, the bar is stuck to the header and
+        // the new topic starts somewhere above it: bring its start into view.
+        const header = document.querySelector('.site-header');
+        const top = bar.parentElement.getBoundingClientRect().top - (header ? header.offsetHeight : 0);
+        if (top < 0) window.scrollBy(0, top);
+      });
+    });
+  }
+
   /* ---------- product page tabs ---------- */
 
   // Every panel is in the HTML; the tabs only swap which one is shown, so the

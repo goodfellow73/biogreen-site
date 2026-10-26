@@ -11,7 +11,7 @@ index.html is the master for four blocks that every page repeats:
     modal    the quote modal, the floating WhatsApp, the mobile bar and the
              <script src=…/js/site.js> that follows them
 
-Pages one directory deep get ../ added to their document-relative URLs, and the
+Pages deeper down get ../ (or ../../) added to their document-relative URLs, and the
 nav item matching the page is marked aria-current="page".
 
 Product pages are not listed here — tools/build-product-pages.py regenerates
@@ -29,6 +29,7 @@ TARGETS = {
     'import-regulation/index.html': 'import-regulation/',
     'products/index.html': 'products/',
     'contact/index.html': 'contact/',
+    'knowledge/glossary/index.html': 'knowledge/',
 }
 
 # block name -> (first line starts with, last line contains)

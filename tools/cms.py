@@ -17,6 +17,12 @@ Marking an element
   data-cms-type="…"             text | long | para | lines | pairs (default text)
   data-cms-attr="content"       write into this attribute, not the element
   data-cms-fixed                lists only: the number of items cannot change
+  data-cms-keyed                lists only: items follow their title, not their
+                                place (see below)
+  data-cms-item-labels="מונח|הסבר"
+                                pairs only: what the editor calls the two parts
+  data-cms-item-only            inside a list item: belongs to that item alone,
+                                left out of a copy made for a new item
 
   <section data-cms-section="hero" data-cms-section-label="באנר ראשי">
                                 names a section in the editor
@@ -39,6 +45,13 @@ Lists are updated in place: the first items keep their own markup (each card
 its own icon, the first FAQ answer open), only the words change. An added
 item is a copy of the last one; a removed item is dropped. data-cms-fixed
 stops both, for lists whose layout depends on the count.
+
+By default an item is matched by its place in the list. A keyed list matches
+by title instead, then by text (a renamed item keeps its text), then by
+place, so an item's own markup — its anchor id, a link that belongs to it —
+stays with it when others are removed or reordered. A new item in a keyed
+list gets empty ids; the page's own build step names them (the glossary's
+anchors come from tools/build-glossary.py).
 """
 
 import html
@@ -178,6 +191,42 @@ def renumber(item, n):
                   lambda m: f'{m.group(1)}{m.group(2)}{n}{m.group(4)}', item)
 
 
+def strip_item_only(item):
+    """Drop the parts marked data-cms-item-only, with the line each sat on."""
+    while True:
+        m = re.search(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\sdata-cms-item-only\b[^>]*>', item)
+        if not m:
+            return item
+        start, end = m.start(), element_end(item, m.start())
+        ws = re.search(r'\n[ \t]*$', item[:start])
+        item = item[:ws.start() if ws else start] + item[end:]
+
+
+def slot_text(item, slot):
+    spans = slot_spans(item)
+    return para_value(item[spans[slot][0]:spans[slot][1]]) if slot in spans else ''
+
+
+def match_keyed(items, rows):
+    """For each row, the index of the item it updates, or None for a new one."""
+    old = [(slot_text(it, '1'), slot_text(it, '2')) for it in items]
+    claim, used = [None] * len(rows), set()
+    for part, slot in ((0, '1'), (1, '2')):
+        for j, row in enumerate(rows):
+            want = row.get(slot, '')
+            if claim[j] is not None or not want:
+                continue
+            i = next((i for i, o in enumerate(old) if i not in used and o[part] == want), None)
+            if i is not None:
+                claim[j] = i
+                used.add(i)
+    for j in range(len(rows)):
+        if claim[j] is None and j < len(items) and j not in used:
+            claim[j] = j
+            used.add(j)
+    return claim
+
+
 # ---------------------------------------------------------------- fields
 
 def read_field(open_tag, inner):
@@ -231,12 +280,18 @@ def write_field(open_tag, inner, value):
     fixed = has_attr(open_tag, 'data-cms-fixed')
     if fixed:
         rows = rows[:len(items)] + [None] * (len(items) - len(rows))
+    template = strip_item_only(items[-1])
     out = []
-    for i, row in enumerate(rows):
-        if i < len(items):
-            out.append(items[i] if row is None else fill_slots(items[i], row))
-        else:
-            out.append(renumber(fill_slots(items[-1], row), i + 1))
+    if has_attr(open_tag, 'data-cms-keyed') and not fixed:
+        blank = re.sub(r'(\sid=")[^"]*(")', r'\1\2', template)
+        for row, i in zip(rows, match_keyed(items, rows)):
+            out.append(fill_slots(blank if i is None else items[i], row))
+    else:
+        for i, row in enumerate(rows):
+            if i < len(items):
+                out.append(items[i] if row is None else fill_slots(items[i], row))
+            else:
+                out.append(renumber(fill_slots(template, row), i + 1))
 
     lead = inner[:spans[0][0]]
     indent = lead[lead.rfind('\n'):] if '\n' in lead else lead
@@ -300,6 +355,9 @@ def extract():
                 count = len(children(inner))
                 field['fixed'] = count
                 field['help'] = (field['help'] + f' מספר הפריטים קבוע: {count}.').strip()
+            if kind == 'pairs':
+                parts = (attr(open_tag, 'data-cms-item-labels') or 'כותרת|טקסט').split('|')
+                field['item_labels'] = [p.strip() for p in parts[:2]]
             sections.setdefault(sec, {'id': sec, 'label': labels.get(sec, sec), 'fields': []})
             sections[sec]['fields'].append(field)
         doc['pages'].append({'id': page_id, 'label': page_label,

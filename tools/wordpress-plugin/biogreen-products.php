@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.5.1
+ * Version:      1.6.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,7 +16,13 @@
  * checked against the file that was sent.
  *
  * Changelog
- * 1.5.1  "תוכן העמודים" opens on a list of pages, each edited on its own
+ * 1.6.0  Lists of title + text (glossary terms, FAQ, stages, cards) are edited
+ *        item by item: each one a row with its own title and text fields,
+ *        with buttons to add, delete and reorder, and a search box on long
+ *        lists. Before, a whole list was one textarea where blank lines
+ *        separated the items. What is saved is unchanged, so the build needs
+ *        nothing new. Adds the glossary page.
+ * 1.5.1 "תוכן העמודים" opens on a list of pages, each edited on its own
  *        screen. The page-texts endpoint is no longer cached: Hostinger's
  *        LiteSpeed kept it for a week, so saved edits never reached the
  *        build; saving also purges it. Adds the import & regulation page.
@@ -65,7 +71,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.5.1';
+const BIOGREEN_VERSION = '1.6.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -886,6 +892,31 @@ function biogreen_cms_render() {
 			.bg-cms .bg-cms__page { font-size: 20px; margin: 4px 0 0; }
 			.bg-cms .bg-cms__list { max-width: 980px; margin-top: 12px; }
 			.bg-cms .bg-cms__list th, .bg-cms .bg-cms__list td { text-align: right; vertical-align: middle; }
+			/* Title + text lists, one row per item */
+			.bg-cms .bg-rep-cell { padding: 15px 16px; }
+			.bg-cms .bg-rep__label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+			.bg-cms .bg-rep__tools { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+			.bg-cms .bg-rep__tools input[type="search"] { width: 260px; direction: rtl; }
+			.bg-cms .bg-rep__count { color: #646970; }
+			.bg-cms .bg-rep__head, .bg-cms .bg-rep__item {
+				display: grid; grid-template-columns: 34px minmax(160px, 260px) 1fr auto; gap: 10px; align-items: start;
+			}
+			.bg-cms .bg-rep__head { font-weight: 600; color: #50575e; padding: 0 10px 6px; }
+			.bg-cms .bg-rep__item { padding: 10px; border: 1px solid #dcdcde; border-radius: 4px; background: #fff; margin-bottom: 8px; }
+			.bg-cms .bg-rep__item:nth-child(even) { background: #f6f7f7; }
+			.bg-cms .bg-rep__item--new { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
+			.bg-cms .bg-rep__item--error { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
+			.bg-cms .bg-rep__num { font-weight: 600; color: #646970; padding-top: 6px; text-align: center; }
+			.bg-cms .bg-rep__item input[type="text"] { font-weight: 600; }
+			.bg-cms .bg-rep__item textarea { min-height: 60px; resize: vertical; }
+			.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
+			.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }
+			.bg-cms .bg-rep__actions .bg-rep__del { color: #b32d2e; border-color: #b32d2e; }
+			@media (max-width: 782px) {
+				.bg-cms .bg-rep__head { display: none; }
+				.bg-cms .bg-rep__item { grid-template-columns: 28px 1fr; }
+				.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions { grid-column: 2; }
+			}
 		</style>
 		<?php
 		if ( ! empty( $_GET['saved'] ) ) {
@@ -947,6 +978,27 @@ function biogreen_cms_render() {
 						if ( $field['type'] === 'lines' ) {
 							$rows = max( 4, substr_count( $value, "\n" ) + 2 );
 						}
+						// Title + text lists get the whole row: the script below
+						// turns the textarea into one row per item.
+						if ( $field['type'] === 'pairs' ) :
+							$labels = ! empty( $field['item_labels'] ) ? $field['item_labels'] : [ 'כותרת', 'טקסט' ];
+							?>
+							<tr>
+								<td colspan="2" class="bg-rep-cell">
+									<label class="bg-rep__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
+									<div class="bg-rep" data-fixed="<?php echo (int) ( $field['fixed'] ?? 0 ); ?>"
+										data-labels="<?php echo esc_attr( implode( '|', $labels ) ); ?>">
+										<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
+											rows="<?php echo (int) $rows; ?>"><?php echo esc_textarea( $value ); ?></textarea>
+										<?php if ( ! empty( $field['help'] ) ) : ?>
+											<p class="description bg-rep__help"><?php echo esc_html( $field['help'] ); ?></p>
+										<?php endif; ?>
+									</div>
+								</td>
+							</tr>
+							<?php
+							continue;
+						endif;
 						?>
 						<tr>
 							<th><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
@@ -974,6 +1026,192 @@ function biogreen_cms_render() {
 			</div>
 		</form>
 	</div>
+	<?php biogreen_cms_repeater_script(); ?>
+	<?php
+}
+
+/**
+ * Title + text lists as one row per item. The textarea stays the form field
+ * and keeps the format the build reads (title line, text lines, a blank line
+ * between items); this only edits it more comfortably. Without the script
+ * the textarea is simply shown.
+ */
+function biogreen_cms_repeater_script() {
+	?>
+	<script>
+	( function () {
+		document.querySelectorAll( '.bg-rep' ).forEach( function ( rep ) {
+			var source = rep.querySelector( 'textarea' );
+			var help   = rep.querySelector( '.bg-rep__help' );
+			var fixed  = parseInt( rep.getAttribute( 'data-fixed' ), 10 ) || 0;
+			var labels = ( rep.getAttribute( 'data-labels' ) || 'כותרת|טקסט' ).split( '|' );
+
+			function parse( value ) {
+				return value.replace( /\r\n/g, '\n' ).trim().split( /\n\s*\n/ ).filter( function ( chunk ) {
+					return chunk.trim();
+				} ).map( function ( chunk ) {
+					var lines = chunk.split( '\n' ).map( function ( l ) { return l.trim(); } );
+					return { title: lines[0], text: lines.slice( 1 ).join( '\n' ) };
+				} );
+			}
+
+			function el( tag, attrs, text ) {
+				var node = document.createElement( tag );
+				Object.keys( attrs || {} ).forEach( function ( k ) { node.setAttribute( k, attrs[ k ] ); } );
+				if ( text ) {
+					node.textContent = text;
+				}
+				return node;
+			}
+
+			source.hidden = true;
+			if ( help ) {
+				help.hidden = true;
+			}
+
+			var tools  = el( 'div', { 'class': 'bg-rep__tools' } );
+			var search = el( 'input', { type: 'search', placeholder: 'חיפוש ' + labels[0] + '…', 'aria-label': 'חיפוש ' + labels[0] } );
+			var count  = el( 'span', { 'class': 'bg-rep__count' } );
+			var head   = el( 'div', { 'class': 'bg-rep__head', 'aria-hidden': 'true' } );
+			var list   = el( 'div', { 'class': 'bg-rep__list' } );
+			var add    = el( 'button', { type: 'button', 'class': 'button' }, '+ הוספת ' + labels[0] );
+			[ '#', labels[0], labels[1], '' ].forEach( function ( t ) { head.appendChild( el( 'span', {}, t ) ); } );
+			tools.appendChild( search );
+			tools.appendChild( count );
+			rep.appendChild( tools );
+			rep.appendChild( head );
+			rep.appendChild( list );
+			if ( ! fixed ) {
+				rep.appendChild( add );
+			}
+
+			// Back into the textarea on every change, in the build's format.
+			// A blank line inside a text would split the item, so it closes up.
+			function save() {
+				var items = [];
+				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( row, i ) {
+					row.querySelector( '.bg-rep__num' ).textContent = i + 1;
+					row.querySelector( 'input' ).setAttribute( 'aria-label', labels[0] + ' ' + ( i + 1 ) );
+					row.querySelector( 'textarea' ).setAttribute( 'aria-label', labels[1] + ' ' + ( i + 1 ) );
+					var title = row.querySelector( 'input' ).value.replace( /\s+/g, ' ' ).trim();
+					var text  = row.querySelector( 'textarea' ).value.replace( /\r\n/g, '\n' )
+						.split( '\n' ).map( function ( l ) { return l.trim(); } )
+						.filter( function ( l ) { return l; } ).join( '\n' );
+					if ( title || text ) {
+						items.push( title + ( text ? '\n' + text : '' ) );
+					}
+				} );
+				source.value = items.join( '\n\n' );
+				var n = list.children.length;
+				count.textContent = fixed ? n + ' פריטים (מספר קבוע)' : n + ' פריטים';
+				tools.hidden = n < 8 && ! fixed;
+				search.hidden = n < 8;
+			}
+
+			function grow( area ) {
+				area.style.height = 'auto';
+				area.style.height = ( area.scrollHeight + 2 ) + 'px';
+			}
+
+			function row( item ) {
+				var r     = el( 'div', { 'class': 'bg-rep__item' } );
+				var num   = el( 'span', { 'class': 'bg-rep__num' } );
+				var title = el( 'input', { type: 'text' } );
+				var text  = el( 'textarea', { rows: '2' } );
+				var acts  = el( 'div', { 'class': 'bg-rep__actions' } );
+				title.value = item.title;
+				text.value  = item.text;
+				title.addEventListener( 'input', function () {
+					r.classList.remove( 'bg-rep__item--error' );
+					save();
+				} );
+				text.addEventListener( 'input', function () { grow( text ); save(); } );
+				r.appendChild( num );
+				r.appendChild( title );
+				r.appendChild( text );
+				r.appendChild( acts );
+
+				// The number of a fixed list's items is set by the page's
+				// layout: no adding, removing or reordering there.
+				if ( ! fixed ) {
+					var up   = el( 'button', { type: 'button', 'class': 'button', title: 'למעלה' }, '↑' );
+					var down = el( 'button', { type: 'button', 'class': 'button', title: 'למטה' }, '↓' );
+					var del  = el( 'button', { type: 'button', 'class': 'button bg-rep__del', title: 'מחיקה' }, 'מחיקה' );
+					up.addEventListener( 'click', function () {
+						if ( r.previousElementSibling ) {
+							list.insertBefore( r, r.previousElementSibling );
+							save();
+						}
+					} );
+					down.addEventListener( 'click', function () {
+						if ( r.nextElementSibling ) {
+							list.insertBefore( r.nextElementSibling, r );
+							save();
+						}
+					} );
+					del.addEventListener( 'click', function () {
+						var name = title.value.trim() || 'הפריט';
+						if ( window.confirm( 'למחוק את "' + name + '"?' ) ) {
+							r.remove();
+							save();
+						}
+					} );
+					acts.appendChild( up );
+					acts.appendChild( down );
+					acts.appendChild( del );
+				}
+				return r;
+			}
+
+			parse( source.value ).forEach( function ( item ) { list.appendChild( row( item ) ); } );
+			list.querySelectorAll( '.bg-rep__item textarea' ).forEach( grow );
+			save();
+
+			add.addEventListener( 'click', function () {
+				search.value = '';
+				search.dispatchEvent( new Event( 'input' ) );
+				var r = row( { title: '', text: '' } );
+				r.classList.add( 'bg-rep__item--new' );
+				list.appendChild( r );
+				save();
+				r.scrollIntoView( { block: 'center' } );
+				r.querySelector( 'input' ).focus();
+			} );
+
+			search.addEventListener( 'input', function () {
+				var q = search.value.trim();
+				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r ) {
+					var hay = r.querySelector( 'input' ).value + ' ' + r.querySelector( 'textarea' ).value;
+					r.hidden = q !== '' && hay.indexOf( q ) === -1;
+				} );
+			} );
+
+			// A text without a title would have its first line read as the
+			// title, so the form does not go out with one. In a fixed list
+			// every item needs its title: an empty one would shift the rest.
+			rep.closest( 'form' ).addEventListener( 'submit', function ( e ) {
+				var bad = null;
+				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r ) {
+					var t = r.querySelector( 'input' ).value.trim();
+					var x = r.querySelector( 'textarea' ).value.trim();
+					var missing = ! t && ( !! x || fixed > 0 );
+					r.classList.toggle( 'bg-rep__item--error', missing );
+					if ( missing && ! bad ) {
+						bad = r;
+					}
+				} );
+				if ( bad ) {
+					e.preventDefault();
+					search.value = '';
+					search.dispatchEvent( new Event( 'input' ) );
+					bad.scrollIntoView( { block: 'center' } );
+					bad.querySelector( 'input' ).focus();
+					window.alert( 'חסר ' + labels[0] + ' בפריט המסומן באדום.' );
+				}
+			} );
+		} );
+	}() );
+	</script>
 	<?php
 }
 
