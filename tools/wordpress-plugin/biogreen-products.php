@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.6.0
+ * Version:      1.7.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.7.0  A link per item in lists that support one (the glossary terms): its
+ *        text, and where it goes, picked from the site's pages and their
+ *        sections and terms, or any other address. Until now these links
+ *        were fixed in the code and the editor could not see or change them.
  * 1.6.0  Lists of title + text (glossary terms, FAQ, stages, cards) are edited
  *        item by item: each one a row with its own title and text fields,
  *        with buttons to add, delete and reorder, and a search box on long
@@ -71,7 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.6.0';
+const BIOGREEN_VERSION = '1.7.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -907,7 +911,13 @@ function biogreen_cms_render() {
 			.bg-cms .bg-rep__item--new { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
 			.bg-cms .bg-rep__item--error { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
 			.bg-cms .bg-rep__num { font-weight: 600; color: #646970; padding-top: 6px; text-align: center; }
-			.bg-cms .bg-rep__item input[type="text"] { font-weight: 600; }
+			.bg-cms .bg-rep__item .bg-rep__title { font-weight: 600; }
+			.bg-cms .bg-rep__link { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+			.bg-cms .bg-rep__link-label { color: #50575e; font-size: 13px; }
+			.bg-cms .bg-rep__link input.bg-rep__link-text { width: 260px; }
+			.bg-cms .bg-rep__link select { max-width: 340px; }
+			.bg-cms .bg-rep__link input.bg-rep__link-url { width: 260px; direction: ltr; text-align: left; }
+			.bg-cms .bg-rep__link-clear { color: #b32d2e; }
 			.bg-cms .bg-rep__item textarea { min-height: 60px; resize: vertical; }
 			.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
 			.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }
@@ -915,7 +925,11 @@ function biogreen_cms_render() {
 			@media (max-width: 782px) {
 				.bg-cms .bg-rep__head { display: none; }
 				.bg-cms .bg-rep__item { grid-template-columns: 28px 1fr; }
-				.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions { grid-column: 2; }
+				.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions, .bg-cms .bg-rep__link { grid-column: 2; }
+				.bg-cms .bg-rep__link input.bg-rep__link-text, .bg-cms .bg-rep__link input.bg-rep__link-url,
+				.bg-cms .bg-rep__link select { width: 100%; max-width: none; }
+				.bg-cms .bg-rep__link { order: 1; }
+				.bg-cms .bg-rep__actions { order: 2; }
 			}
 		</style>
 		<?php
@@ -987,7 +1001,7 @@ function biogreen_cms_render() {
 								<td colspan="2" class="bg-rep-cell">
 									<label class="bg-rep__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 									<div class="bg-rep" data-fixed="<?php echo (int) ( $field['fixed'] ?? 0 ); ?>"
-										data-labels="<?php echo esc_attr( implode( '|', $labels ) ); ?>">
+										data-labels="<?php echo esc_attr( implode( '|', $labels ) ); ?>"<?php echo empty( $field['links'] ) ? '' : ' data-links'; ?>>
 										<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
 											rows="<?php echo (int) $rows; ?>"><?php echo esc_textarea( $value ); ?></textarea>
 										<?php if ( ! empty( $field['help'] ) ) : ?>
@@ -1026,6 +1040,8 @@ function biogreen_cms_render() {
 			</div>
 		</form>
 	</div>
+	<?php // The pages a link may point to. wp_json_encode escapes "/", so no "</script>" can close this early. ?>
+	<script type="application/json" id="bg-cms-links"><?php echo wp_json_encode( $schema['links'] ?? [] ); ?></script>
 	<?php biogreen_cms_repeater_script(); ?>
 	<?php
 }
@@ -1035,15 +1051,111 @@ function biogreen_cms_render() {
  * and keeps the format the build reads (title line, text lines, a blank line
  * between items); this only edits it more comfortably. Without the script
  * the textarea is simply shown.
+ *
+ * A list marked data-links also gives each item an optional link: its text,
+ * and where it goes, picked from the site's pages and their sections (the
+ * "links" list in the schema) or typed. It is saved as the item's last line,
+ * "@@ text | /url", which tools/cms.py turns into the card's link.
  */
 function biogreen_cms_repeater_script() {
 	?>
 	<script>
 	( function () {
+		var OTHER = '__other';
+		var siteLinks = [];
+		try {
+			siteLinks = JSON.parse( ( document.getElementById( 'bg-cms-links' ) || {} ).textContent || '[]' );
+		} catch ( e ) {}
+
+		function el( tag, attrs, text ) {
+			var node = document.createElement( tag );
+			Object.keys( attrs || {} ).forEach( function ( k ) { node.setAttribute( k, attrs[ k ] ); } );
+			if ( text ) {
+				node.textContent = text;
+			}
+			return node;
+		}
+
+		// One link: its text, a pick of the site's pages, and a free address
+		// for anything else.
+		function linkField( value, onChange ) {
+			var wrap  = el( 'div', { 'class': 'bg-rep__link' } );
+			var text  = el( 'input', { type: 'text', 'class': 'bg-rep__link-text', placeholder: 'טקסט הקישור, למשל: למסלול יבואן נאות' } );
+			var pick  = el( 'select', { 'class': 'bg-rep__link-pick' } );
+			var url   = el( 'input', { type: 'text', 'class': 'bg-rep__link-url', dir: 'ltr', placeholder: 'https://…  או  /import-regulation/' } );
+			var clear = el( 'button', { type: 'button', 'class': 'button-link bg-rep__link-clear' }, 'הסרת הקישור' );
+
+			pick.appendChild( el( 'option', { value: '' }, 'לאן הקישור מוביל?' ) );
+			siteLinks.forEach( function ( page ) {
+				var group = el( 'optgroup', { label: page.label } );
+				group.appendChild( el( 'option', { value: page.url }, page.label + ' — ראש העמוד' ) );
+				( page.anchors || [] ).forEach( function ( a ) {
+					group.appendChild( el( 'option', { value: a.url }, page.label + ' › ' + a.label ) );
+				} );
+				pick.appendChild( group );
+			} );
+			pick.appendChild( el( 'option', { value: OTHER }, 'כתובת אחרת…' ) );
+
+			text.value = value.text || '';
+			if ( value.url ) {
+				var known = Array.prototype.some.call( pick.options, function ( o ) { return o.value === value.url; } );
+				pick.value = known ? value.url : OTHER;
+				url.value  = known ? '' : value.url;
+			}
+
+			function sync() {
+				url.hidden = pick.value !== OTHER;
+				clear.hidden = ! text.value.trim() && ! pick.value;
+			}
+			text.addEventListener( 'input', function () { sync(); onChange(); } );
+			url.addEventListener( 'input', onChange );
+			pick.addEventListener( 'change', function () {
+				sync();
+				if ( pick.value === OTHER ) {
+					url.focus();
+				}
+				onChange();
+			} );
+			clear.addEventListener( 'click', function () {
+				text.value = '';
+				pick.value = '';
+				url.value  = '';
+				sync();
+				onChange();
+			} );
+			sync();
+
+			wrap.appendChild( el( 'span', { 'class': 'bg-rep__link-label' }, 'קישור (לא חובה):' ) );
+			wrap.appendChild( text );
+			wrap.appendChild( pick );
+			wrap.appendChild( url );
+			wrap.appendChild( clear );
+
+			return {
+				wrap: wrap,
+				label: function ( n ) {
+					text.setAttribute( 'aria-label', 'טקסט הקישור ' + n );
+					pick.setAttribute( 'aria-label', 'לאן מוביל הקישור ' + n );
+					url.setAttribute( 'aria-label', 'כתובת הקישור ' + n );
+				},
+				get: function () {
+					return {
+						// "|" separates text from address in the saved line.
+						text: text.value.replace( /\s+/g, ' ' ).replace( /\|/g, '/' ).trim(),
+						url: ( pick.value === OTHER ? url.value : pick.value ).replace( /\s+/g, '' )
+					};
+				},
+				focus: function () {
+					( text.value.trim() ? ( pick.value === OTHER ? url : pick ) : text ).focus();
+				}
+			};
+		}
+
 		document.querySelectorAll( '.bg-rep' ).forEach( function ( rep ) {
 			var source = rep.querySelector( 'textarea' );
 			var help   = rep.querySelector( '.bg-rep__help' );
 			var fixed  = parseInt( rep.getAttribute( 'data-fixed' ), 10 ) || 0;
+			var links  = rep.hasAttribute( 'data-links' );
 			var labels = ( rep.getAttribute( 'data-labels' ) || 'כותרת|טקסט' ).split( '|' );
 
 			function parse( value ) {
@@ -1051,17 +1163,15 @@ function biogreen_cms_repeater_script() {
 					return chunk.trim();
 				} ).map( function ( chunk ) {
 					var lines = chunk.split( '\n' ).map( function ( l ) { return l.trim(); } );
-					return { title: lines[0], text: lines.slice( 1 ).join( '\n' ) };
+					var link  = { text: '', url: '' };
+					if ( lines.length > 1 && lines[ lines.length - 1 ].indexOf( '@@' ) === 0 ) {
+						var body = lines.pop().slice( 2 );
+						var bar  = body.lastIndexOf( '|' );
+						link = bar < 0 ? { text: body.trim(), url: '' }
+							: { text: body.slice( 0, bar ).trim(), url: body.slice( bar + 1 ).trim() };
+					}
+					return { title: lines[0], text: lines.slice( 1 ).join( '\n' ), link: link };
 				} );
-			}
-
-			function el( tag, attrs, text ) {
-				var node = document.createElement( tag );
-				Object.keys( attrs || {} ).forEach( function ( k ) { node.setAttribute( k, attrs[ k ] ); } );
-				if ( text ) {
-					node.textContent = text;
-				}
-				return node;
 			}
 
 			source.hidden = true;
@@ -1085,20 +1195,35 @@ function biogreen_cms_repeater_script() {
 				rep.appendChild( add );
 			}
 
+			function titleOf( r ) {
+				return r.querySelector( '.bg-rep__title' );
+			}
+			function textOf( r ) {
+				return r.querySelector( '.bg-rep__text' );
+			}
+
 			// Back into the textarea on every change, in the build's format.
 			// A blank line inside a text would split the item, so it closes up.
 			function save() {
 				var items = [];
-				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( row, i ) {
-					row.querySelector( '.bg-rep__num' ).textContent = i + 1;
-					row.querySelector( 'input' ).setAttribute( 'aria-label', labels[0] + ' ' + ( i + 1 ) );
-					row.querySelector( 'textarea' ).setAttribute( 'aria-label', labels[1] + ' ' + ( i + 1 ) );
-					var title = row.querySelector( 'input' ).value.replace( /\s+/g, ' ' ).trim();
-					var text  = row.querySelector( 'textarea' ).value.replace( /\r\n/g, '\n' )
+				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r, i ) {
+					r.querySelector( '.bg-rep__num' ).textContent = i + 1;
+					titleOf( r ).setAttribute( 'aria-label', labels[0] + ' ' + ( i + 1 ) );
+					textOf( r ).setAttribute( 'aria-label', labels[1] + ' ' + ( i + 1 ) );
+					var title = titleOf( r ).value.replace( /\s+/g, ' ' ).trim();
+					var text  = textOf( r ).value.replace( /\r\n/g, '\n' )
 						.split( '\n' ).map( function ( l ) { return l.trim(); } )
-						.filter( function ( l ) { return l; } ).join( '\n' );
+						.filter( function ( l ) { return l && l.indexOf( '@@' ) !== 0; } ).join( '\n' );
+					var line  = '';
+					if ( r.bgLink ) {
+						r.bgLink.label( i + 1 );
+						var link = r.bgLink.get();
+						if ( link.text && link.url ) {
+							line = '\n@@ ' + link.text + ' | ' + link.url;
+						}
+					}
 					if ( title || text ) {
-						items.push( title + ( text ? '\n' + text : '' ) );
+						items.push( title + ( text ? '\n' + text : '' ) + line );
 					}
 				} );
 				source.value = items.join( '\n\n' );
@@ -1116,8 +1241,8 @@ function biogreen_cms_repeater_script() {
 			function row( item ) {
 				var r     = el( 'div', { 'class': 'bg-rep__item' } );
 				var num   = el( 'span', { 'class': 'bg-rep__num' } );
-				var title = el( 'input', { type: 'text' } );
-				var text  = el( 'textarea', { rows: '2' } );
+				var title = el( 'input', { type: 'text', 'class': 'bg-rep__title' } );
+				var text  = el( 'textarea', { rows: '2', 'class': 'bg-rep__text' } );
 				var acts  = el( 'div', { 'class': 'bg-rep__actions' } );
 				title.value = item.title;
 				text.value  = item.text;
@@ -1130,6 +1255,13 @@ function biogreen_cms_repeater_script() {
 				r.appendChild( title );
 				r.appendChild( text );
 				r.appendChild( acts );
+				if ( links ) {
+					r.bgLink = linkField( item.link || {}, function () {
+						r.classList.remove( 'bg-rep__item--error' );
+						save();
+					} );
+					r.appendChild( r.bgLink.wrap );
+				}
 
 				// The number of a fixed list's items is set by the page's
 				// layout: no adding, removing or reordering there.
@@ -1164,7 +1296,7 @@ function biogreen_cms_repeater_script() {
 			}
 
 			parse( source.value ).forEach( function ( item ) { list.appendChild( row( item ) ); } );
-			list.querySelectorAll( '.bg-rep__item textarea' ).forEach( grow );
+			list.querySelectorAll( '.bg-rep__text' ).forEach( grow );
 			save();
 
 			add.addEventListener( 'click', function () {
@@ -1175,38 +1307,56 @@ function biogreen_cms_repeater_script() {
 				list.appendChild( r );
 				save();
 				r.scrollIntoView( { block: 'center' } );
-				r.querySelector( 'input' ).focus();
+				titleOf( r ).focus();
 			} );
 
 			search.addEventListener( 'input', function () {
 				var q = search.value.trim();
 				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r ) {
-					var hay = r.querySelector( 'input' ).value + ' ' + r.querySelector( 'textarea' ).value;
+					var hay = titleOf( r ).value + ' ' + textOf( r ).value;
 					r.hidden = q !== '' && hay.indexOf( q ) === -1;
 				} );
 			} );
 
+			// What would be saved wrong, or not at all, for one item.
 			// A text without a title would have its first line read as the
-			// title, so the form does not go out with one. In a fixed list
-			// every item needs its title: an empty one would shift the rest.
+			// title. In a fixed list every item needs its title: an empty one
+			// would shift the rest. A link needs both its text and where it
+			// goes, or it is dropped.
+			function problem( r ) {
+				var t = titleOf( r ).value.trim();
+				var x = textOf( r ).value.trim();
+				if ( ! t && ( x || fixed > 0 ) ) {
+					return { msg: 'חסר ' + labels[0] + ' בפריט המסומן באדום.', focus: function () { titleOf( r ).focus(); } };
+				}
+				if ( r.bgLink ) {
+					var link = r.bgLink.get();
+					if ( ( t || x ) && !! link.text !== !! link.url ) {
+						return {
+							msg: link.text ? 'לקישור בפריט המסומן באדום חסר לאן הוא מוביל.' : 'לקישור בפריט המסומן באדום חסר טקסט.',
+							focus: r.bgLink.focus
+						};
+					}
+				}
+				return null;
+			}
+
 			rep.closest( 'form' ).addEventListener( 'submit', function ( e ) {
 				var bad = null;
 				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r ) {
-					var t = r.querySelector( 'input' ).value.trim();
-					var x = r.querySelector( 'textarea' ).value.trim();
-					var missing = ! t && ( !! x || fixed > 0 );
-					r.classList.toggle( 'bg-rep__item--error', missing );
-					if ( missing && ! bad ) {
-						bad = r;
+					var p = problem( r );
+					r.classList.toggle( 'bg-rep__item--error', !! p );
+					if ( p && ! bad ) {
+						bad = { row: r, p: p };
 					}
 				} );
 				if ( bad ) {
 					e.preventDefault();
 					search.value = '';
 					search.dispatchEvent( new Event( 'input' ) );
-					bad.scrollIntoView( { block: 'center' } );
-					bad.querySelector( 'input' ).focus();
-					window.alert( 'חסר ' + labels[0] + ' בפריט המסומן באדום.' );
+					bad.row.scrollIntoView( { block: 'center' } );
+					bad.p.focus();
+					window.alert( bad.p.msg );
 				}
 			} );
 		} );

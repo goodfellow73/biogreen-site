@@ -107,17 +107,17 @@ jobs:
       - name: Generate pages from data
         if: steps.debounce.outputs.skip != 'true'
         # cms.py first: the page texts edited in WordPress go into the HTML
-        # before sync-shell copies index.html's shell out, and the field list
-        # the plugin shows is then read back from the result. build-glossary
-        # straight after: a term added in WordPress needs its anchor before
-        # the field list is read back.
+        # before sync-shell copies index.html's shell out. build-glossary
+        # straight after: a term added in WordPress needs its anchor. The
+        # field list the plugin shows is read back once every page exists,
+        # so its link picker already offers a product added in this build.
         run: |
           python tools/cms.py apply
           python tools/build-glossary.py
-          python tools/cms.py extract
           python tools/sync-shell.py
           python tools/build-products.py
           python tools/build-product-pages.py
+          python tools/cms.py extract
           python tools/stamp-assets.py
 
       - name: Commit regenerated HTML

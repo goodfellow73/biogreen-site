@@ -242,7 +242,8 @@
 <!-- ============================================================
      Terms. Topic filter, then one section per topic. Each topic's terms
      are one list in WordPress: a term added there becomes a card here,
-     with an anchor made from its name (tools/build-glossary.py), and the
+     with an anchor made from its name (tools/build-glossary.py), its
+     optional link ("@@ text | url") comes from the same list, and the
      DefinedTermSet schema at the foot of the page is rebuilt from the
      cards, so it always says what the page says.
      ============================================================ -->
@@ -262,46 +263,47 @@
   <div class="shell">
     <h2 class="glossary-topic__title" data-cms="import.title" data-cms-label="שם הנושא (מופיע גם בלשונית)">יבוא ורגולציה</h2>
     <div class="terms" data-cms="import.terms" data-cms-label="המושגים" data-cms-type="pairs" data-cms-keyed data-cms-item-labels="מונח|הסבר">
+      <template data-cms-link-template><p class="term__more" data-cms-link><a href="#">קישור<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p></template>
       <article class="term">
-        <h3 class="term__name" id="importer" data-cms-slot="1">יבואן נאות</h3>
+        <h3 class="term__name" id="importer" data-cms-anchor data-cms-slot="1">יבואן נאות</h3>
         <p class="term__def" data-cms-slot="2">חברה הרשומה כיבואן נאות לתוספי תזונה, שדרכה ניתן לקדם יבוא של מוצרים מתאימים, בכפוף לבדיקה ולאישור מראש של מסמכי היצרן ותיק היבוא. לא כל מוצר מתאים למסלול, וההתאמה נבדקת לגופו של כל מוצר.</p>
-        <p class="term__more" data-cms-item-only><a href="../../import-regulation/#importer">למסלול יבואן נאות<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
+        <p class="term__more" data-cms-link><a href="../../import-regulation/#importer">למסלול יבואן נאות<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="supplement-registration" data-cms-slot="1">רישום תוסף תזונה</h3>
+        <h3 class="term__name" id="supplement-registration" data-cms-anchor data-cms-slot="1">רישום תוסף תזונה</h3>
         <p class="term__def" data-cms-slot="2">התהליך שבו בודקים שתוסף תזונה עומד בדרישות בישראל לפני שהוא משווק. הדרישות והמסלול משתנים לפי הרכב המוצר, ייעודו ומקורו.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="import-file" data-cms-slot="1">תיק יבוא</h3>
+        <h3 class="term__name" id="import-file" data-cms-anchor data-cms-slot="1">תיק יבוא</h3>
         <p class="term__def" data-cms-slot="2">אוסף המסמכים על המוצר ועל היצרן, שמוכן ומוגש במסגרת תהליך היבוא. תיק מלא ומסודר מקצר את התהליך ומונע עיכובים.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="feasibility-check" data-cms-slot="1">בדיקת היתכנות</h3>
+        <h3 class="term__name" id="feasibility-check" data-cms-anchor data-cms-slot="1">בדיקת היתכנות</h3>
         <p class="term__def" data-cms-slot="2">בדיקה מוקדמת של מוצר לפני הזמנה: האם אפשר לייבא אותו לישראל, אילו מסמכים חסרים, ומה צריך לשנות בתווית או בנוסחה.</p>
-        <p class="term__more" data-cms-item-only><a href="../../import-regulation/#feasibility">לבדיקת היתכנות למוצר שלכם<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
+        <p class="term__more" data-cms-link><a href="../../import-regulation/#feasibility">לבדיקת היתכנות למוצר שלכם<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="hebrew-labeling" data-cms-slot="1">סימון בעברית</h3>
+        <h3 class="term__name" id="hebrew-labeling" data-cms-anchor data-cms-slot="1">סימון בעברית</h3>
         <p class="term__def" data-cms-slot="2">המידע שחייב להופיע בעברית על אריזת מוצר שנמכר בישראל, כמו שם המוצר, הרכיבים, הכמויות, הוראות השימוש ופרטי היבואן. זה לא רק תרגום של התווית המקורית.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="health-claim" data-cms-slot="1">טענת בריאות</h3>
+        <h3 class="term__name" id="health-claim" data-cms-anchor data-cms-slot="1">טענת בריאות</h3>
         <p class="term__def" data-cms-slot="2">כל ניסוח על האריזה או בשיווק שמקשר בין המוצר לבריאות או לתפקוד הגוף. בישראל השימוש בטענות כאלה מוגבל, ולכן בודקים כל ניסוח לפני שמשתמשים בו, גם באתר וברשתות החברתיות.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="customs-clearance" data-cms-slot="1">שחרור מהמכס</h3>
+        <h3 class="term__name" id="customs-clearance" data-cms-anchor data-cms-slot="1">שחרור מהמכס</h3>
         <p class="term__def" data-cms-slot="2">השלב שבו משלוח שהגיע לישראל יוצא מהמכס ונכנס לשוק, אחרי הצגת המסמכים הנדרשים. מסמכים חסרים הם הסיבה הנפוצה לעיכוב בשלב הזה.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="certificate-of-origin" data-cms-slot="1">תעודת מקור (Certificate of Origin)</h3>
+        <h3 class="term__name" id="certificate-of-origin" data-cms-anchor data-cms-slot="1">תעודת מקור (Certificate of Origin)</h3>
         <p class="term__def" data-cms-slot="2">מסמך שמציין באיזו מדינה יוצר המוצר. לפעמים הוא משפיע על המכס ועל הדרישות ביבוא.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="hs-code" data-cms-slot="1">קוד מכס (HS Code)</h3>
+        <h3 class="term__name" id="hs-code" data-cms-anchor data-cms-slot="1">קוד מכס (HS Code)</h3>
         <p class="term__def" data-cms-slot="2">קוד בינלאומי שמסווג כל סחורה ביבוא. הקוד משפיע על שיעור המיסים ועל הדרישות שחלות על המוצר.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="incoterms" data-cms-slot="1">Incoterms</h3>
+        <h3 class="term__name" id="incoterms" data-cms-anchor data-cms-slot="1">Incoterms</h3>
         <p class="term__def" data-cms-slot="2">מונחים בינלאומיים מוסכמים שקובעים בעסקת יבוא מי אחראי על השילוח, על הביטוח ועל העלויות בכל שלב, למשל EXW או FOB.</p>
       </article>
     </div>
@@ -312,60 +314,61 @@
   <div class="shell">
     <h2 class="glossary-topic__title" data-cms="quality.title" data-cms-label="שם הנושא (מופיע גם בלשונית)">מוצר ואיכות</h2>
     <div class="terms" data-cms="quality.terms" data-cms-label="המושגים" data-cms-type="pairs" data-cms-keyed data-cms-item-labels="מונח|הסבר">
+      <template data-cms-link-template><p class="term__more" data-cms-link><a href="#">קישור<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p></template>
       <article class="term">
-        <h3 class="term__name" id="dietary-supplement" data-cms-slot="1">תוסף תזונה</h3>
+        <h3 class="term__name" id="dietary-supplement" data-cms-anchor data-cms-slot="1">תוסף תזונה</h3>
         <p class="term__def" data-cms-slot="2">מוצר שנועד להשלים את התזונה הרגילה, בצורת כמוסות, טבליות, אבקה או נוזל.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="finished-product" data-cms-slot="1">מוצר מוגמר</h3>
+        <h3 class="term__name" id="finished-product" data-cms-anchor data-cms-slot="1">מוצר מוגמר</h3>
         <p class="term__def" data-cms-slot="2">מוצר ארוז ומסומן, מוכן למכירה על המדף.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="raw-material" data-cms-slot="1">חומר גלם</h3>
+        <h3 class="term__name" id="raw-material" data-cms-anchor data-cms-slot="1">חומר גלם</h3>
         <p class="term__def" data-cms-slot="2">רכיב המשמש לייצור מזון, תוסף תזונה או מוצר בריאות, ולא נמכר לצרכן כמו שהוא.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="private-label" data-cms-slot="1">Private Label</h3>
+        <h3 class="term__name" id="private-label" data-cms-anchor data-cms-slot="1">Private Label</h3>
         <p class="term__def" data-cms-slot="2">מוצר שמיוצר על ידי יצרן אחד ומשווק תחת המותג של עסק אחר. כך אפשר להשיק מותג בלי מפעל משלכם.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="specification" data-cms-slot="1">מפרט מוצר (Specification)</h3>
+        <h3 class="term__name" id="specification" data-cms-anchor data-cms-slot="1">מפרט מוצר (Specification)</h3>
         <p class="term__def" data-cms-slot="2">מסמך של היצרן שמפרט את מאפייני המוצר: הרכב, ערכים מותרים, שיטות בדיקה ותנאי אחסון. זה אחד המסמכים הראשונים שמבקשים לפני יבוא.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="coa" data-cms-slot="1">תעודת אנליזה (COA)</h3>
+        <h3 class="term__name" id="coa" data-cms-anchor data-cms-slot="1">תעודת אנליזה (COA)</h3>
         <p class="term__def" data-cms-slot="2">מסמך מהיצרן עם תוצאות הבדיקות של אצווה מסוימת. התעודה מראה שהאצווה עומדת במפרט.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="batch" data-cms-slot="1">אצווה (Batch / Lot)</h3>
+        <h3 class="term__name" id="batch" data-cms-anchor data-cms-slot="1">אצווה (Batch / Lot)</h3>
         <p class="term__def" data-cms-slot="2">כמות מוצר שיוצרה באותו תהליך ובאותו זמן, ומסומנת במספר אחד. מספר האצווה מאפשר לעקוב אחרי המוצר מהייצור ועד המדף.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="gmp" data-cms-slot="1">GMP</h3>
+        <h3 class="term__name" id="gmp" data-cms-anchor data-cms-slot="1">GMP</h3>
         <p class="term__def" data-cms-slot="2">ראשי תיבות של Good Manufacturing Practice: כללים לייצור מבוקר ואיכותי. תעודת GMP של מפעל הייצור היא אחד המסמכים שמבקשים מיצרן.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="shelf-life" data-cms-slot="1">חיי מדף</h3>
+        <h3 class="term__name" id="shelf-life" data-cms-anchor data-cms-slot="1">חיי מדף</h3>
         <p class="term__def" data-cms-slot="2">פרק הזמן שבו המוצר שומר על איכותו בתנאי האחסון שנקבעו. משפיע על כמות ההזמנה ועל תכנון המלאי.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="kosher" data-cms-slot="1">כשרות</h3>
+        <h3 class="term__name" id="kosher" data-cms-anchor data-cms-slot="1">כשרות</h3>
         <p class="term__def" data-cms-slot="2">אישור של גוף כשרות שהמוצר ורכיביו עומדים בדרישות הכשרות. חלק מהרשתות ומבתי הטבע מוכרים רק מוצרים כשרים.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="parve" data-cms-slot="1">פרווה</h3>
+        <h3 class="term__name" id="parve" data-cms-anchor data-cms-slot="1">פרווה</h3>
         <p class="term__def" data-cms-slot="2">מוצר כשר שאין בו רכיבי בשר או חלב. בתוספי תזונה כדאי לבדוק במיוחד את מקור הג׳לטין בכמוסות.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="softgel" data-cms-slot="1">סופט ג׳ל</h3>
+        <h3 class="term__name" id="softgel" data-cms-anchor data-cms-slot="1">סופט ג׳ל</h3>
         <p class="term__def" data-cms-slot="2">כמוסה רכה ואטומה, שמתאימה במיוחד לרכיבים שומניים ולנוזלים.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="veggie-capsule" data-cms-slot="1">כמוסה צמחית</h3>
+        <h3 class="term__name" id="veggie-capsule" data-cms-anchor data-cms-slot="1">כמוסה צמחית</h3>
         <p class="term__def" data-cms-slot="2">כמוסה שעשויה מחומר צמחי במקום מג׳לטין. מתאימה לשווקים שמחפשים מוצר טבעוני או פתרון לשאלות כשרות.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="moq" data-cms-slot="1">MOQ</h3>
+        <h3 class="term__name" id="moq" data-cms-anchor data-cms-slot="1">MOQ</h3>
         <p class="term__def" data-cms-slot="2">ראשי תיבות של Minimum Order Quantity: הכמות המינימלית שהיצרן מוכן לייצר או למכור בהזמנה אחת.</p>
       </article>
     </div>
@@ -376,37 +379,38 @@
   <div class="shell">
     <h2 class="glossary-topic__title" data-cms="absorption.title" data-cms-label="שם הנושא (מופיע גם בלשונית)">טכנולוגיות ספיגה</h2>
     <div class="terms" data-cms="absorption.terms" data-cms-label="המושגים" data-cms-type="pairs" data-cms-keyed data-cms-item-labels="מונח|הסבר">
+      <template data-cms-link-template><p class="term__more" data-cms-link><a href="#">קישור<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p></template>
       <article class="term">
-        <h3 class="term__name" id="absorption" data-cms-slot="1">ספיגה</h3>
+        <h3 class="term__name" id="absorption" data-cms-anchor data-cms-slot="1">ספיגה</h3>
         <p class="term__def" data-cms-slot="2">המעבר של רכיב ממערכת העיכול אל הגוף. יש רכיבים שנספגים רק חלקית, ויש כאלה שלא נספגים בכלל.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="bioavailability" data-cms-slot="1">זמינות ביולוגית</h3>
+        <h3 class="term__name" id="bioavailability" data-cms-anchor data-cms-slot="1">זמינות ביולוגית</h3>
         <p class="term__def" data-cms-slot="2">החלק מהרכיב שנספג ומגיע למחזור הדם. ככל שהזמינות הביולוגית גבוהה יותר, חלק גדול יותר מהרכיב זמין לגוף.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="micelle" data-cms-slot="1">מיצלה</h3>
+        <h3 class="term__name" id="micelle" data-cms-anchor data-cms-slot="1">מיצלה</h3>
         <p class="term__def" data-cms-slot="2">מבנה זעיר שעוטף רכיב שומני ומאפשר לו להתפזר במים.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="micro-micelle" data-cms-slot="1">מיקרו מיצלה</h3>
+        <h3 class="term__name" id="micro-micelle" data-cms-anchor data-cms-slot="1">מיקרו מיצלה</h3>
         <p class="term__def" data-cms-slot="2">טכנולוגיה שבה רכיב שומני נעטף במיצלות זעירות, כדי לשפר את פיזורו ואת הזמינות הביולוגית שלו.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="liposome" data-cms-slot="1">ליפוזום</h3>
+        <h3 class="term__name" id="liposome" data-cms-anchor data-cms-slot="1">ליפוזום</h3>
         <p class="term__def" data-cms-slot="2">בועה זעירה עם מעטפת שומנית שעוטפת רכיב. בתוספי תזונה משתמשים בה כדי לשפר את הספיגה.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="novasol" data-cms-slot="1">NovaSOL</h3>
+        <h3 class="term__name" id="novasol" data-cms-anchor data-cms-slot="1">NovaSOL</h3>
         <p class="term__def" data-cms-slot="2">טכנולוגיה מסחרית של מיקרו מיצלות להמסת רכיבים שומניים. עליה מבוסס כורכומין 185.</p>
-        <p class="term__more" data-cms-item-only><a href="../../products/curcumin-185/">לעמוד המוצר כורכומין 185<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
+        <p class="term__more" data-cms-link><a href="../../products/curcumin-185/">לעמוד המוצר כורכומין 185<svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow-left"></use></svg></a></p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="curcumin" data-cms-slot="1">כורכומין</h3>
+        <h3 class="term__name" id="curcumin" data-cms-anchor data-cms-slot="1">כורכומין</h3>
         <p class="term__def" data-cms-slot="2">הרכיב הפעיל העיקרי בכורכום. במצבו הרגיל הוא נספג בקושי, ולכן מפתחים טכנולוגיות לשיפור הספיגה שלו.</p>
       </article>
       <article class="term">
-        <h3 class="term__name" id="piperine" data-cms-slot="1">פיפרין</h3>
+        <h3 class="term__name" id="piperine" data-cms-anchor data-cms-slot="1">פיפרין</h3>
         <p class="term__def" data-cms-slot="2">תמצית מפלפל שחור שמוסיפים לפעמים לתכשירי כורכומין. יש מוצרים, כמו כורכומין 185, שמשפרים את הספיגה בטכנולוגיה אחרת ואינם מכילים פיפרין.</p>
       </article>
     </div>

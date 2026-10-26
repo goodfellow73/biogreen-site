@@ -23,6 +23,10 @@ Marking an element
                                 pairs only: what the editor calls the two parts
   data-cms-item-only            inside a list item: belongs to that item alone,
                                 left out of a copy made for a new item
+  data-cms-link                 inside a pairs item: the item's own link (see
+                                "Links" below)
+  data-cms-anchor               on an element with an id: offered as a link
+                                target in the editor, named by its text
 
   <section data-cms-section="hero" data-cms-section-label="באנר ראשי">
                                 names a section in the editor
@@ -52,6 +56,20 @@ place, so an item's own markup — its anchor id, a link that belongs to it —
 stays with it when others are removed or reordered. A new item in a keyed
 list gets empty ids; the page's own build step names them (the glossary's
 anchors come from tools/build-glossary.py).
+
+Links
+-----
+A pairs list that holds <template data-cms-link-template> (its first child)
+gives every item an optional link: the element marked data-cms-link inside
+the item, made from the template when the item has none. In the value it is
+the item's last line:
+
+    @@ link text | /import-regulation/#importer
+
+URLs are kept from the site root, the way the editor picks them; the build
+writes them relative to the page (../../import-regulation/#importer), since
+the site may sit under a sub-path. extract also lists every page and its
+named sections ("links" in the schema), for the editor's link picker.
 """
 
 import html
@@ -59,6 +77,7 @@ import json
 import os
 import re
 import sys
+from urllib.parse import urljoin
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA = os.path.join(ROOT, 'data', 'cms-schema.json')
@@ -125,7 +144,9 @@ def children(inner):
             pos = m.end()
             continue
         end = element_end(inner, m.start())
-        out.append((m.start(), end))
+        # A <template> is markup kept for later, not an item.
+        if not inner.startswith('<template', m.start()):
+            out.append((m.start(), end))
         pos = end
 
 
@@ -227,9 +248,123 @@ def match_keyed(items, rows):
     return claim
 
 
+# ----------------------------------------------------------------- links
+
+LINK_MARK = '@@'
+LINK_EL = re.compile(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\sdata-cms-link\b[^>]*>')
+LINK_TEMPLATE = re.compile(r'<template data-cms-link-template>(.*?)</template>', re.S)
+
+
+def site_url(href, page_dir):
+    """A page-relative href -> the same address from the site root."""
+    if re.match(r'^(?:[a-z][a-z0-9+.-]*:|#|/)', href, re.I):
+        return href
+    full = urljoin('http://site/' + (page_dir + '/' if page_dir else ''), href)
+    return full[len('http://site'):]
+
+
+def page_href(url, page_dir):
+    """A URL as typed or picked in the editor -> an href for this page, or
+    None when it is not one a link may carry (javascript: and the like)."""
+    url = url.strip()
+    if re.match(r'^(?:https?://|mailto:|tel:|#)', url, re.I):
+        return url
+    if re.match(r'^[a-z][a-z0-9+.-]*:', url, re.I):
+        return None
+    up = '../' * (page_dir.count('/') + 1) if page_dir else ''
+    path = url.lstrip('/')
+    return (up + path) or './'
+
+
+def read_link(item, page_dir):
+    """'text | url' for the item's link, or ''."""
+    m = LINK_EL.search(item)
+    if not m:
+        return ''
+    a = re.search(r'<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a>', item[m.start():element_end(item, m.start())], re.S)
+    if not a:
+        return ''
+    text = plain(re.sub(r'<svg\b.*?</svg>', '', a.group(2), flags=re.S))
+    return f'{text} | {site_url(html.unescape(a.group(1)), page_dir)}'
+
+
+def set_link(item, link, template, page_dir):
+    """Give the item this (text, url) link, or take its link away (None)."""
+    m = LINK_EL.search(item)
+    href = page_href(link[1], page_dir) if link and link[1] else None
+    if not link or not link[0] or href is None:
+        if m:
+            start, end = m.start(), element_end(item, m.start())
+            ws = re.search(r'\n[ \t]*$', item[:start])
+            item = item[:ws.start() if ws else start] + item[end:]
+        return item
+    if m:
+        start, end = m.start(), element_end(item, m.start())
+        markup = item[start:end]
+    elif template:
+        # Straight after the last text, on its own line, indented like it.
+        slots = [(s.start(), element_end(item, s.start()))
+                 for s in re.finditer(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\sdata-cms-slot="\d+"[^>]*>', item)]
+        if not slots:
+            return item
+        s_start, start = max(slots, key=lambda s: s[1])
+        end = start
+        indent = item[item.rfind('\n', 0, s_start) + 1:s_start]
+        markup = '\n' + (indent if not indent.strip() else '') + template.strip()
+    else:
+        return item
+    markup = re.sub(r'(<a\b[^>]*\shref=")[^"]*(")', lambda x: x.group(1) + html.escape(href, quote=True) + x.group(2),
+                    markup, count=1)
+    markup = re.sub(r'(<a\b[^>]*>)[^<]*', lambda x: x.group(1) + html.escape(link[0], quote=False), markup, count=1)
+    return item[:start] + markup + item[end:]
+
+
+def split_link(lines):
+    """Lines of one pairs item -> (lines without the link line, (text, url) or None)."""
+    if len(lines) > 1 and lines[-1].startswith(LINK_MARK):
+        body = lines[-1][len(LINK_MARK):]
+        text, _, url = body.rpartition('|')
+        if not _:
+            text, url = body, ''
+        return lines[:-1], (text.strip(), url.strip())
+    return lines, None
+
+
+def site_links():
+    """Every page of the site and its named places, for the link picker."""
+    found = []
+    for base, dirs, files in os.walk(ROOT):
+        dirs[:] = [d for d in dirs if d not in ('.git', '.github', 'tools', 'data', 'assets', 'a11y')]
+        if 'index.html' not in files:
+            continue
+        rel = os.path.relpath(base, ROOT).replace(os.sep, '/')
+        url = '/' if rel == '.' else f'/{rel}/'
+        src = open(os.path.join(base, 'index.html'), encoding='utf-8').read()
+        body = re.search(r'<body\b[^>]*>', src)
+        name = attr(body.group(0), 'data-page-label') if body else None
+        if not name:
+            h1 = re.search(r'<h1\b[^>]*>(.*?)</h1>', src, re.S)
+            name = plain(h1.group(1)) if h1 else url
+        name = re.sub(r'^עמוד\s+', '', name)
+        anchors = []
+        for t in re.finditer(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\sid="([^"]+)"[^>]*>', src):
+            tag, ident = t.group(0), t.group(1)
+            if has_attr(tag, 'data-cms-anchor'):
+                label = plain(split_element(src, t.start())[1])
+            elif attr(tag, 'data-cms-section-label') and ident != 'hero':
+                # "(…)" in a section label is a note for the editor, not a name.
+                label = re.sub(r'\s*\(.*?\)', '', attr(tag, 'data-cms-section-label'))
+            else:
+                continue
+            anchors.append({'url': f'{url}#{ident}', 'label': label})
+        found.append({'url': url, 'label': name, 'anchors': anchors})
+    found.sort(key=lambda p: (p['url'] != '/', p['url']))
+    return found
+
+
 # ---------------------------------------------------------------- fields
 
-def read_field(open_tag, inner):
+def read_field(open_tag, inner, page_dir=''):
     kind = attr(open_tag, 'data-cms-type') or 'text'
     target = attr(open_tag, 'data-cms-attr')
     if target:
@@ -239,16 +374,21 @@ def read_field(open_tag, inner):
     if kind == 'para':
         return para_value(inner)
     items = [inner[a:b] for a, b in children(inner)]
+    links = kind == 'pairs' and LINK_TEMPLATE.search(inner)
     rows = []
     for it in items:
         spans = slot_spans(it)
         get = lambda k: para_value(it[spans[k][0]:spans[k][1]]) if k in spans else ''
-        rows.append(get('1') if kind == 'lines' else (get('1') + '\n' + get('2')).strip())
+        row = get('1') if kind == 'lines' else (get('1') + '\n' + get('2')).strip()
+        link = read_link(it, page_dir) if links else ''
+        rows.append(row + (f'\n{LINK_MARK} {link}' if link else ''))
     return ('\n' if kind == 'lines' else '\n\n').join(rows)
 
 
-def write_field(open_tag, inner, value):
-    """New (open_tag, inner) for the element, with `value` written in."""
+def write_field(open_tag, inner, value, page_dir=''):
+    """New (open_tag, inner) for the element, with `value` written in.
+    page_dir is the page's folder from the site root ('' for the home page),
+    for the links a pairs list may carry."""
     kind = attr(open_tag, 'data-cms-type') or 'text'
     target = attr(open_tag, 'data-cms-attr')
     if target:
@@ -271,9 +411,9 @@ def write_field(open_tag, inner, value):
     else:
         rows = []
         for chunk in re.split(r'\n\s*\n', value.replace('\r\n', '\n').strip()):
-            lines = [l.strip() for l in chunk.split('\n') if l.strip()]
+            lines, link = split_link([l.strip() for l in chunk.split('\n') if l.strip()])
             if lines:
-                rows.append({'1': lines[0], '2': '\n'.join(lines[1:])})
+                rows.append({'1': lines[0], '2': '\n'.join(lines[1:]), 'link': link})
     if not rows:
         return open_tag, inner          # an emptied list is a mistake, not an instruction
 
@@ -281,17 +421,25 @@ def write_field(open_tag, inner, value):
     if fixed:
         rows = rows[:len(items)] + [None] * (len(items) - len(rows))
     template = strip_item_only(items[-1])
+    link_tpl = LINK_TEMPLATE.search(inner) if kind == 'pairs' else None
+
+    def fill(item, row):
+        item = fill_slots(item, {k: row[k] for k in ('1', '2') if k in row})
+        if link_tpl:
+            item = set_link(item, row.get('link'), link_tpl.group(1), page_dir)
+        return item
+
     out = []
     if has_attr(open_tag, 'data-cms-keyed') and not fixed:
         blank = re.sub(r'(\sid=")[^"]*(")', r'\1\2', template)
         for row, i in zip(rows, match_keyed(items, rows)):
-            out.append(fill_slots(blank if i is None else items[i], row))
+            out.append(fill(blank if i is None else items[i], row))
     else:
         for i, row in enumerate(rows):
             if i < len(items):
-                out.append(items[i] if row is None else fill_slots(items[i], row))
+                out.append(items[i] if row is None else fill(items[i], row))
             else:
-                out.append(renumber(fill_slots(template, row), i + 1))
+                out.append(renumber(fill(template, row), i + 1))
 
     lead = inner[:spans[0][0]]
     indent = lead[lead.rfind('\n'):] if '\n' in lead else lead
@@ -341,8 +489,13 @@ def section_labels(src):
     return labels
 
 
+def page_dir(path):
+    d = os.path.relpath(os.path.dirname(path), ROOT).replace(os.sep, '/')
+    return '' if d == '.' else d
+
+
 def extract():
-    doc = {'pages': []}
+    doc = {'pages': [], 'links': site_links()}
     for page_id, page_label, path in pages():
         src = open(path, encoding='utf-8').read()
         labels = section_labels(src)
@@ -350,7 +503,7 @@ def extract():
         for key, label, kind, fixed, _, open_tag, inner in fields(src):
             sec = key.split('.', 1)[0]
             field = {'key': key, 'label': label, 'type': kind,
-                     'value': read_field(open_tag, inner), 'help': TYPE_HELP.get(kind, '')}
+                     'value': read_field(open_tag, inner, page_dir(path)), 'help': TYPE_HELP.get(kind, '')}
             if fixed:
                 count = len(children(inner))
                 field['fixed'] = count
@@ -358,6 +511,8 @@ def extract():
             if kind == 'pairs':
                 parts = (attr(open_tag, 'data-cms-item-labels') or 'כותרת|טקסט').split('|')
                 field['item_labels'] = [p.strip() for p in parts[:2]]
+                if LINK_TEMPLATE.search(inner):
+                    field['links'] = True
             sections.setdefault(sec, {'id': sec, 'label': labels.get(sec, sec), 'fields': []})
             sections[sec]['fields'].append(field)
         doc['pages'].append({'id': page_id, 'label': page_label,
@@ -390,7 +545,7 @@ def apply():
             value = str(values[key])
             if not value.strip():
                 continue            # an emptied field keeps the page's text
-            new_open, new_inner = write_field(open_tag, inner, value)
+            new_open, new_inner = write_field(open_tag, inner, value, page_dir(path))
             end = element_end(src, start)
             close = src[start + len(open_tag) + len(inner):end]
             src = src[:start] + new_open + new_inner + close + src[end:]
