@@ -1379,6 +1379,21 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 .bg-select:has(option[value=""]:checked) { color: var(--text-placeholder); }
 .bg-select option { color: var(--text-body); }
 
+/* 6 — examples: product shots on white, shown whole whatever their shape */
+.pl-examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+.pl-example {
+  display: grid; gap: 8px; align-content: start;
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-card); padding: 20px;
+}
+.pl-example__img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; background: #fff; margin-bottom: 8px; }
+.pl-example__title {
+  margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+  font-size: var(--fs-h4); color: var(--text-heading);
+}
+.pl-example p { margin: 0; }
+@media (max-width: 900px) { .pl-examples { grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; } }
+
 @media (max-width: 1080px) {
   .pl-audiences { grid-template-columns: repeat(2, 1fr); }
 }

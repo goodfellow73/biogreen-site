@@ -1007,6 +1007,31 @@
           ]
         },
         {
+          "id": "examples",
+          "label": "דוגמאות",
+          "fields": [
+            {
+              "key": "examples.title",
+              "label": "כותרת",
+              "type": "text",
+              "value": "מוצרים שפיתחנו לאחרים",
+              "help": ""
+            },
+            {
+              "key": "examples.cards",
+              "label": "המוצרים",
+              "type": "pairs",
+              "value": "כורכומין 185, Life (סופר־פארם)\nכמוסות רכות של כורכומין בספיגה משופרת.\n\nקולגן וחומצה היאלורונית, Life (סופר־פארם)\nטבליות קולגן בתוספת חומצה היאלורונית.\n\nGreen Flow, ‏BODY FLOW\nאבקת צמחים להכנת משקה, 250 גרם.",
+              "help": "כותרת בשורה הראשונה והטקסט אחריה. שורה ריקה בין פריט לפריט. מספר הפריטים קבוע: 3.",
+              "fixed": 3,
+              "item_labels": [
+                "מוצר",
+                "תיאור"
+              ]
+            }
+          ]
+        },
+        {
           "id": "faq",
           "label": "שאלות נפוצות",
           "fields": [
@@ -1308,6 +1333,10 @@
         {
           "url": "/private-label/#process",
           "label": "התהליך"
+        },
+        {
+          "url": "/private-label/#examples",
+          "label": "דוגמאות"
         },
         {
           "url": "/private-label/#faq",
