@@ -191,21 +191,6 @@
       ],
       "featured": 1,
       "published": true
-    },
-    {
-      "slug": "test-product",
-      "name": "תוסף תזונה נסיון",
-      "category": "supplements",
-      "image": "assets/img/product-test-product.jpg",
-      "imageAlt": "תוסף תזונה נסיון",
-      "labels": [],
-      "benefits": [
-        "יתרון נסיון",
-        "יתרון נסיון 2",
-        "יתרון נסיון 3"
-      ],
-      "featured": null,
-      "published": true
     }
   ]
 }
