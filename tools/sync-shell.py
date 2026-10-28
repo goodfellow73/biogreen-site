@@ -30,6 +30,7 @@ TARGETS = {
     'products/index.html': 'products/',
     'contact/index.html': 'contact/',
     'knowledge/glossary/index.html': 'knowledge/',
+    'private-label/index.html': 'private-label/',
 }
 
 # block name -> (first line starts with, last line contains)

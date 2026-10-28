@@ -66,6 +66,7 @@
 .nav__link {
   font-family: var(--font-display); font-weight: var(--fw-medium); font-size: 15px;
   color: var(--text-muted); padding: 8px 11px; border-radius: 8px;
+  white-space: nowrap;
   transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .nav__link:hover { color: var(--color-green-deep); background: var(--color-green-tint); }
@@ -541,10 +542,23 @@
    Responsive
    ========================================================================== */
 
-@media (max-width: 1080px) {
+/* Eight menu items need about 1250px at full size; below that the header
+   goes compact (smaller links, icon-only buttons) until the menu collapses
+   at 900px. */
+@media (max-width: 1250px) {
   .nav__link { padding: 8px 8px; font-size: 14px; }
   .site-header__actions .bg-btn span { display: none; }
   .site-header__actions .bg-btn { padding: 9px 12px; }
+}
+
+/* Compact, the eight items still need about 980px: under 1000 the menu
+   collapses behind the toggle, as it does on phones. */
+@media (max-width: 1000px) {
+  .nav, .site-header__actions { display: none; }
+  .nav-toggle { display: inline-flex; }
+}
+
+@media (max-width: 1080px) {
   .clients__grid { grid-template-columns: repeat(4, 1fr); }
 }
 
@@ -1282,4 +1296,95 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   .glossary__filters .bg-tab--active {
     color: #fff; background: var(--color-green); border-color: var(--color-green);
   }
+}
+
+/* ==========================================================================
+   Private Label (/private-label/)
+   ========================================================================== */
+
+/* 2 — four audience cards. Their titles are not headings: the spec keeps
+   H3 for the FAQ and "what can be developed". */
+.pl-audiences {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px;
+}
+.bg-service__title {
+  margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+  font-size: var(--fs-h4); line-height: 1.3; color: var(--text-heading);
+}
+.pl-audiences .bg-service p { margin: 0; }
+
+/* 3 — what BioGreen takes on */
+.duties {
+  list-style: none; margin: 40px auto 0; padding: 0; max-width: 860px;
+  display: grid; gap: 12px;
+}
+.duty {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 16px 20px;
+}
+.duty__icon {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-green-tint); color: var(--color-green);
+}
+.duty p { margin: 4px 0 0; line-height: 1.6; }
+.duty__title { font-family: var(--font-display); color: var(--color-green-deep); }
+
+.pl-range { max-width: 860px; margin: 48px auto 0; display: grid; gap: 20px; }
+.pl-range__title { margin: 0; font-size: var(--fs-h3); text-align: center; }
+.pl-range__group { display: grid; gap: 10px; }
+.pl-range__label {
+  margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+.pl-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+/* Chips wrap their words: "טכנולוגיות ספיגה מתקדמות (מיצלה, ליפוזום)" is
+   longer than a phone is wide. */
+.pl-tags .bg-label { white-space: normal; line-height: 1.35; font-size: 14px; padding: 7px 13px; }
+
+/* What stays with the client: the amber of commercial notes, so it reads
+   apart from what BioGreen does. */
+.callout--yours {
+  background: var(--color-amber-tint); border-inline-start-color: var(--color-terracotta);
+  color: var(--color-ink); justify-content: flex-start; margin-top: 32px;
+}
+.callout--yours .icon { color: var(--color-terracotta); }
+.callout strong { color: inherit; }
+.callout > span { line-height: 1.55; }
+
+/* 4 — product forms */
+.form-chips {
+  list-style: none; margin: 32px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+}
+.form-chip {
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-pill); padding: 12px 22px;
+  font-family: var(--font-display); font-weight: var(--fw-medium); font-size: 17px;
+  color: var(--color-green-deep);
+}
+
+/* 8 — enquiry form */
+.pl-form__alt { display: grid; gap: 12px; margin-top: 8px; color: var(--text-muted); }
+.pl-form__alt .btn-row { margin: 0; }
+
+/* A select styled like the inputs, with the site's chevron at its end. */
+.bg-select-wrap { position: relative; }
+.bg-select-wrap .bg-select { width: 100%; padding-inline-end: 40px; }
+.bg-select-wrap__arrow {
+  position: absolute; inset-inline-end: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); pointer-events: none;
+}
+.bg-select:has(option[value=""]:checked) { color: var(--text-placeholder); }
+.bg-select option { color: var(--text-body); }
+
+@media (max-width: 1080px) {
+  .pl-audiences { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .pl-audiences { grid-template-columns: 1fr; }
+  .duty { padding: 14px 16px; }
+  .form-chip { font-size: 15px; padding: 10px 16px; }
 }
