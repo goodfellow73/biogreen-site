@@ -32,7 +32,6 @@ TARGETS = {
     'knowledge/glossary/index.html': 'knowledge/',
     'private-label/index.html': 'private-label/',
     'knowledge/index.html': 'knowledge/',
-    'knowledge/import-supplements-israel/index.html': 'knowledge/',
     'knowledge/guide-thanks/index.html': 'knowledge/',
 }
 

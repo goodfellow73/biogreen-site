@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../css/site.css?v=758ba9b7">
+<link rel="stylesheet" href="../css/site.css?v=aa8c1a88">
 </head>
 <body data-page-label="עמוד ידע מקצועי" data-cms-page="knowledge" class="sections-tight">
 
@@ -261,8 +261,9 @@
 
 <!-- ============================================================
      2. Articles by topic. Cards and tabs are generated from the
-     article pages (tools/build-knowledge.py): an article page that
-     exists gets a card, and a topic with no article gets no tab.
+     articles edited in WordPress (tools/build-articles.py): each
+     published article gets a card in its category's colour, and a
+     category with no article gets no tab.
      ============================================================ -->
 <section data-cms-section="articles" data-cms-section-label="מאמרים לפי נושא" class="section" id="articles">
   <div class="shell">
@@ -279,7 +280,7 @@
     </div>
     <div class="k-grid" id="k-grid">
 <!-- knowledge:cards:start -->
-      <article class="k-card k-card--import" data-category="import">
+      <article class="k-card k-card--sky" data-category="import">
         <span class="k-card__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-file-check"></use></svg></span>
         <p class="k-card__cat">יבוא ורגולציה</p>
         <h3 class="k-card__title"><a href="import-supplements-israel/">איך מייבאים תוסף תזונה לישראל</a></h3>

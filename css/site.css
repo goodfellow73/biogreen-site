@@ -1432,9 +1432,13 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   transition: box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .k-card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
-.k-card--import   { --k-bg: var(--color-sky);        --k-border: var(--border-reg); }
-.k-card--products { --k-bg: var(--color-green-tint); --k-border: #CBE3D5; }
-.k-card--quality  { --k-bg: var(--color-sand);       --k-border: #E0D2B4; }
+/* A category's colour is picked in WordPress, from the site's tints only
+   (COLORS in tools/build-articles.py, swatches in the plugin). */
+.k-card--sky        { --k-bg: var(--color-sky);        --k-border: var(--border-reg); }
+.k-card--green      { --k-bg: var(--color-green-tint); --k-border: #CBE3D5; }
+.k-card--sand       { --k-bg: var(--color-sand);       --k-border: #E0D2B4; }
+.k-card--amber      { --k-bg: var(--color-amber-tint); --k-border: #EBC79B; }
+.k-card--eucalyptus { --k-bg: var(--color-eucalyptus); --k-border: #C3D9CB; }
 .k-card__icon {
   width: 44px; height: 44px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
@@ -1488,6 +1492,22 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 
 .article__body { padding-block: 8px 72px; }
 .article__part { margin-top: 40px; }
+/* The body as written in WordPress: plain elements, styled here. */
+.article__content h2 { font-size: var(--fs-h3); margin: 40px 0 14px; }
+.article__content h3 { font-size: var(--fs-h4); margin: 28px 0 10px; }
+.article__content p { line-height: 1.75; margin: 0 0 14px; }
+.article__content ul, .article__content ol { margin: 0 0 14px; padding-inline-start: 22px; line-height: 1.7; }
+.article__content li { margin-bottom: 8px; }
+.article__content li::marker { color: var(--color-green); font-weight: var(--fw-bold); }
+.article__content strong { color: var(--color-green-deep); }
+.article__content a { color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
+.article__content blockquote {
+  margin: 24px 0; padding: 16px 22px; border-radius: var(--radius-md);
+  background: var(--color-green-tint); border-inline-start: 3px solid var(--color-green);
+  color: var(--color-green-deep); font-family: var(--font-display);
+}
+.article__content blockquote p:last-child { margin: 0; }
+.article__lead + .article__content > h2:first-child { margin-top: 40px; }
 .article__part h2 { font-size: var(--fs-h3); margin: 0 0 14px; }
 .article__part p { line-height: 1.75; margin: 0 0 14px; }
 .article__lead {
@@ -1495,12 +1515,9 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   border-inline-start: 3px solid var(--color-green); border-radius: var(--radius-md);
   padding: 18px 22px; margin: 0 !important;
 }
-.article__list, .article__steps { margin: 0 0 14px; padding-inline-start: 22px; line-height: 1.7; }
-.article__list li, .article__steps li { margin-bottom: 8px; }
+.article__list { margin: 0 0 14px; padding-inline-start: 22px; line-height: 1.7; }
+.article__list li { margin-bottom: 8px; }
 .article__list li::marker { color: var(--color-green); }
-.article__steps li::marker { color: var(--color-green); font-weight: var(--fw-bold); }
-.article__factors strong { color: var(--color-green-deep); }
-.article__more a { color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
 .article__summary {
   background: var(--color-sky); border: 1px solid var(--border-reg);
   border-radius: var(--radius-card); padding: 22px 26px;
@@ -1538,3 +1555,10 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   .guide-thanks__inner { grid-template-columns: 1fr; }
   .guide-thanks .guide-cover { display: block; width: 160px; }
 }
+
+/* The article's image, set in WordPress */
+.article__image {
+  display: block; width: 100%; height: auto; max-height: 460px; object-fit: cover;
+  border-radius: var(--radius-card); margin: 32px 0 0;
+}
+.article__image + .article__lead { margin-top: 24px !important; }

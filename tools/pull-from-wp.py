@@ -114,7 +114,10 @@ def fresh(url):
 NO_CACHE = {'Accept': 'application/json', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
 
-def api(path, **params):
+def api(path, optional=False, **params):
+    """GET /wp-json/wp/v2/<path>. optional=True answers None, rather than
+    stopping the build, when the route does not exist: a feature of a newer
+    plugin than the one installed."""
     if not WP_URL:
         die('WP_URL is not set.')
     url = f'{WP_URL}/wp-json/wp/v2/{path}'
@@ -139,6 +142,8 @@ def api(path, **params):
                 f'unchanged and the next save in WordPress will try again.')
         if e.code in (401, 403):
             die(f'{url} returned HTTP {e.code}: WordPress refused the request.')
+        if e.code == 404 and optional:
+            return None
         die(f'{url} returned HTTP {e.code}. Check that the BioGreen plugin is '
             f'active — it registers this endpoint.')
     except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
@@ -157,7 +162,7 @@ def clean(html):
     return text.strip()
 
 
-def grab_image(url, slug):
+def grab_image(url, slug, prefix='product'):
     """Download an image into assets/img/ and return its repo-relative path.
 
     The editor will upload whatever their camera produced. Resizing here is what
@@ -169,7 +174,7 @@ def grab_image(url, slug):
     ext = os.path.splitext(urllib.parse.urlparse(url).path)[1].lower()
     if ext not in ('.jpg', '.jpeg', '.png', '.webp'):
         ext = '.jpg'
-    name = f'product-{slug}{".jpg" if ext != ".png" else ".png"}'
+    name = f'{prefix}-{slug}{".jpg" if ext != ".png" else ".png"}'
     dest = os.path.join(IMG_DIR, name)
     rel = f'assets/img/{name}'
 
@@ -523,6 +528,9 @@ def main():
         json.dump(doc, f, ensure_ascii=False, indent=2)
         f.write('\n')
 
+    # Before the image list is written: articles have images too.
+    pull_articles()
+
     # Only images this run used, so a deleted product's entry goes with it.
     with open(SOURCES, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(dict(sorted(_used_sources.items())), f, ensure_ascii=False, indent=2)
@@ -573,6 +581,63 @@ def pull_content():
         f.write('\n')
     n = sum(len(v) for v in data.values() if isinstance(v, dict))
     print(f'page texts: {n} edited in WordPress, on {len(data)} page(s) -> data/content.json')
+
+
+def pull_articles():
+    """Knowledge articles and their categories -> data/articles.json (see
+    tools/build-articles.py).
+
+    Before plugin 1.8.0 neither route exists; the articles already in the
+    repository are kept. Once they exist, WordPress is the source: an article
+    deleted or unpublished there disappears from the site.
+    """
+    terms = api('article_topics', optional=True, per_page=100)
+    posts = api('articles', optional=True, per_page=100, status='publish', _embed='wp:featuredmedia')
+    if terms is None or posts is None:
+        print('articles: not available yet (plugin 1.8.0 or later needed) — '
+              'the articles in data/articles.json are kept')
+        _used_sources.update({k: v for k, v in _seen_sources.items() if k.startswith('assets/img/article-')})
+        return
+
+    topics, by_id = [], {}
+    for t in terms:
+        meta = t.get('meta') or {}
+        slug = urllib.parse.unquote(t.get('slug') or '') or f'topic-{t["id"]}'
+        by_id[t['id']] = slug
+        topics.append({'slug': slug, 'name': clean(t.get('name')),
+                       'color': meta.get('color') or 'sky', 'icon': meta.get('icon') or 'book-open',
+                       'order': int(meta.get('order') or 0)})
+
+    articles = []
+    for p in posts:
+        meta = p.get('meta') or {}
+        title = clean((p.get('title') or {}).get('rendered'))
+        slug = urllib.parse.unquote(p.get('slug') or '')
+        # As with products: a Hebrew slug cannot be the address. Plugin 1.8.0
+        # writes article-<id> itself; this agrees with it.
+        if not re.fullmatch(r'[a-z0-9-]+', slug):
+            slug = f'article-{p["id"]}'
+        topic_ids = p.get('article_topics') or []
+        media = ((p.get('_embedded') or {}).get('wp:featuredmedia') or [{}])[0]
+        image = grab_image(media.get('source_url'), slug, 'article') if media.get('source_url') else ''
+        articles.append({
+            'id': p['id'], 'slug': slug, 'title': title,
+            'topic': by_id.get(topic_ids[0], '') if topic_ids else '',
+            'body': (p.get('content') or {}).get('rendered', ''),
+            'image': image or '', 'image_alt': clean(media.get('alt_text')) or title,
+            'seo_title': meta.get('seo_title', ''), 'description': meta.get('seo_description', ''),
+            'card_title': meta.get('card_title', ''), 'card_text': meta.get('card_text', ''),
+            'lead': meta.get('lead', ''), 'summary': meta.get('summary', ''), 'faq': meta.get('faq', ''),
+            'cta_title': meta.get('cta_title', ''), 'cta_text': meta.get('cta_text', ''),
+            'cta_button': meta.get('cta_button', ''), 'cta_link': meta.get('cta_link', ''),
+            'published': p.get('date', ''), 'modified': p.get('modified', ''),
+        })
+
+    path = os.path.join(ROOT, 'data', 'articles.json')
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump({'topics': topics, 'articles': articles}, f, ensure_ascii=False, indent=2)
+        f.write('\n')
+    print(f'articles: {len(articles)} published, {len(topics)} categories -> data/articles.json')
 
 
 if __name__ == '__main__':

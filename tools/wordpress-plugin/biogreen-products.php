@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.7.0
+ * Version:      1.8.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,16 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.8.0  "מאמרים": the knowledge articles, edited here like products. An
+ *        article is a title, the text in the block editor, a category and an
+ *        image (both in the sidebar), a sentence for its card and its FAQ;
+ *        SEO title, meta description and the page address beside them. The
+ *        design, buttons and closing call to action come from the site.
+ *        Categories ("מאמרים ← קטגוריות") take a background colour from the
+ *        site's tints, an icon and an order. The knowledge page lists every
+ *        published article and gives a tab to every category that has one.
+ *        On first run it creates the three categories and the first article,
+ *        which were in the site's code until now.
  * 1.7.0  A link per item in lists that support one (the glossary terms): its
  *        text, and where it goes, picked from the site's pages and their
  *        sections and terms, or any other address. Until now these links
@@ -75,7 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.7.0';
+const BIOGREEN_VERSION = '1.8.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -879,59 +889,7 @@ function biogreen_cms_render() {
 	?>
 	<div class="wrap bg-cms">
 		<h1>תוכן העמודים</h1>
-		<style>
-			.bg-cms { direction: rtl; }
-			.bg-cms .postbox { max-width: 980px; margin-top: 18px; }
-			.bg-cms .postbox h2 { font-size: 15px; padding: 12px 16px; margin: 0; border-bottom: 1px solid #f0f0f1; }
-			.bg-cms .form-table th { width: 220px; text-align: right; padding-right: 16px; }
-			.bg-cms input[type="text"], .bg-cms textarea {
-				width: 100%; direction: rtl; text-align: right; font-family: inherit;
-				font-size: 14px; line-height: 1.6;
-			}
-			.bg-cms .description { direction: rtl; text-align: right; }
-			.bg-cms .nav-tab-wrapper { margin-bottom: 4px; }
-			.bg-cms .bg-cms__bar { display: flex; gap: 12px; align-items: center; margin-top: 18px; }
-			.bg-cms .bg-cms__back { margin: 14px 0 0; }
-			.bg-cms .bg-cms__back a { text-decoration: none; }
-			.bg-cms .bg-cms__page { font-size: 20px; margin: 4px 0 0; }
-			.bg-cms .bg-cms__list { max-width: 980px; margin-top: 12px; }
-			.bg-cms .bg-cms__list th, .bg-cms .bg-cms__list td { text-align: right; vertical-align: middle; }
-			/* Title + text lists, one row per item */
-			.bg-cms .bg-rep-cell { padding: 15px 16px; }
-			.bg-cms .bg-rep__label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 10px; }
-			.bg-cms .bg-rep__tools { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
-			.bg-cms .bg-rep__tools input[type="search"] { width: 260px; direction: rtl; }
-			.bg-cms .bg-rep__count { color: #646970; }
-			.bg-cms .bg-rep__head, .bg-cms .bg-rep__item {
-				display: grid; grid-template-columns: 34px minmax(160px, 260px) 1fr auto; gap: 10px; align-items: start;
-			}
-			.bg-cms .bg-rep__head { font-weight: 600; color: #50575e; padding: 0 10px 6px; }
-			.bg-cms .bg-rep__item { padding: 10px; border: 1px solid #dcdcde; border-radius: 4px; background: #fff; margin-bottom: 8px; }
-			.bg-cms .bg-rep__item:nth-child(even) { background: #f6f7f7; }
-			.bg-cms .bg-rep__item--new { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
-			.bg-cms .bg-rep__item--error { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
-			.bg-cms .bg-rep__num { font-weight: 600; color: #646970; padding-top: 6px; text-align: center; }
-			.bg-cms .bg-rep__item .bg-rep__title { font-weight: 600; }
-			.bg-cms .bg-rep__link { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-			.bg-cms .bg-rep__link-label { color: #50575e; font-size: 13px; }
-			.bg-cms .bg-rep__link input.bg-rep__link-text { width: 260px; }
-			.bg-cms .bg-rep__link select { max-width: 340px; }
-			.bg-cms .bg-rep__link input.bg-rep__link-url { width: 260px; direction: ltr; text-align: left; }
-			.bg-cms .bg-rep__link-clear { color: #b32d2e; }
-			.bg-cms .bg-rep__item textarea { min-height: 60px; resize: vertical; }
-			.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
-			.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }
-			.bg-cms .bg-rep__actions .bg-rep__del { color: #b32d2e; border-color: #b32d2e; }
-			@media (max-width: 782px) {
-				.bg-cms .bg-rep__head { display: none; }
-				.bg-cms .bg-rep__item { grid-template-columns: 28px 1fr; }
-				.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions, .bg-cms .bg-rep__link { grid-column: 2; }
-				.bg-cms .bg-rep__link input.bg-rep__link-text, .bg-cms .bg-rep__link input.bg-rep__link-url,
-				.bg-cms .bg-rep__link select { width: 100%; max-width: none; }
-				.bg-cms .bg-rep__link { order: 1; }
-				.bg-cms .bg-rep__actions { order: 2; }
-			}
-		</style>
+		<?php biogreen_cms_styles(); ?>
 		<?php
 		if ( ! empty( $_GET['saved'] ) ) {
 			$last = get_option( 'biogreen_last_build' );
@@ -1341,7 +1299,13 @@ function biogreen_cms_repeater_script() {
 				return null;
 			}
 
-			rep.closest( 'form' ).addEventListener( 'submit', function ( e ) {
+			// The block editor saves its meta boxes without a submit event, so
+			// there this check does not run; the rows still save as typed.
+			var form = rep.closest( 'form' );
+			if ( ! form ) {
+				return;
+			}
+			form.addEventListener( 'submit', function ( e ) {
 				var bad = null;
 				list.querySelectorAll( '.bg-rep__item' ).forEach( function ( r ) {
 					var p = problem( r );
@@ -1362,6 +1326,68 @@ function biogreen_cms_repeater_script() {
 		} );
 	}() );
 	</script>
+	<?php
+}
+
+/**
+ * Styles of the "תוכן העמודים" screens, the row-per-item list editor among
+ * them, which the article screen uses too. Scoped to .bg-cms.
+ */
+function biogreen_cms_styles() {
+	?>
+	<style>
+		.bg-cms { direction: rtl; }
+		.bg-cms .postbox { max-width: 980px; margin-top: 18px; }
+		.bg-cms .postbox h2 { font-size: 15px; padding: 12px 16px; margin: 0; border-bottom: 1px solid #f0f0f1; }
+		.bg-cms .form-table th { width: 220px; text-align: right; padding-right: 16px; }
+		.bg-cms input[type="text"], .bg-cms textarea {
+			width: 100%; direction: rtl; text-align: right; font-family: inherit;
+			font-size: 14px; line-height: 1.6;
+		}
+		.bg-cms .description { direction: rtl; text-align: right; }
+		.bg-cms .nav-tab-wrapper { margin-bottom: 4px; }
+		.bg-cms .bg-cms__bar { display: flex; gap: 12px; align-items: center; margin-top: 18px; }
+		.bg-cms .bg-cms__back { margin: 14px 0 0; }
+		.bg-cms .bg-cms__back a { text-decoration: none; }
+		.bg-cms .bg-cms__page { font-size: 20px; margin: 4px 0 0; }
+		.bg-cms .bg-cms__list { max-width: 980px; margin-top: 12px; }
+		.bg-cms .bg-cms__list th, .bg-cms .bg-cms__list td { text-align: right; vertical-align: middle; }
+		/* Title + text lists, one row per item */
+		.bg-cms .bg-rep-cell { padding: 15px 16px; }
+		.bg-cms .bg-rep__label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+		.bg-cms .bg-rep__tools { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+		.bg-cms .bg-rep__tools input[type="search"] { width: 260px; direction: rtl; }
+		.bg-cms .bg-rep__count { color: #646970; }
+		.bg-cms .bg-rep__head, .bg-cms .bg-rep__item {
+			display: grid; grid-template-columns: 34px minmax(160px, 260px) 1fr auto; gap: 10px; align-items: start;
+		}
+		.bg-cms .bg-rep__head { font-weight: 600; color: #50575e; padding: 0 10px 6px; }
+		.bg-cms .bg-rep__item { padding: 10px; border: 1px solid #dcdcde; border-radius: 4px; background: #fff; margin-bottom: 8px; }
+		.bg-cms .bg-rep__item:nth-child(even) { background: #f6f7f7; }
+		.bg-cms .bg-rep__item--new { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
+		.bg-cms .bg-rep__item--error { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
+		.bg-cms .bg-rep__num { font-weight: 600; color: #646970; padding-top: 6px; text-align: center; }
+		.bg-cms .bg-rep__item .bg-rep__title { font-weight: 600; }
+		.bg-cms .bg-rep__link { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+		.bg-cms .bg-rep__link-label { color: #50575e; font-size: 13px; }
+		.bg-cms .bg-rep__link input.bg-rep__link-text { width: 260px; }
+		.bg-cms .bg-rep__link select { max-width: 340px; }
+		.bg-cms .bg-rep__link input.bg-rep__link-url { width: 260px; direction: ltr; text-align: left; }
+		.bg-cms .bg-rep__link-clear { color: #b32d2e; }
+		.bg-cms .bg-rep__item textarea { min-height: 60px; resize: vertical; }
+		.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
+		.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }
+		.bg-cms .bg-rep__actions .bg-rep__del { color: #b32d2e; border-color: #b32d2e; }
+		@media (max-width: 782px) {
+			.bg-cms .bg-rep__head { display: none; }
+			.bg-cms .bg-rep__item { grid-template-columns: 28px 1fr; }
+			.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions, .bg-cms .bg-rep__link { grid-column: 2; }
+			.bg-cms .bg-rep__link input.bg-rep__link-text, .bg-cms .bg-rep__link input.bg-rep__link-url,
+			.bg-cms .bg-rep__link select { width: 100%; max-width: none; }
+			.bg-cms .bg-rep__link { order: 1; }
+			.bg-cms .bg-rep__actions { order: 2; }
+		}
+	</style>
 	<?php
 }
 
@@ -1396,3 +1422,511 @@ function biogreen_cms_render_list( $pages ) {
 	<p class="bg-cms__bar"><a href="<?php echo esc_url( admin_url( 'admin.php?page=biogreen-content&refresh=1' ) ); ?>">רענון רשימת העמודים</a></p>
 	<?php
 }
+
+/* ==========================================================================
+   Knowledge articles (1.8.0)
+
+   "מאמרים" in the admin menu: articles in the block editor, in categories
+   that carry the colour and icon of their cards on /knowledge/. The build
+   reads both through REST (tools/pull-from-wp.py) and writes the pages
+   (tools/build-articles.py). The keys of the colours and icons below are the
+   ones the build knows; a new one needs adding there too.
+   ========================================================================== */
+
+/** Card colours: the site's own tints, nothing else. */
+function biogreen_topic_colors() {
+	return [
+		'sky'        => [ 'תכלת', '#D7EAF2' ],
+		'green'      => [ 'ירוק בהיר', '#E7F3EC' ],
+		'sand'       => [ 'חולי', '#EFE6D3' ],
+		'amber'      => [ 'כתום בהיר', '#FBEEDD' ],
+		'eucalyptus' => [ 'אקליפטוס', '#DDEBE2' ],
+	];
+}
+
+/** Card icons, from the site's sprite: key => [ name, SVG inner markup ]. */
+function biogreen_topic_icons() {
+	return [
+		'file-check' => [ 'מסמכים', '<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path> <path d="M14 2v5a1 1 0 0 0 1 1h5"></path> <path d="m9 15 2 2 4-4"></path>' ],
+		'shield-check' => [ 'מגן', '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path> <path d="m9 12 2 2 4-4"></path>' ],
+		'flask-conical' => [ 'מבחנה', '<path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"></path> <path d="M6.453 15h11.094"></path> <path d="M8.5 2h7"></path>' ],
+		'stamp' => [ 'חותמת', '<path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"></path> <path d="M20 15.5a2.5 2.5 0 0 0-2.5-2.5h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1z"></path> <path d="M5 22h14"></path>' ],
+		'microscope' => [ 'מיקרוסקופ', '<path d="M6 18h8"></path> <path d="M3 22h18"></path> <path d="M14 22a7 7 0 1 0 0-14h-1"></path> <path d="M9 14h2"></path> <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"></path> <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"></path>' ],
+		'droplets' => [ 'טיפות', '<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path> <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path>' ],
+		'heart-pulse' => [ 'דופק', '<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path> <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"></path>' ],
+		'boxes' => [ 'קופסאות', '<path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path> <path d="m7 16.5-4.74-2.85"></path> <path d="m7 16.5 5-3"></path> <path d="M7 16.5v5.17"></path> <path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"></path> <path d="m17 16.5-5-3"></path> <path d="m17 16.5 4.74-2.85"></path> <path d="M17 16.5v5.17"></path> <path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"></path> <path d="M12 8 7.26 5.15"></path> <path d="m12 8 4.74-2.85"></path> <path d="M12 13.5V8"></path>' ],
+		'truck' => [ 'משאית', '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path> <path d="M15 18H9"></path> <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path> <circle cx="17" cy="18" r="2"></circle> <circle cx="7" cy="18" r="2"></circle>' ],
+		'book-open' => [ 'ספר', '<path d="M12 7v14"></path> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>' ],
+		'handshake' => [ 'לחיצת יד', '<path d="m11 17 2 2a1 1 0 1 0 3-3"></path> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path> <path d="m21 3 1 11h-2"></path> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path> <path d="M3 4h8"></path>' ],
+		'building-2' => [ 'בניין', '<path d="M10 12h4"></path> <path d="M10 8h4"></path> <path d="M14 21v-3a2 2 0 0 0-4 0v3"></path> <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path> <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path>' ],
+	];
+}
+
+function biogreen_topic_icon_svg( $key, $size = 22 ) {
+	$icons = biogreen_topic_icons();
+	if ( empty( $icons[ $key ] ) ) {
+		return '';
+	}
+	return sprintf( '<svg width="%1$d" height="%1$d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" '
+		. 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%2$s</svg>', $size, $icons[ $key ][1] );
+}
+
+/**
+ * The article's own fields, below the editor: key => [ label, type, hint, group ].
+ * type: text | textarea | lines | pairs | link. group: main (what every
+ * article fills in), seo, more (optional: the article works without them).
+ * Title, body, category and image are WordPress's own: the title box, the
+ * block editor, and the sidebar's category and featured-image panels.
+ */
+function biogreen_article_fields() {
+	return [
+		'card_text'       => [ 'משפט לכרטיסייה', 'textarea', 'משפט אחד שמופיע בכרטיסייה של המאמר בעמוד ידע מקצועי.', 'main' ],
+		'faq'             => [ 'שאלות נפוצות', 'pairs', 'מהן נבנה אוטומטית ה-Schema של השאלות הנפוצות לגוגל.', 'main' ],
+		'seo_title'       => [ 'SEO Title', 'text', 'ריק = כותרת המאמר | ביוגרין.', 'seo' ],
+		'seo_description' => [ 'Meta Description', 'textarea', 'תיאור קצר שמופיע בתוצאות החיפוש.', 'seo' ],
+		'card_title'      => [ 'כותרת קצרה לכרטיסייה', 'text', 'ריק = כותרת המאמר.', 'more' ],
+		'lead'            => [ 'התשובה הקצרה', 'textarea', 'תיבה מודגשת בראש המאמר.', 'more' ],
+		'summary'         => [ 'בקצרה', 'lines', 'תיבה בסוף המאמר. נקודה בכל שורה.', 'more' ],
+		'cta_title'       => [ 'פנייה בסוף המאמר — כותרת', 'text', 'ריק = הפנייה הקבועה של האתר.', 'more' ],
+		'cta_text'        => [ 'פנייה בסוף המאמר — טקסט', 'textarea', '', 'more' ],
+		'cta_button'      => [ 'פנייה בסוף המאמר — טקסט הכפתור', 'text', '', 'more' ],
+		'cta_link'        => [ 'פנייה בסוף המאמר — לאן הכפתור מוביל', 'link', 'ריק = פותח את טופס הצעת המחיר.', 'more' ],
+	];
+}
+
+add_action( 'init', function () {
+	register_post_type( 'bg_article', [
+		'labels'        => [
+			'name'           => 'מאמרים',
+			'singular_name'  => 'מאמר',
+			'menu_name'      => 'מאמרים',
+			'all_items'      => 'כל המאמרים',
+			'add_new'        => 'מאמר חדש',
+			'add_new_item'   => 'מאמר חדש',
+			'edit_item'      => 'עריכת מאמר',
+			'new_item'       => 'מאמר חדש',
+			'search_items'   => 'חיפוש מאמרים',
+			'not_found'      => 'אין מאמרים',
+			'featured_image' => 'תמונת המאמר',
+			'set_featured_image' => 'בחירת תמונה למאמר',
+		],
+		'public'        => true,
+		'show_in_rest'  => true,      // the block editor and the build both need it
+		'rest_base'     => 'articles',
+		// 'custom-fields' keeps the meta in the REST response (see product).
+		'supports'      => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'revisions' ],
+		'menu_icon'     => 'dashicons-welcome-learn-more',
+		'menu_position' => 21,
+		'has_archive'   => false,
+		'rewrite'       => [ 'slug' => 'knowledge' ],
+	] );
+
+	register_taxonomy( 'article_topic', 'bg_article', [
+		'labels'            => [
+			'name'          => 'קטגוריות',
+			'singular_name' => 'קטגוריה',
+			'menu_name'     => 'קטגוריות',
+			'all_items'     => 'כל הקטגוריות',
+			'add_new_item'  => 'קטגוריה חדשה',
+			'edit_item'     => 'עריכת קטגוריה',
+			'search_items'  => 'חיפוש קטגוריות',
+			'not_found'     => 'אין קטגוריות',
+		],
+		// Hierarchical only for the editor's checkbox list; a tag box would
+		// invite a new category by typo.
+		'hierarchical'      => true,
+		'show_in_rest'      => true,
+		'rest_base'         => 'article_topics',
+		'show_admin_column' => true,
+	] );
+
+	foreach ( biogreen_article_fields() as $key => $def ) {
+		register_post_meta( 'bg_article', $key, [
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'auth_callback' => function () {
+				return current_user_can( 'edit_posts' );
+			},
+		] );
+	}
+	foreach ( [ 'color' => 'string', 'icon' => 'string', 'order' => 'integer' ] as $key => $type ) {
+		register_term_meta( 'article_topic', $key, [ 'type' => $type, 'single' => true, 'show_in_rest' => true ] );
+	}
+} );
+
+// The site shows headings, paragraphs, lists and quotes; nothing else would
+// reach it, so nothing else is offered.
+add_filter( 'allowed_block_types_all', function ( $allowed, $context ) {
+	if ( ! empty( $context->post ) && $context->post->post_type === 'bg_article' ) {
+		return [ 'core/paragraph', 'core/heading', 'core/list', 'core/list-item', 'core/quote' ];
+	}
+	return $allowed;
+}, 10, 2 );
+
+/* ---------------------------------------------------------- the article */
+
+add_action( 'add_meta_boxes_bg_article', function () {
+	add_meta_box( 'bg_article_details', 'פרטי המאמר', 'biogreen_article_box', 'bg_article', 'normal', 'high' );
+} );
+
+function biogreen_article_box( $post ) {
+	$schema = biogreen_cms_schema();
+	$links  = is_wp_error( $schema ) ? [] : ( $schema['links'] ?? [] );
+	$groups = [ 'main' => [], 'seo' => [], 'more' => [] ];
+	foreach ( biogreen_article_fields() as $key => $def ) {
+		$groups[ $def[3] ][ $key ] = $def;
+	}
+	wp_nonce_field( 'bg_article_save', 'bg_article_nonce' );
+	biogreen_cms_styles();
+	?>
+	<style>
+		.bg-article-box .form-table th { width: 180px; }
+		.bg-article-box h3 { margin: 22px 0 0; font-size: 14px; }
+		.bg-article-box .bg-article-help { margin: 4px 0 0; color: #50575e; }
+		.bg-article-box details { margin-top: 22px; border-top: 1px solid #dcdcde; padding-top: 12px; }
+		.bg-article-box summary { cursor: pointer; font-weight: 600; }
+		.bg-article-box .bg-article-slug { display: flex; align-items: center; gap: 4px; direction: ltr; justify-content: flex-end; }
+		.bg-article-box .bg-article-slug input { direction: ltr; text-align: left; max-width: 360px; }
+	</style>
+	<div class="bg-cms bg-article-box">
+		<p class="bg-article-help">ממלאים כותרת, טקסט, קטגוריה ותמונה (שתיהן בצד), ולמטה משפט לכרטיסייה ושאלות נפוצות.
+			העיצוב, הכפתורים והפנייה בסוף המאמר מתווספים אוטומטית.</p>
+		<?php biogreen_article_rows( $post, $groups['main'] ); ?>
+
+		<h3>SEO</h3>
+		<table class="form-table"><tbody>
+			<tr>
+				<th><label for="bg-article-slug">כתובת העמוד</label></th>
+				<td>
+					<div class="bg-article-slug"><span>/knowledge/</span>
+						<input type="text" id="bg-article-slug" name="bg_article[slug]" value="<?php echo esc_attr( urldecode( $post->post_name ) ); ?>" placeholder="import-supplements-israel"><span>/</span></div>
+					<p class="description">באנגלית: אותיות קטנות, ספרות ומקפים. ריק או בעברית = article-<?php echo (int) $post->ID; ?>.</p>
+				</td>
+			</tr>
+		</tbody></table>
+		<?php biogreen_article_rows( $post, $groups['seo'] ); ?>
+
+		<details>
+			<summary>הגדרות נוספות (לא חובה)</summary>
+			<?php biogreen_article_rows( $post, $groups['more'] ); ?>
+		</details>
+
+		<datalist id="bg-article-pages">
+			<?php foreach ( $links as $page ) : ?>
+				<option value="<?php echo esc_attr( $page['url'] ); ?>"><?php echo esc_html( $page['label'] ); ?></option>
+				<?php foreach ( $page['anchors'] ?? [] as $anchor ) : ?>
+					<option value="<?php echo esc_attr( $anchor['url'] ); ?>"><?php echo esc_html( $page['label'] . ' › ' . $anchor['label'] ); ?></option>
+				<?php endforeach; ?>
+			<?php endforeach; ?>
+		</datalist>
+	</div>
+	<script type="application/json" id="bg-cms-links"><?php echo wp_json_encode( $links ); ?></script>
+	<?php
+	biogreen_cms_repeater_script();
+}
+
+/** One table of article fields. */
+function biogreen_article_rows( $post, $fields ) {
+	?>
+	<table class="form-table"><tbody>
+	<?php foreach ( $fields as $key => $def ) :
+		[ $label, $type, $hint ] = $def;
+		$id    = 'bg-article-' . $key;
+		$name  = 'bg_article[' . $key . ']';
+		$value = (string) get_post_meta( $post->ID, $key, true );
+		if ( $type === 'pairs' ) : ?>
+			<tr><td colspan="2" class="bg-rep-cell">
+				<label class="bg-rep__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label>
+				<?php if ( $hint ) : ?><p class="description"><?php echo esc_html( $hint ); ?></p><?php endif; ?>
+				<div class="bg-rep" data-fixed="0" data-labels="שאלה|תשובה" data-links>
+					<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="8"><?php echo esc_textarea( $value ); ?></textarea>
+				</div>
+			</td></tr>
+			<?php continue;
+		endif; ?>
+		<tr>
+			<th><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label></th>
+			<td>
+				<?php if ( $type === 'text' ) : ?>
+					<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>">
+				<?php elseif ( $type === 'link' ) : ?>
+					<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>"
+						list="bg-article-pages" dir="ltr" style="text-align:left" placeholder="/import-regulation/#feasibility">
+				<?php else : ?>
+					<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
+						rows="<?php echo $type === 'lines' ? 4 : 3; ?>"><?php echo esc_textarea( $value ); ?></textarea>
+				<?php endif; ?>
+				<?php if ( $hint ) : ?><p class="description"><?php echo esc_html( $hint ); ?></p><?php endif; ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</tbody></table>
+	<?php
+}
+
+add_action( 'save_post_bg_article', function ( $post_id ) {
+	if ( empty( $_POST['bg_article_nonce'] )
+		|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bg_article_nonce'] ) ), 'bg_article_save' )
+		|| ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+		|| ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+	$in = isset( $_POST['bg_article'] ) && is_array( $_POST['bg_article'] ) ? wp_unslash( $_POST['bg_article'] ) : [];
+	foreach ( biogreen_article_fields() as $key => $def ) {
+		if ( ! isset( $in[ $key ] ) ) {
+			continue;
+		}
+		$value = in_array( $def[1], [ 'text', 'link' ], true )
+			? sanitize_text_field( $in[ $key ] )
+			: sanitize_textarea_field( $in[ $key ] );
+		update_post_meta( $post_id, $key, $value );
+	}
+}, 10 );
+
+/**
+ * The address: /knowledge/<slug>/. The "כתובת העמוד" field sets it; a slug
+ * that is not plain Latin — WordPress makes a Hebrew one from a Hebrew title —
+ * becomes article-<ID>, the same rule as products (see there), which the
+ * build applies too. Written to the row directly so save_post does not fire
+ * again; priority 5, ahead of the rebuild at 99.
+ */
+add_action( 'save_post_bg_article', function ( $post_id, $post ) {
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || $post->post_status === 'auto-draft' ) {
+		return;
+	}
+	$current = urldecode( $post->post_name );
+	$slug    = $current;
+	if ( isset( $_POST['bg_article']['slug'], $_POST['bg_article_nonce'] )
+		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bg_article_nonce'] ) ), 'bg_article_save' ) ) {
+		$slug = urldecode( sanitize_title( wp_unslash( $_POST['bg_article']['slug'] ) ) );
+	}
+	if ( ! preg_match( '/^[a-z0-9-]+$/', $slug ) || in_array( $slug, [ 'glossary', 'guide-thanks' ], true ) ) {
+		$slug = 'article-' . $post_id;
+	}
+	if ( $slug === $current ) {
+		return;
+	}
+	// Two articles cannot share an address.
+	$taken = get_posts( [ 'post_type' => 'bg_article', 'name' => $slug, 'post_status' => 'any',
+		'exclude' => [ $post_id ], 'numberposts' => 1, 'fields' => 'ids' ] );
+	if ( $taken ) {
+		$slug .= '-' . $post_id;
+	}
+	global $wpdb;
+	$wpdb->update( $wpdb->posts, [ 'post_name' => $slug ], [ 'ID' => $post_id ] );
+	clean_post_cache( $post_id );
+}, 5, 2 );
+
+/* ------------------------------------------------- rebuild on every change */
+
+add_action( 'save_post_bg_article', function ( $post_id, $post ) {
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || $post->post_status === 'auto-draft' ) {
+		return;
+	}
+	biogreen_trigger_build();
+}, 99, 2 );
+
+add_action( 'deleted_post', function ( $post_id, $post ) {
+	if ( $post && $post->post_type === 'bg_article' ) {
+		biogreen_trigger_build();
+	}
+}, 10, 2 );
+
+foreach ( [ 'created_article_topic', 'edited_article_topic', 'delete_article_topic' ] as $hook ) {
+	add_action( $hook, function () {
+		biogreen_trigger_build();
+	}, 99 );
+}
+
+/* ------------------------------------------------------------ categories */
+
+/** The colour, icon and order controls, for the add and the edit screen. */
+function biogreen_topic_controls( $term = null ) {
+	$color = ( $term ? get_term_meta( $term->term_id, 'color', true ) : '' ) ?: 'sky';
+	$icon  = ( $term ? get_term_meta( $term->term_id, 'icon', true ) : '' ) ?: 'book-open';
+	$order = $term ? (int) get_term_meta( $term->term_id, 'order', true ) : 0;
+	ob_start();
+	?>
+	<style>
+		.bg-topic-choices { display: flex; flex-wrap: wrap; gap: 8px; direction: rtl; }
+		.bg-topic-choice { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+			border: 1px solid #dcdcde; border-radius: 6px; background: #fff; cursor: pointer; }
+		.bg-topic-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+		.bg-topic-choice:has(input:checked) { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
+		.bg-topic-choice:has(input:focus-visible) { outline: 2px solid #2271b1; outline-offset: 2px; }
+		.bg-topic-dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); }
+		.bg-topic-icon { color: #0B8F5A; padding: 8px; }
+	</style>
+	<?php
+	$style = ob_get_clean();
+
+	ob_start();
+	echo '<div class="bg-topic-choices" role="radiogroup" aria-label="צבע רקע">';
+	foreach ( biogreen_topic_colors() as $key => $c ) {
+		printf( '<label class="bg-topic-choice"><input type="radio" name="bg_topic[color]" value="%1$s"%2$s>'
+			. '<span class="bg-topic-dot" style="background:%3$s"></span>%4$s</label>',
+			esc_attr( $key ), checked( $color, $key, false ), esc_attr( $c[1] ), esc_html( $c[0] ) );
+	}
+	echo '</div>';
+	$colors = ob_get_clean();
+
+	ob_start();
+	echo '<div class="bg-topic-choices" role="radiogroup" aria-label="אייקון">';
+	foreach ( biogreen_topic_icons() as $key => $i ) {
+		printf( '<label class="bg-topic-choice bg-topic-icon" title="%3$s"><input type="radio" name="bg_topic[icon]" value="%1$s"%2$s>'
+			. '%4$s<span class="screen-reader-text">%3$s</span></label>',
+			esc_attr( $key ), checked( $icon, $key, false ), esc_attr( $i[0] ), biogreen_topic_icon_svg( $key ) );
+	}
+	echo '</div>';
+	$icons = ob_get_clean();
+
+	$order_input = sprintf( '<input type="number" id="bg-topic-order" name="bg_topic[order]" value="%d" min="0" style="width:90px">', $order );
+	return [ $style, $colors, $icons, $order_input ];
+}
+
+add_action( 'article_topic_add_form_fields', function () {
+	[ $style, $colors, $icons, $order ] = biogreen_topic_controls();
+	// All four are markup built above from fixed lists and escaped values.
+	echo $style; // phpcs:ignore WordPress.Security.EscapeOutput
+	?>
+	<div class="form-field"><label>צבע רקע לכרטיסיות</label><?php echo $colors; // phpcs:ignore ?></div>
+	<div class="form-field"><label>אייקון</label><?php echo $icons; // phpcs:ignore ?></div>
+	<div class="form-field"><label for="bg-topic-order">סדר</label><?php echo $order; // phpcs:ignore ?>
+		<p>סדר הלשוניות בעמוד ידע מקצועי: מספר קטן קודם. קטגוריה בלי מאמרים לא מוצגת.</p></div>
+	<?php
+} );
+
+add_action( 'article_topic_edit_form_fields', function ( $term ) {
+	[ $style, $colors, $icons, $order ] = biogreen_topic_controls( $term );
+	echo $style; // phpcs:ignore WordPress.Security.EscapeOutput
+	?>
+	<tr class="form-field"><th>צבע רקע לכרטיסיות</th><td><?php echo $colors; // phpcs:ignore ?></td></tr>
+	<tr class="form-field"><th>אייקון</th><td><?php echo $icons; // phpcs:ignore ?></td></tr>
+	<tr class="form-field"><th><label for="bg-topic-order">סדר</label></th><td><?php echo $order; // phpcs:ignore ?>
+		<p class="description">סדר הלשוניות בעמוד ידע מקצועי: מספר קטן קודם. קטגוריה בלי מאמרים לא מוצגת.</p></td></tr>
+	<?php
+} );
+
+/** WordPress's own term screens check their nonce before these hooks run. */
+function biogreen_save_topic( $term_id ) {
+	if ( ! current_user_can( 'manage_categories' ) || empty( $_POST['bg_topic'] ) || ! is_array( $_POST['bg_topic'] ) ) {
+		return;
+	}
+	$in = wp_unslash( $_POST['bg_topic'] );
+	if ( isset( $in['color'] ) && isset( biogreen_topic_colors()[ $in['color'] ] ) ) {
+		update_term_meta( $term_id, 'color', $in['color'] );
+	}
+	if ( isset( $in['icon'] ) && isset( biogreen_topic_icons()[ $in['icon'] ] ) ) {
+		update_term_meta( $term_id, 'icon', $in['icon'] );
+	}
+	if ( isset( $in['order'] ) ) {
+		update_term_meta( $term_id, 'order', max( 0, (int) $in['order'] ) );
+	}
+}
+// Ahead of the rebuild (99), so the build reads the new colour.
+add_action( 'created_article_topic', 'biogreen_save_topic', 10 );
+add_action( 'edited_article_topic', 'biogreen_save_topic', 10 );
+
+// The category list shows each one's card colour and icon, and its order.
+add_filter( 'manage_edit-article_topic_columns', function ( $cols ) {
+	$out = [];
+	foreach ( $cols as $key => $label ) {
+		if ( $key === 'description' ) {
+			continue;
+		}
+		$out[ $key ] = $label;
+		if ( $key === 'name' ) {
+			$out['bg_card']  = 'כרטיסייה';
+			$out['bg_order'] = 'סדר';
+		}
+	}
+	return $out;
+} );
+add_filter( 'manage_article_topic_custom_column', function ( $content, $column, $term_id ) {
+	if ( $column === 'bg_order' ) {
+		return (string) (int) get_term_meta( $term_id, 'order', true );
+	}
+	if ( $column !== 'bg_card' ) {
+		return $content;
+	}
+	$colors = biogreen_topic_colors();
+	$hex    = $colors[ get_term_meta( $term_id, 'color', true ) ][1] ?? $colors['sky'][1];
+	return sprintf( '<span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:%s;color:#0B8F5A">%s</span>',
+		esc_attr( $hex ), biogreen_topic_icon_svg( get_term_meta( $term_id, 'icon', true ) ?: 'book-open', 20 ) );
+}, 10, 3 );
+
+// The article list can be narrowed to one category.
+add_action( 'restrict_manage_posts', function ( $post_type ) {
+	if ( $post_type !== 'bg_article' ) {
+		return;
+	}
+	wp_dropdown_categories( [
+		'taxonomy'        => 'article_topic',
+		'name'            => 'article_topic',
+		'value_field'     => 'slug',
+		'show_option_all' => 'כל הקטגוריות',
+		'hide_empty'      => false,
+		'selected'        => sanitize_text_field( wp_unslash( $_GET['article_topic'] ?? '' ) ),
+	] );
+} );
+
+/* ---------------------------------------------------------- first install */
+
+/**
+ * The categories and the first article were built by hand before articles
+ * moved here. On the first admin page load of 1.8.0 they are created from
+ * seed/articles.json, so nobody retypes them — once: an option records it, a
+ * category that exists is left alone, and no article is created where any
+ * article already exists.
+ */
+add_action( 'admin_init', function () {
+	if ( get_option( 'biogreen_articles_seeded' ) || ! current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+	update_option( 'biogreen_articles_seeded', BIOGREEN_VERSION, false );
+
+	$file = __DIR__ . '/seed/articles.json';
+	$seed = is_readable( $file ) ? json_decode( (string) file_get_contents( $file ), true ) : null;
+	if ( ! is_array( $seed ) ) {
+		return;
+	}
+
+	foreach ( $seed['topics'] ?? [] as $t ) {
+		if ( term_exists( $t['slug'], 'article_topic' ) ) {
+			continue;
+		}
+		$made = wp_insert_term( $t['name'], 'article_topic', [ 'slug' => $t['slug'] ] );
+		if ( ! is_wp_error( $made ) ) {
+			update_term_meta( $made['term_id'], 'color', $t['color'] );
+			update_term_meta( $made['term_id'], 'icon', $t['icon'] );
+			update_term_meta( $made['term_id'], 'order', (int) $t['order'] );
+		}
+	}
+
+	$existing = get_posts( [ 'post_type' => 'bg_article', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids' ] );
+	if ( ! $existing ) {
+		foreach ( $seed['articles'] ?? [] as $a ) {
+			$id = wp_insert_post( [
+				'post_type'    => 'bg_article',
+				'post_status'  => 'publish',
+				'post_title'   => $a['title'],
+				'post_name'    => $a['slug'],
+				'post_content' => $a['content'],
+				'post_date'    => $a['date'] ?? current_time( 'mysql' ),
+				'post_author'  => get_current_user_id(),
+			], true );
+			if ( is_wp_error( $id ) ) {
+				continue;
+			}
+			foreach ( biogreen_article_fields() as $key => $def ) {
+				$from = $key === 'seo_description' ? 'description' : $key;
+				if ( isset( $a[ $from ] ) ) {
+					update_post_meta( $id, $key, $a[ $from ] );
+				}
+			}
+			wp_set_object_terms( $id, [ $a['topic'] ], 'article_topic' );
+		}
+	}
+	biogreen_trigger_build();
+} );
