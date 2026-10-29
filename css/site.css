@@ -1403,3 +1403,9 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   .duty { padding: 14px 16px; }
   .form-chip { font-size: 15px; padding: 10px 16px; }
 }
+
+/* Inner pages with many blocks in a row (import & regulation, Private
+   Label): the client asked for one grid cell above each block's content
+   instead of three. Top only; the dark importer band keeps its padding, as
+   a closed box it would look lopsided. */
+.sections-tight .section:not(.importer-band) { padding-top: var(--grid-size); }
