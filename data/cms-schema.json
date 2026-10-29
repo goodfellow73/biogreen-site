@@ -1658,6 +1658,11 @@
       "anchors": []
     },
     {
+      "url": "/products/lions-mane/",
+      "label": "מוצר אבקת פטריה רעמת האריה הרסיום",
+      "anchors": []
+    },
+    {
       "url": "/products/mega-detox/",
       "label": "מוצר פדים לניקוי רעלים Mega Detox",
       "anchors": []
@@ -1670,11 +1675,6 @@
     {
       "url": "/products/product-32/",
       "label": "מוצר אבקת אננס",
-      "anchors": []
-    },
-    {
-      "url": "/products/turmeric-extract/",
-      "label": "מוצר תמצית כורכום גולמית",
       "anchors": []
     }
   ]
