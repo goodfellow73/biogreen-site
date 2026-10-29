@@ -257,7 +257,7 @@ LINK_TEMPLATE = re.compile(r'<template data-cms-link-template>(.*?)</template>',
 
 def site_url(href, page_dir):
     """A page-relative href -> the same address from the site root."""
-    if re.match(r'^(?:[a-z][a-z0-9+.-]*:|#|/)', href, re.I):
+    if re.match(r'^(?:[a-z][a-z0-9+.-]*:|/)', href, re.I):
         return href
     full = urljoin('http://site/' + (page_dir + '/' if page_dir else ''), href)
     return full[len('http://site'):]
@@ -265,15 +265,25 @@ def site_url(href, page_dir):
 
 def page_href(url, page_dir):
     """A URL as typed or picked in the editor -> an href for this page, or
-    None when it is not one a link may carry (javascript: and the like)."""
+    None when it is not one a link may carry (javascript: and the like).
+
+    Inside this page's folder the href is the short one ("glossary/#coa",
+    "#contact-form" for this very page); anywhere else it climbs to the site
+    root first. Either way a page saved unchanged comes back unchanged."""
     url = url.strip()
     if re.match(r'^(?:https?://|mailto:|tel:|#)', url, re.I):
         return url
     if re.match(r'^[a-z][a-z0-9+.-]*:', url, re.I):
         return None
-    up = '../' * (page_dir.count('/') + 1) if page_dir else ''
-    path = url.lstrip('/')
-    return (up + path) or './'
+    path, hash_, frag = url.lstrip('/').partition('#')
+    here = page_dir + '/' if page_dir else ''
+    if path.startswith(here):
+        rel = path[len(here):]
+    else:
+        rel = '../' * (page_dir.count('/') + 1) + path
+    if not rel:
+        return hash_ + frag if frag else './'
+    return rel + hash_ + frag
 
 
 def read_link(item, page_dir):

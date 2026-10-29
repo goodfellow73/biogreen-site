@@ -186,9 +186,16 @@ const FORMS = {
      names its thank-you element in data-form-done needs no code here. The
      quote modal and the product form keep their own handlers above and below,
      because their success states do more than reveal one element. */
-  document.querySelectorAll('form[data-form-type][data-form-done]').forEach(function (form) {
+  document.querySelectorAll('form[data-form-type][data-form-done], form[data-form-type][data-form-redirect]').forEach(function (form) {
     const done = document.getElementById(form.getAttribute('data-form-done'));
+    const redirect = form.getAttribute('data-form-redirect');
     wireForm(form, function () {
+      // A thank-you page of its own (the guide's download button lives
+      // there), relative to this page.
+      if (redirect) {
+        window.location.href = new URL(redirect, window.location.href).href;
+        return;
+      }
       form.hidden = true;
       if (done) {
         done.hidden = false;
@@ -343,6 +350,53 @@ const FORMS = {
         if (top < 0) window.scrollBy(0, top);
       });
     });
+  }
+
+  /* ---------- knowledge hub: topic tabs and search ---------- */
+
+  // Both only hide cards; every article stays in the markup. A search from
+  // the hero scrolls to the cards it filtered.
+  const kGrid = document.getElementById('k-grid');
+
+  if (kGrid) {
+    const kCards = kGrid.querySelectorAll('.k-card');
+    const kTabs = document.querySelectorAll('.k-filters .bg-tab');
+    const kSearch = document.getElementById('k-q');
+    const kEmpty = document.querySelector('.k-empty');
+    let topic = 'all';
+
+    const kApply = function () {
+      const q = kSearch ? kSearch.value.trim() : '';
+      let shown = 0;
+      kCards.forEach(function (c) {
+        const match = (topic === 'all' || c.getAttribute('data-category') === topic) &&
+          (!q || c.textContent.indexOf(q) !== -1);
+        c.hidden = !match;
+        if (match) shown++;
+      });
+      if (kEmpty) kEmpty.hidden = shown > 0;
+    };
+
+    kTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        topic = tab.getAttribute('data-filter');
+        kTabs.forEach(function (t) {
+          const on = t === tab;
+          t.classList.toggle('bg-tab--active', on);
+          t.setAttribute('aria-selected', String(on));
+        });
+        kApply();
+      });
+    });
+
+    if (kSearch) {
+      kSearch.addEventListener('input', kApply);
+      kSearch.form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        kApply();
+        document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
+      });
+    }
   }
 
   /* ---------- product page tabs ---------- */

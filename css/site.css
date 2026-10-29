@@ -1409,3 +1409,132 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
    instead of three. Top only; the dark importer band keeps its padding, as
    a closed box it would look lopsided. */
 .sections-tight .section:not(.importer-band) { padding-top: var(--grid-size); }
+
+/* ==========================================================================
+   Knowledge hub (/knowledge/) and its articles
+   ========================================================================== */
+
+/* 1 — search under the intro */
+.k-search { position: relative; max-width: 560px; }
+.k-search .bg-input { padding-inline-start: 46px; font-size: 16px; }
+.k-search__icon {
+  position: absolute; inset-inline-start: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--color-green); pointer-events: none;
+}
+
+/* 2 — the mini library */
+.k-filters .bg-tabs { justify-content: center; flex-wrap: wrap; margin-top: 28px; border-bottom: none; }
+.k-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 28px; }
+.k-card {
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  border-radius: var(--radius-card); padding: 24px;
+  background: var(--k-bg); border: 1px solid var(--k-border);
+  transition: box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.k-card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+.k-card--import   { --k-bg: var(--color-sky);        --k-border: var(--border-reg); }
+.k-card--products { --k-bg: var(--color-green-tint); --k-border: #CBE3D5; }
+.k-card--quality  { --k-bg: var(--color-sand);       --k-border: #E0D2B4; }
+.k-card__icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--color-green);
+}
+/* Green-deep, not the spec's #0B8F5A: at 13px that green falls under 4.5:1
+   on all three card colours. The icon keeps the lighter green. */
+.k-card__cat {
+  margin: 0; font-size: 13px; font-weight: var(--fw-semibold); color: var(--color-green-deep);
+  letter-spacing: var(--ls-label);
+}
+.k-card__title { margin: 0; font-size: var(--fs-h4); line-height: 1.3; }
+.k-card__title a { color: var(--text-heading); }
+/* The whole card is the link. */
+.k-card__title a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.k-card__title a:focus-visible { outline: none; }
+.k-card:has(a:focus-visible) { outline: 2px solid var(--color-green); outline-offset: 3px; }
+.k-card__text { margin: 0; color: var(--text-muted); line-height: 1.6; }
+.k-card__more {
+  margin-top: auto; display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-display); font-weight: var(--fw-semibold); color: var(--color-green-deep);
+}
+.k-empty { margin: 28px 0 0; text-align: center; color: var(--text-muted); }
+.k-empty a { color: var(--color-green-deep); text-decoration: underline; }
+
+/* 3 — the guide's cover beside its form */
+.guide-cover {
+  display: block; width: 200px; height: auto; margin-top: 24px;
+  border-radius: 6px; box-shadow: var(--shadow-card); border: 1px solid var(--border-card);
+}
+
+/* 4 — glossary preview */
+.k-terms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 36px; }
+.k-term {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 18px 20px;
+}
+.k-term__name { margin: 0; font-size: 18px; line-height: 1.3; color: var(--text-heading); }
+.k-term__def { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-muted); }
+.k-term__more { margin: auto 0 0; font-size: 14px; }
+.k-term__more a { color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
+
+/* The article page ---------------------------------------------------- */
+
+.article__shell { max-width: 800px; }
+.breadcrumb { display: flex; gap: 8px; font-size: 14px; color: var(--text-muted); margin-bottom: 14px; }
+.breadcrumb a { color: var(--color-green-deep); text-decoration: underline; text-underline-offset: 3px; }
+.article-hero h1 { font-size: 40px; max-width: none; }
+.article__meta { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+.article__body { padding-block: 8px 72px; }
+.article__part { margin-top: 40px; }
+.article__part h2 { font-size: var(--fs-h3); margin: 0 0 14px; }
+.article__part p { line-height: 1.75; margin: 0 0 14px; }
+.article__lead {
+  font-size: 19px; color: var(--color-green-deep); background: var(--color-green-tint);
+  border-inline-start: 3px solid var(--color-green); border-radius: var(--radius-md);
+  padding: 18px 22px; margin: 0 !important;
+}
+.article__list, .article__steps { margin: 0 0 14px; padding-inline-start: 22px; line-height: 1.7; }
+.article__list li, .article__steps li { margin-bottom: 8px; }
+.article__list li::marker { color: var(--color-green); }
+.article__steps li::marker { color: var(--color-green); font-weight: var(--fw-bold); }
+.article__factors strong { color: var(--color-green-deep); }
+.article__more a { color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
+.article__summary {
+  background: var(--color-sky); border: 1px solid var(--border-reg);
+  border-radius: var(--radius-card); padding: 22px 26px;
+}
+.article__summary .article__list { margin: 0; }
+.article .faq__list { margin-top: 16px; }
+
+.final-cta__more { margin: 14px 0 0 !important; font-size: 16px !important; }
+.final-cta__more a {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* The guide's thank-you page */
+.guide-thanks__inner { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+.guide-thanks .guide-cover { width: 220px; margin: 0; }
+.guide-thanks__note { margin: 20px 0 0; color: var(--text-muted); font-size: 15px; }
+
+@media (max-width: 1080px) {
+  .k-grid { grid-template-columns: repeat(2, 1fr); }
+  .k-terms { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .k-grid, .k-terms { grid-template-columns: 1fr; }
+  .k-filters .bg-tabs { gap: 8px; }
+  .k-filters .bg-tab {
+    font-size: 14px; padding: 8px 13px; border: 1px solid var(--border-card);
+    border-radius: 999px; margin-bottom: 0; background: #fff;
+  }
+  .k-filters .bg-tab--active { color: #fff; background: var(--color-green); border-color: var(--color-green); }
+  .guide-cover { display: none; }
+  .article-hero h1 { font-size: var(--fs-h2); }
+  .article__lead { font-size: 17px; }
+  .guide-thanks__inner { grid-template-columns: 1fr; }
+  .guide-thanks .guide-cover { display: block; width: 160px; }
+}

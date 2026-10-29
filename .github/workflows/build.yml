@@ -109,12 +109,14 @@ jobs:
         # cms.py first: the page texts edited in WordPress go into the HTML
         # before sync-shell copies index.html's shell out. build-glossary
         # straight after: a term added in WordPress needs its anchor; and
-        # FAQ schema follows the questions as edited. The
+        # the knowledge hub's cards follow the articles' own pages; FAQ
+        # schema follows the questions as edited. The
         # field list the plugin shows is read back once every page exists,
         # so its link picker already offers a product added in this build.
         run: |
           python tools/cms.py apply
           python tools/build-glossary.py
+          python tools/build-knowledge.py
           python tools/build-faq-schema.py
           python tools/sync-shell.py
           python tools/build-products.py
