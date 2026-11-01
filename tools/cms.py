@@ -169,6 +169,16 @@ def para_value(fragment):
     return '\n'.join(l.strip() for l in s.split('\n')).strip()
 
 
+TIME_RANGE = re.compile(r'(?<![\d:])(\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2})(?![\d:])')
+
+
+def ltr_ranges(escaped):
+    """Hours typed as "9:00–17:00" read "17:00–9:00" in a right-to-left line:
+    the browser lays the two numbers out right to left around the dash. Kept
+    left to right; reading the text back strips the span, so it round-trips."""
+    return TIME_RANGE.sub(r'<span dir="ltr">\1</span>', escaped)
+
+
 def para_html(value, link_template=None):
     """The client's text -> inner HTML."""
     lines = [l.strip() for l in value.replace('\r\n', '\n').split('\n')]
@@ -178,7 +188,7 @@ def para_html(value, link_template=None):
         buf = []
         for i, part in enumerate(parts):
             if i % 2 == 0:
-                buf.append(html.escape(part, quote=False))
+                buf.append(ltr_ranges(html.escape(part, quote=False)))
             elif link_template:
                 buf.append(link_template[0] + html.escape(part, quote=False) + link_template[1])
             else:
@@ -406,7 +416,7 @@ def write_field(open_tag, inner, value, page_dir=''):
         return re.sub(r'(\s%s=")[^"]*(")' % re.escape(target),
                       lambda m: m.group(1) + new + m.group(2), open_tag, count=1), inner
     if kind in ('text', 'long'):
-        return open_tag, html.escape(re.sub(r'\s+', ' ', value).strip(), quote=False)
+        return open_tag, ltr_ranges(html.escape(re.sub(r'\s+', ' ', value).strip(), quote=False))
     if kind == 'para':
         link = re.search(r'(<a\b[^>]*>).*?(</a>)', inner, re.S)
         return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None)

@@ -320,7 +320,7 @@ def page(art, topic, pre, post):
     </div>
     <div class="btn-row">
       {button}
-      <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="#">
+      <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="https://wa.me/972722503833">
         <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו</span>
       </a>
     </div>

@@ -307,7 +307,7 @@ def build(page, prod, cats, sprite, header, footer):
     hero_copy = '\n'.join(copy)
 
     description = (page.get('lede') or '').strip() or (
-        f"{prod['name']} — " + ' · '.join(prod.get('benefits') or []) + '. ביו-גרין, יבוא ואספקה לעסקים.')
+        f"{prod['name']} — " + ' · '.join(prod.get('benefits') or []) + '. ביוגרין, יבוא ואספקה לעסקים.')
     bar, panels = render_tabs(tabs)
 
     # With every tab empty there is nothing to switch between, so the bar and
@@ -336,7 +336,7 @@ def build(page, prod, cats, sprite, header, footer):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(prod['name'])} | ביו-גרין</title>
+<title>{esc(prod['name'])} | ביוגרין</title>
 <meta name="description" content="{esc(description)}">
 <link rel="icon" href="{UP}assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/heebo-700-hebrew.woff2" crossorigin>
@@ -370,7 +370,7 @@ def build(page, prod, cats, sprite, header, footer):
         <a class="bg-btn bg-btn--primary bg-btn--lg" href="#quote">
           <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
         </a>
-        <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="#">
+        <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="https://wa.me/972722503833">
           <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו ב-WhatsApp</span>
         </a>
       </div>
@@ -439,7 +439,7 @@ def build(page, prod, cats, sprite, header, footer):
       <span class="modal__done-mark"><svg class="icon" width="34" height="34"><use href="#i-circle-check-big"></use></svg></span>
       <h3>תודה, קיבלנו את הפרטים</h3>
       <p>נחזור אליכם בהקדם עם מידע נוסף והצעת מחיר.</p>
-      <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+      <a class="bg-btn bg-btn--whatsapp" data-wa href="https://wa.me/972722503833">
         <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>דברו איתנו בוואטסאפ</span>
       </a>
     </div>
@@ -450,15 +450,15 @@ def build(page, prod, cats, sprite, header, footer):
 
 {footer}
 
-<a class="bg-btn bg-btn--whatsapp fab" data-wa href="#">
+<a class="bg-btn bg-btn--whatsapp fab" data-wa href="https://wa.me/972722503833">
   <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
 </a>
 
 <div class="mobile-bar">
-  <a class="bg-btn bg-btn--secondary" data-tel href="#">
+  <a class="bg-btn bg-btn--secondary" data-tel href="tel:+972722503833">
     <svg class="icon" width="17" height="17"><use href="#i-phone"></use></svg><span>התקשרו</span>
   </a>
-  <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+  <a class="bg-btn bg-btn--whatsapp" data-wa href="https://wa.me/972722503833">
     <svg class="icon" width="17" height="17"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
   </a>
   <a class="bg-btn bg-btn--primary" href="#quote">

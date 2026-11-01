@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>צרו איתנו קשר | ביו-גרין</title>
+<title>צרו איתנו קשר | ביוגרין</title>
 <meta name="description" content="צרו קשר עם ביו-גרין — יבוא, רגולציה ואספקה של תוספי תזונה, חומרי גלם ומוצרים טבעיים לעסקים. טלפון ו-WhatsApp: 072-2503833, info@bio-green.co.il, א׳–ה׳ 9:00–17:00, רשפון.">
 <link rel="icon" href="../assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
@@ -204,15 +204,15 @@
       <a class="nav__link" href="../import-regulation/">שירותי יבוא ורגולציה</a>
       <a class="nav__link" href="../products/">מוצרים</a>
       <a class="nav__link" href="../private-label/">Private Label</a>
-      <a class="nav__link" href="../raw-materials/">חומרי גלם</a>
+      <!-- until its page exists: <a class="nav__link" href="../raw-materials/">חומרי גלם</a> -->
       <a class="nav__link" href="../knowledge/">ידע מקצועי</a>
-      <a class="nav__link" href="../about/">אודות</a>
+      <!-- until its page exists: <a class="nav__link" href="../about/">אודות</a> -->
       <a class="nav__link" href="../contact/" aria-current="page">צור קשר</a>
     </nav>
 
     <div class="site-header__actions">
       <!-- TODO: replace the phone number in js/site.js (CONTACT.phone / phoneDial) -->
-      <a class="bg-btn bg-btn--whatsapp bg-btn--sm" data-wa href="#">
+      <a class="bg-btn bg-btn--whatsapp bg-btn--sm" data-wa href="https://wa.me/972722503833">
         <svg class="icon" width="17" height="17"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
       </a>
       <button class="bg-btn bg-btn--primary bg-btn--sm" data-quote>
@@ -230,9 +230,9 @@
     <a class="mobile-nav__link" href="../import-regulation/">שירותי יבוא ורגולציה</a>
     <a class="mobile-nav__link" href="../products/">מוצרים</a>
     <a class="mobile-nav__link" href="../private-label/">Private Label</a>
-    <a class="mobile-nav__link" href="../raw-materials/">חומרי גלם</a>
+    <!-- until its page exists: <a class="mobile-nav__link" href="../raw-materials/">חומרי גלם</a> -->
     <a class="mobile-nav__link" href="../knowledge/">ידע מקצועי</a>
-    <a class="mobile-nav__link" href="../about/">אודות</a>
+    <!-- until its page exists: <a class="mobile-nav__link" href="../about/">אודות</a> -->
     <a class="mobile-nav__link" href="../contact/">צור קשר</a>
     <div class="btn-row">
       <button class="bg-btn bg-btn--primary bg-btn--block" data-quote>
@@ -308,7 +308,7 @@
         <span class="modal__done-mark"><svg class="icon" width="34" height="34"><use href="#i-circle-check-big"></use></svg></span>
         <h2>תודה, קיבלנו את הפרטים</h2>
         <p>נחזור אליכם בהקדם. אם מדובר בנושא דחוף, אפשר לפנות אלינו גם בוואטסאפ.</p>
-        <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+        <a class="bg-btn bg-btn--whatsapp" data-wa href="https://wa.me/972722503833">
           <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>דברו איתנו בוואטסאפ</span>
         </a>
       </div>
@@ -322,7 +322,7 @@
           <div>
             <strong>WhatsApp / טלפון</strong>
             <a data-tel href="tel:+972722503833"><span data-tel-text dir="ltr">072-2503833</span></a>
-            <a class="contact-details__wa" data-wa href="#">שליחת הודעה בוואטסאפ</a>
+            <a class="contact-details__wa" data-wa href="https://wa.me/972722503833">שליחת הודעה בוואטסאפ</a>
           </div>
         </li>
         <li>
@@ -336,7 +336,7 @@
           <span class="contact-details__icon"><svg class="icon" width="22" height="22"><use href="#i-clock"></use></svg></span>
           <div>
             <strong>שעות פעילות</strong>
-            <span>א׳–ה׳ | 9:00–17:00</span>
+            <span>א׳–ה׳ | <span dir="ltr">9:00–17:00</span></span>
           </div>
         </li>
         <li>
@@ -404,12 +404,12 @@
 
 <footer class="site-footer">
   <div class="shell">
-    <nav class="footer-social" aria-label="ביוגרין ברשתות ובערוצי קשר">
+    <!-- Footer per the client's sitemap of 01.11.2026. Links to pages that
+         do not exist yet are kept as comments: uncomment one when its page
+         goes live, so the footer never links to a 404. -->
+    <nav class="footer-social" aria-label="ביוגרין ברשתות החברתיות">
       <a href="https://www.facebook.com/Bio.Green.IL/" target="_blank" rel="noopener" aria-label="ביוגרין בפייסבוק"><svg class="icon" width="20" height="20"><use href="#i-facebook"></use></svg></a>
       <a href="https://www.instagram.com/biogreen.official.il/" target="_blank" rel="noopener" aria-label="ביוגרין באינסטגרם"><svg class="icon" width="20" height="20"><use href="#i-instagram"></use></svg></a>
-      <a href="mailto:info@bio-green.co.il" aria-label="אימייל: info@bio-green.co.il"><svg class="icon" width="20" height="20"><use href="#i-mail"></use></svg></a>
-      <a data-tel href="tel:+972722503833" aria-label="טלפון: 072-2503833"><svg class="icon" width="20" height="20"><use href="#i-phone"></use></svg></a>
-      <a data-wa href="#" aria-label="WhatsApp"><svg class="icon" width="20" height="20"><use href="#i-message-circle"></use></svg></a>
     </nav>
 
     <div class="site-footer__top">
@@ -420,40 +420,34 @@
 
       <nav class="footer-col" aria-label="שירותים">
         <div class="footer-col__title">שירותים</div>
-        <a href="../import-regulation/supplements/">יבוא תוספי תזונה</a>
-        <a href="../import-regulation/regulation/">רגולציה לתוספי תזונה</a>
-        <a href="../import-regulation/raw-materials/">יבוא חומרי גלם</a>
+        <a href="../import-regulation/">יבוא ורגולציה לתוספי תזונה</a>
+        <a href="../import-regulation/#importer">יבואן נאות</a>
         <a href="../private-label/">Private Label</a>
-        <a href="../import-regulation/project-management/">ניהול פרויקטים</a>
-        <a href="../import-regulation/moh-approval/">אישור משרד הבריאות</a>
-        <a href="#importer" data-dialog="importer-dialog" aria-haspopup="dialog">יבואן נאות</a>
       </nav>
 
       <nav class="footer-col" aria-label="מוצרים">
         <div class="footer-col__title">מוצרים</div>
         <a href="../products/curcumin-185/">כורכומין 185</a>
-        <a href="../products/detox-patches/">פדים לניקוי רעלים</a>
-        <a href="../products/natural/">מוצרים טבעיים</a>
-        <a href="../products/supplements/">תוספי תזונה</a>
-        <a href="../products/">קטלוג לעסקים</a>
+        <!-- future: <a href="../raw-materials/">חומרי גלם לתוספי תזונה</a> -->
+        <a href="../products/">קטלוג תוספי תזונה לעסקים</a>
+        <a href="../contact/">הצעת מחיר לתוספי תזונה</a>
       </nav>
 
       <nav class="footer-col" aria-label="מידע מקצועי">
         <div class="footer-col__title">מידע מקצועי</div>
-        <a href="../knowledge/faq/">שאלות נפוצות</a>
-        <a href="../knowledge/">מאמרים</a>
+        <a href="../knowledge/">ידע מקצועי</a>
+        <a href="../knowledge/import-supplements-israel/">איך מייבאים תוסף תזונה לישראל</a>
+        <!-- future: <a href="../knowledge/detox-patches/">פדים לניקוי רעלים</a> -->
+        <!-- future: <a href="../knowledge/curcumin-absorption/">כורכומין בספיגה גבוהה</a> -->
         <a href="../knowledge/glossary/">מילון מושגים</a>
-        <a href="../knowledge/quality/">כשרות ואיכות</a>
-        <a href="../knowledge/absorption/">טכנולוגיות ספיגה</a>
       </nav>
 
       <address class="footer-col footer-contact">
         <div class="footer-col__title">צרו קשר</div>
         <a class="footer-contact__phone" data-tel href="tel:+972722503833"><svg class="icon" width="16" height="16"><use href="#i-phone"></use></svg><span data-tel-text dir="ltr">072-2503833</span></a>
-        <span class="footer-contact__note">טלפון ו-<a data-wa href="#">WhatsApp</a></span>
         <a href="mailto:info@bio-green.co.il"><svg class="icon" width="16" height="16"><use href="#i-mail"></use></svg><span dir="ltr">info@bio-green.co.il</span></a>
-        <span><svg class="icon" width="16" height="16"><use href="#i-clock"></use></svg>א׳–ה׳ | 9:00–17:00</span>
-        <span><svg class="icon" width="16" height="16"><use href="#i-map-pin"></use></svg>רשפון</span>
+        <a data-wa href="https://wa.me/972722503833" target="_blank" rel="noopener"><svg class="icon" width="16" height="16"><use href="#i-message-circle"></use></svg><span>WhatsApp</span></a>
+        <span><svg class="icon" width="16" height="16"><use href="#i-clock"></use></svg>א׳–ה׳ | <span dir="ltr">9:00–17:00</span> · רשפון</span>
         <a class="footer-contact__more" href="../contact/">לכל דרכי הקשר</a>
       </address>
     </div>
@@ -463,11 +457,15 @@
     </p>
 
     <div class="site-footer__bottom">
+      <!-- future (privacy and accessibility are required before launch):
       <nav class="site-footer__legal" aria-label="מידע משפטי">
+        <a href="../about/">אודות ביוגרין</a>
+        <span class="site-footer__sep" aria-hidden="true">|</span>
         <a href="../privacy/">מדיניות פרטיות</a>
         <span class="site-footer__sep" aria-hidden="true">|</span>
         <a href="../accessibility/">הצהרת נגישות</a>
       </nav>
+      -->
       <span class="site-footer__copy">כל הזכויות שמורות לביוגרין מוצרים טבעיים בע"מ ©</span>
     </div>
   </div>
@@ -556,7 +554,7 @@
       <h2 id="quote-done-title" tabindex="-1" style="margin:0;font-size:var(--fs-h3)">תודה, קיבלנו את הפרטים</h2>
       <p>נחזור אליכם בהקדם עם מענה מקצועי לפי סוג הבקשה. אם מדובר בנושא דחוף, ניתן לפנות אלינו גם בוואטסאפ.</p>
       <div class="btn-row">
-        <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+        <a class="bg-btn bg-btn--whatsapp" data-wa href="https://wa.me/972722503833">
           <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>דברו איתנו בוואטסאפ</span>
         </a>
         <button class="bg-btn bg-btn--secondary" type="button" data-modal-close>סגירה</button>
@@ -566,16 +564,16 @@
 </div>
 
 <!-- Floating WhatsApp (desktop) -->
-<a class="bg-btn bg-btn--whatsapp fab" data-wa href="#">
+<a class="bg-btn bg-btn--whatsapp fab" data-wa href="https://wa.me/972722503833">
   <svg class="icon" width="19" height="19"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
 </a>
 
 <!-- Sticky action bar (mobile) -->
 <div class="mobile-bar">
-  <a class="bg-btn bg-btn--secondary" data-tel href="#">
+  <a class="bg-btn bg-btn--secondary" data-tel href="tel:+972722503833">
     <svg class="icon" width="17" height="17"><use href="#i-phone"></use></svg><span>התקשרו</span>
   </a>
-  <a class="bg-btn bg-btn--whatsapp" data-wa href="#">
+  <a class="bg-btn bg-btn--whatsapp" data-wa href="https://wa.me/972722503833">
     <svg class="icon" width="17" height="17"><use href="#i-message-circle"></use></svg><span>וואטסאפ</span>
   </a>
   <button class="bg-btn bg-btn--primary" data-quote>
