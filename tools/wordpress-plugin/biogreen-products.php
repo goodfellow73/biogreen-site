@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.9.0
+ * Version:      1.9.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,8 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.9.1  The article screen says what image to upload: landscape 16:9, at least
+ *        1600 by 900, JPG, no text on it.
  * 1.9.0  Hero images in "תוכן העמודים": on the home, import, Private Label,
  *        knowledge, glossary, contact and catalogue pages, an image is
  *        picked from the media library, previewed, and "חזרה לתמונה
@@ -91,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.9.0';
+const BIOGREEN_VERSION = '1.9.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -1730,6 +1732,8 @@ function biogreen_article_box( $post ) {
 	<div class="bg-cms bg-article-box">
 		<p class="bg-article-help">ממלאים כותרת, טקסט, קטגוריה ותמונה (שתיהן בצד), ולמטה משפט לכרטיסייה ושאלות נפוצות.
 			העיצוב, הכפתורים והפנייה בסוף המאמר מתווספים אוטומטית.</p>
+		<p class="bg-article-help">תמונת המאמר: רוחבית ביחס 16:9, לפחות 1600 על 900 פיקסלים, JPG, בלי טקסט על התמונה.
+			היא מוצגת ברוחב המאמר ונחתכת מעט מלמעלה ומלמטה, לכן הנושא במרכז.</p>
 		<?php biogreen_article_rows( $post, $groups['main'] ); ?>
 
 		<h3>SEO</h3>
