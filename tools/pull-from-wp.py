@@ -25,6 +25,7 @@ content is moved across.
 """
 
 import base64
+import hashlib
 import io
 import json
 import os
@@ -162,7 +163,7 @@ def clean(html):
     return text.strip()
 
 
-def grab_image(url, slug, prefix='product'):
+def grab_image(url, slug, prefix='product', max_width=None):
     """Download an image into assets/img/ and return its repo-relative path.
 
     The editor will upload whatever their camera produced. Resizing here is what
@@ -223,9 +224,10 @@ def grab_image(url, slug, prefix='product'):
         save_args = {'quality': JPEG_QUALITY, 'optimize': True, 'progressive': True}
         fmt = 'JPEG'
 
-    if im.width > MAX_IMAGE_WIDTH:
-        h = round(im.height * MAX_IMAGE_WIDTH / im.width)
-        im = im.resize((MAX_IMAGE_WIDTH, h), Image.LANCZOS)
+    width = max_width or MAX_IMAGE_WIDTH
+    if im.width > width:
+        h = round(im.height * width / im.width)
+        im = im.resize((width, h), Image.LANCZOS)
 
     im.save(dest, fmt, **save_args)
     print(f'  image {name}  {im.width}x{im.height}  '
@@ -528,8 +530,9 @@ def main():
         json.dump(doc, f, ensure_ascii=False, indent=2)
         f.write('\n')
 
-    # Before the image list is written: articles have images too.
+    # Before the image list is written: articles and page heroes have images too.
     pull_articles()
+    pull_content()
 
     # Only images this run used, so a deleted product's entry goes with it.
     with open(SOURCES, 'w', encoding='utf-8', newline='\n') as f:
@@ -549,8 +552,6 @@ def main():
         print(f'  removed page copy for deleted product: {name[:-5]}')
 
     print(f'\n{len(products)} products, {len(categories)} categories -> data/products.json')
-
-    pull_content()
     print('Now run: python tools/cms.py apply && python tools/build-products.py')
 
 
@@ -575,12 +576,47 @@ def pull_content():
 
     if not isinstance(data, dict):
         die(f'{url} did not return an object of pages.')
+    localise_images(data)
     path = os.path.join(ROOT, 'data', 'content.json')
     with open(path, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(data, f, ensure_ascii=False, indent=2, sort_keys=True)
         f.write('\n')
     n = sum(len(v) for v in data.values() if isinstance(v, dict))
     print(f'page texts: {n} edited in WordPress, on {len(data)} page(s) -> data/content.json')
+
+
+HERO_WIDTH = 1600     # a hero spans the page; product shots stop at MAX_IMAGE_WIDTH
+
+
+def localise_images(data):
+    """Images picked in "תוכן העמודים" arrive as WordPress URLs; the site
+    serves its own resized copy, so the value becomes its path.
+
+    The file name carries a fingerprint of the URL: a replaced image gets a
+    new name, so no browser or CDN keeps showing the old one, and the old file
+    is deleted. Which fields are images comes from data/cms-schema.json.
+    """
+    schema = json.load(open(os.path.join(ROOT, 'data', 'cms-schema.json'), encoding='utf-8'))
+    images = {(p['id'], f['key']) for p in schema['pages'] for s in p['sections']
+              for f in s['fields'] if f['type'] == 'image'}
+    for page, values in data.items():
+        if not isinstance(values, dict):
+            continue
+        for key, value in values.items():
+            if (page, key) not in images or not isinstance(value, str):
+                continue
+            lines = value.replace('\r\n', '\n').split('\n')
+            url = lines[0].strip()
+            base = re.sub(r'[^a-z0-9]+', '-', f'{page}-{key}'.lower()).strip('-')
+            if url.startswith('http'):
+                tag = hashlib.sha1(url.encode('utf-8')).hexdigest()[:8]
+                lines[0] = grab_image(url, f'{base}-{tag}', 'cms', max_width=HERO_WIDTH)
+                values[key] = '\n'.join(lines)
+            keep = os.path.basename(lines[0]) if lines[0] else None
+            for name in os.listdir(IMG_DIR):
+                if name.startswith(f'cms-{base}-') and name != keep:
+                    os.remove(os.path.join(IMG_DIR, name))
+                    print(f'  removed replaced image {name}')
 
 
 def pull_articles():

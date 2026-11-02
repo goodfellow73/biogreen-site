@@ -9,9 +9,9 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../css/site.css?v=aa8c1a88">
+<link rel="stylesheet" href="../css/site.css?v=85091c3c">
 </head>
-<body data-page-label="עמוד קטלוג המוצרים">
+<body data-page-label="עמוד קטלוג המוצרים" data-cms-page="catalog">
 
 <!-- ============================================================
      Icon sprite. Identical on every page — when a page needs a new
@@ -247,11 +247,12 @@
 <!-- ============================================================
      Hero
      ============================================================ -->
-<section class="page-hero page-hero--tight" id="hero">
+<section class="page-hero page-hero--tight" id="hero" data-cms-section="hero" data-cms-section-label="באנר ראשי">
+  <img class="page-hero__bg" data-cms="hero.image" data-cms-label="תמונת רקע לבאנר" data-cms-type="image" data-cms-default="" data-cms-help="תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר." alt="" aria-hidden="true" hidden>
   <div class="shell page-hero__inner">
-    <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span>קטלוג B2B</span>
-    <h1>מוצרים מוכנים לעסק שלכם</h1>
-    <p class="page-hero__sub">
+    <span class="bg-eyebrow"><span class="bg-eyebrow__dot"></span><span data-cms="hero.eyebrow" data-cms-label="שורה קטנה מעל הכותרת">קטלוג B2B</span></span>
+    <h1 data-cms="hero.title" data-cms-label="כותרת ראשית (H1)">מוצרים מוכנים לעסק שלכם</h1>
+    <p class="page-hero__sub" data-cms="hero.sub" data-cms-label="פסקה" data-cms-type="para">
       קטלוג להתרשמות — ללא מחירים באתר. בחרו מוצר וקבלו הצעת מחיר מותאמת לכמות ולדרישות.
     </p>
   </div>

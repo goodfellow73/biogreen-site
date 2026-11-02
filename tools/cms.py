@@ -27,6 +27,9 @@ Marking an element
                                 "Links" below)
   data-cms-anchor               on an element with an id: offered as a link
                                 target in the editor, named by its text
+  data-cms-default="assets/…"   images only: the page's own image, shown when the
+                                field is empty ("" = no image until one is set)
+  data-cms-help="…"             a hint shown under the field in the editor
 
   <section data-cms-section="hero" data-cms-section-label="באנר ראשי">
                                 names a section in the editor
@@ -44,6 +47,10 @@ Types
   lines  a list, one item per line, filling data-cms-slot="1" of each item
   pairs  a list of title + text, blank line between items, filling slots 1
          and 2 — cards, FAQ
+  image  an <img>: its src, picked from the WordPress media library, and its
+         alt unless the image is decorative (aria-hidden). The value is
+         "path" or "path" + new line + "alt", the path from the site root; the build has
+         downloaded a picked image into assets/img/ (tools/pull-from-wp.py)
 
 Lists are updated in place: the first items keep their own markup (each card
 its own icon, the first FAQ answer open), only the words change. An added
@@ -91,6 +98,7 @@ TYPE_HELP = {
     'para': 'שורה חדשה = ירידת שורה. טקסט בתוך [[ ]] הוא הקישור.',
     'lines': 'פריט בכל שורה.',
     'pairs': 'כותרת בשורה הראשונה והטקסט אחריה. שורה ריקה בין פריט לפריט.',
+    'image': '',
 }
 
 MARK = re.compile(r'<([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?\sdata-cms="([^"]+)"[^>]*>')
@@ -382,10 +390,61 @@ def site_links():
     return found
 
 
+# ---------------------------------------------------------------- images
+
+def set_attr(tag, name, value):
+    """The tag with attribute `name` set to `value` (added if missing)."""
+    value = html.escape(value, quote=True)
+    if re.search(r'\s%s="' % re.escape(name), tag):
+        return re.sub(r'(\s%s=")[^"]*(")' % re.escape(name), lambda m: m.group(1) + value + m.group(2), tag, count=1)
+    return re.sub(r'\s*/?>$', lambda m: f' {name}="{value}"' + m.group(0).lstrip(), tag, count=1)
+
+
+def drop_attr(tag, name):
+    return re.sub(r'\s%s(?:="[^"]*")?(?=[\s/>])' % re.escape(name), '', tag, count=1)
+
+
+def read_image(tag, page_dir):
+    """'path' or 'path\\nalt', path from the site root without its slash."""
+    src = attr(tag, 'src') or ''
+    path = site_url(src, page_dir).lstrip('/') if src and not src.startswith('http') else src
+    if has_attr(tag, 'hidden'):
+        path = ''
+    if attr(tag, 'aria-hidden') == 'true':
+        return path
+    alt = attr(tag, 'alt') or ''
+    return path + (f'\n{alt}' if alt else '')
+
+
+def write_image(tag, value, page_dir):
+    """An image as picked in WordPress, already downloaded by the build into
+    assets/img/ (or a full URL, before it is). Empty: the page's own image
+    (data-cms-default), or none if the page had none."""
+    lines = [l.strip() for l in value.replace('\r\n', '\n').split('\n')]
+    path = lines[0] if lines else ''
+    alt = lines[1] if len(lines) > 1 else None
+    if not path:
+        path = attr(tag, 'data-cms-default') or ''
+    if not path:
+        tag = drop_attr(tag, 'src')
+        return tag if has_attr(tag, 'hidden') else re.sub(r'\s*/?>$', lambda m: ' hidden' + m.group(0).lstrip(), tag, count=1)
+    if not re.match(r'^(?:https?://|assets/)', path):
+        return tag                      # not an image the build made: leave the page's
+    src = path if path.startswith('http') else page_href('/' + path, page_dir)
+    tag = drop_attr(set_attr(tag, 'src', src), 'hidden')
+    # A decorative image keeps alt="" whatever is typed; for the others, an
+    # empty alt keeps the page's.
+    if attr(tag, 'aria-hidden') != 'true' and alt:
+        tag = set_attr(tag, 'alt', alt)
+    return tag
+
+
 # ---------------------------------------------------------------- fields
 
 def read_field(open_tag, inner, page_dir=''):
     kind = attr(open_tag, 'data-cms-type') or 'text'
+    if kind == 'image':
+        return read_image(open_tag, page_dir)
     target = attr(open_tag, 'data-cms-attr')
     if target:
         return re.sub(r'\s+', ' ', attr(open_tag, target) or '').strip()
@@ -410,6 +469,8 @@ def write_field(open_tag, inner, value, page_dir=''):
     page_dir is the page's folder from the site root ('' for the home page),
     for the links a pairs list may carry."""
     kind = attr(open_tag, 'data-cms-type') or 'text'
+    if kind == 'image':
+        return write_image(open_tag, value, page_dir), inner
     target = attr(open_tag, 'data-cms-attr')
     if target:
         new = html.escape(re.sub(r'\s+', ' ', value).strip(), quote=True)
@@ -533,6 +594,11 @@ def extract():
                 field['item_labels'] = [p.strip() for p in parts[:2]]
                 if LINK_TEMPLATE.search(inner):
                     field['links'] = True
+            if kind == 'image':
+                field['default'] = attr(open_tag, 'data-cms-default') or ''
+                field['decorative'] = attr(open_tag, 'aria-hidden') == 'true'
+            if attr(open_tag, 'data-cms-help'):
+                field['help'] = (field['help'] + ' ' + attr(open_tag, 'data-cms-help')).strip()
             sections.setdefault(sec, {'id': sec, 'label': labels.get(sec, sec), 'fields': []})
             sections[sec]['fields'].append(field)
         doc['pages'].append({'id': page_id, 'label': page_label,
@@ -559,12 +625,13 @@ def apply():
         src = open(path, encoding='utf-8').read()
         before = src
         # Back to front, so earlier offsets stay valid as later ones change.
-        for key, _, _, _, start, open_tag, inner in reversed(fields(src)):
+        for key, _, kind, _, start, open_tag, inner in reversed(fields(src)):
             if key not in values or values[key] is None:
                 continue
             value = str(values[key])
-            if not value.strip():
+            if not value.strip() and kind != 'image':
                 continue            # an emptied field keeps the page's text
+                                    # (an emptied image is the page's own one)
             new_open, new_inner = write_field(open_tag, inner, value, page_dir(path))
             end = element_end(src, start)
             close = src[start + len(open_tag) + len(inner):end]

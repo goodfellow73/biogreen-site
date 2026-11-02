@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.8.0
+ * Version:      1.9.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,12 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.9.0  Hero images in "תוכן העמודים": on the home, import, Private Label,
+ *        knowledge, glossary, contact and catalogue pages, an image is
+ *        picked from the media library, previewed, and "חזרה לתמונה
+ *        המקורית" puts the page's own back. The home page's photo has its
+ *        alt text beside it. The contact and catalogue pages join the list,
+ *        with their headline and opening line.
  * 1.8.0  "מאמרים": the knowledge articles, edited here like products. An
  *        article is a title, the text in the block editor, a category and an
  *        image (both in the sidebar), a sentence for its card and its FAQ;
@@ -85,7 +91,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.8.0';
+const BIOGREEN_VERSION = '1.9.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -791,6 +797,41 @@ function biogreen_cms_schema( $refresh = false ) {
 	return $schema;
 }
 
+/**
+ * Where to show an image field's picture in the editor. A picked image is
+ * its WordPress URL; the page's own image lives in the repository, shown
+ * from GitHub (the repository is public).
+ */
+function biogreen_cms_image_url( $path ) {
+	$path = trim( (string) $path );
+	if ( $path === '' ) {
+		return '';
+	}
+	if ( preg_match( '#^https?://#', $path ) ) {
+		return $path;
+	}
+	$repo = get_option( 'biogreen_repo' );
+	return $repo ? "https://raw.githubusercontent.com/{$repo}/main/" . ltrim( $path, '/' ) : '';
+}
+
+/** An image field as posted: "URL" or "URL\nalt" — anything else is dropped. */
+function biogreen_cms_clean_image( $raw ) {
+	$lines = explode( "\n", str_replace( "\r", '', (string) $raw ), 2 );
+	$url   = trim( $lines[0] );
+	if ( $url !== '' && ! preg_match( '#^assets/[a-z0-9/_.-]+$#i', $url ) ) {
+		$url = esc_url_raw( $url, [ 'http', 'https' ] );
+	}
+	$alt = isset( $lines[1] ) ? sanitize_text_field( $lines[1] ) : '';
+	return $url . ( $alt !== '' ? "\n" . $alt : '' );
+}
+
+// The image fields pick from the media library.
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( $hook === 'toplevel_page_biogreen-content' ) {
+		wp_enqueue_media();
+	}
+} );
+
 /** The fields of one page, flattened: key => field. */
 function biogreen_cms_page_fields( $schema, $page_id ) {
 	foreach ( $schema['pages'] as $page ) {
@@ -858,6 +899,10 @@ add_action( 'admin_post_biogreen_cms_save', function () {
 	// Only keys the page actually has: anything else in the request is ignored.
 	foreach ( $fields as $key => $field ) {
 		if ( ! isset( $posted[ $key ] ) ) {
+			continue;
+		}
+		if ( $field['type'] === 'image' ) {
+			$values[ $key ] = biogreen_cms_clean_image( $posted[ $key ] );
 			continue;
 		}
 		$values[ $key ] = $field['type'] === 'text'
@@ -978,6 +1023,33 @@ function biogreen_cms_render() {
 								<?php if ( $field['type'] === 'text' ) : ?>
 									<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>">
+								<?php elseif ( $field['type'] === 'image' ) :
+									// Only what was picked here is stored; empty means the
+									// page's own image, so "back to the original" needs
+									// nothing restored.
+									$own     = array_key_exists( $key, $stored ) ? (string) $stored[ $key ] : '';
+									$mine    = explode( "\n", $own, 2 );
+									$current = explode( "\n", $mine[0] !== '' ? $own : $field['value'], 2 );
+									$alt     = $mine[1] ?? ( $current[1] ?? '' );
+									$preview = biogreen_cms_image_url( $current[0] );
+									$default = biogreen_cms_image_url( $field['default'] ?? '' );
+									?>
+									<div class="bg-img" data-default-src="<?php echo esc_url( $default ); ?>">
+										<input type="hidden" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $own ); ?>">
+										<div class="bg-img__frame">
+											<img class="bg-img__preview" src="<?php echo esc_url( $preview ); ?>" alt="" <?php echo $preview ? '' : 'hidden'; ?>>
+											<span class="bg-img__none" <?php echo $preview ? 'hidden' : ''; ?>>אין תמונה</span>
+										</div>
+										<div class="bg-img__actions">
+											<button type="button" class="button bg-img__pick">בחירת תמונה</button>
+											<button type="button" class="button-link bg-img__reset" <?php echo $mine[0] !== '' ? '' : 'hidden'; ?>>
+												<?php echo $default ? 'חזרה לתמונה המקורית' : 'הסרת התמונה'; ?></button>
+										</div>
+										<?php if ( empty( $field['decorative'] ) ) : ?>
+											<input type="text" class="bg-img__alt" value="<?php echo esc_attr( $alt ); ?>"
+												placeholder="תיאור התמונה, לנגישות ולגוגל (alt)" aria-label="תיאור התמונה (alt)">
+										<?php endif; ?>
+									</div>
 								<?php else : ?>
 									<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
 										rows="<?php echo (int) $rows; ?>"><?php echo esc_textarea( $value ); ?></textarea>
@@ -1001,6 +1073,63 @@ function biogreen_cms_render() {
 	<?php // The pages a link may point to. wp_json_encode escapes "/", so no "</script>" can close this early. ?>
 	<script type="application/json" id="bg-cms-links"><?php echo wp_json_encode( $schema['links'] ?? [] ); ?></script>
 	<?php biogreen_cms_repeater_script(); ?>
+	<?php biogreen_cms_image_script(); ?>
+	<?php
+}
+
+/**
+ * Image fields: the hidden input holds "URL" (+ new line + alt) of the image
+ * picked from the media library, or nothing for the page's own image.
+ */
+function biogreen_cms_image_script() {
+	?>
+	<script>
+	( function () {
+		document.querySelectorAll( '.bg-img' ).forEach( function ( box ) {
+			var input   = box.querySelector( 'input[type="hidden"]' );
+			var preview = box.querySelector( '.bg-img__preview' );
+			var none    = box.querySelector( '.bg-img__none' );
+			var reset   = box.querySelector( '.bg-img__reset' );
+			var alt     = box.querySelector( '.bg-img__alt' );
+			var frame   = null;
+
+			function url() {
+				return input.value.split( '\n' )[0];
+			}
+			function save( newUrl ) {
+				var text = alt ? alt.value.replace( /\s+/g, ' ' ).trim() : '';
+				input.value = newUrl + ( text ? '\n' + text : '' );
+				var shown = newUrl || box.getAttribute( 'data-default-src' );
+				preview.src = shown || '';
+				preview.hidden = ! shown;
+				none.hidden = !! shown;
+				reset.hidden = ! newUrl;
+			}
+
+			box.querySelector( '.bg-img__pick' ).addEventListener( 'click', function () {
+				if ( ! window.wp || ! wp.media ) {
+					return;
+				}
+				if ( ! frame ) {
+					frame = wp.media( { title: 'בחירת תמונה', button: { text: 'בחירה' }, library: { type: 'image' }, multiple: false } );
+					frame.on( 'select', function () {
+						var picked = frame.state().get( 'selection' ).first().toJSON();
+						// The media library's own alt text, unless one is typed here.
+						if ( alt && ! alt.value.trim() && picked.alt ) {
+							alt.value = picked.alt;
+						}
+						save( picked.url );
+					} );
+				}
+				frame.open();
+			} );
+			reset.addEventListener( 'click', function () { save( '' ); } );
+			if ( alt ) {
+				alt.addEventListener( 'input', function () { save( url() ); } );
+			}
+		} );
+	}() );
+	</script>
 	<?php
 }
 
@@ -1374,6 +1503,15 @@ function biogreen_cms_styles() {
 		.bg-cms .bg-rep__link select { max-width: 340px; }
 		.bg-cms .bg-rep__link input.bg-rep__link-url { width: 260px; direction: ltr; text-align: left; }
 		.bg-cms .bg-rep__link-clear { color: #b32d2e; }
+		/* Image fields */
+		.bg-cms .bg-img { display: grid; gap: 10px; max-width: 520px; }
+		.bg-cms .bg-img__frame { width: 100%; aspect-ratio: 16 / 9; border: 1px solid #dcdcde; border-radius: 6px;
+			background: #f6f7f7; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+		.bg-cms .bg-img__preview { width: 100%; height: 100%; object-fit: contain; }
+		.bg-cms .bg-img__none { color: #646970; }
+		.bg-cms .bg-img__actions { display: flex; gap: 14px; align-items: center; }
+		.bg-cms .bg-img__reset { color: #b32d2e; }
+		.bg-cms [hidden] { display: none !important; }
 		.bg-cms .bg-rep__item textarea { min-height: 60px; resize: vertical; }
 		.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
 		.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }

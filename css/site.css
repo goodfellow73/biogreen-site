@@ -988,10 +988,12 @@
    Contact page
    ========================================================================== */
 .contact-hero {
+  position: relative; overflow: hidden;   /* for a hero image set in WordPress */
   background: var(--surface-page);
   border-bottom: 1px solid var(--border-card);
   padding-block: 56px 40px;
 }
+.contact-hero > .shell { position: relative; }
 .contact-hero h1 { margin: 10px 0 8px; }
 .contact-hero__sub { font-size: var(--fs-subtitle); color: var(--text-muted); margin: 0; }
 

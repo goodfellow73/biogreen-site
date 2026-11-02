@@ -1,6 +1,85 @@
 {
   "pages": [
     {
+      "id": "catalog",
+      "label": "עמוד קטלוג המוצרים",
+      "file": "products/index.html",
+      "sections": [
+        {
+          "id": "hero",
+          "label": "באנר ראשי",
+          "fields": [
+            {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "",
+              "decorative": true
+            },
+            {
+              "key": "hero.eyebrow",
+              "label": "שורה קטנה מעל הכותרת",
+              "type": "text",
+              "value": "קטלוג B2B",
+              "help": ""
+            },
+            {
+              "key": "hero.title",
+              "label": "כותרת ראשית (H1)",
+              "type": "text",
+              "value": "מוצרים מוכנים לעסק שלכם",
+              "help": ""
+            },
+            {
+              "key": "hero.sub",
+              "label": "פסקה",
+              "type": "para",
+              "value": "קטלוג להתרשמות — ללא מחירים באתר. בחרו מוצר וקבלו הצעת מחיר מותאמת לכמות ולדרישות.",
+              "help": "שורה חדשה = ירידת שורה. טקסט בתוך [[ ]] הוא הקישור."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "עמוד צור קשר",
+      "file": "contact/index.html",
+      "sections": [
+        {
+          "id": "hero",
+          "label": "באנר ראשי",
+          "fields": [
+            {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "",
+              "decorative": true
+            },
+            {
+              "key": "hero.title",
+              "label": "כותרת ראשית (H1)",
+              "type": "text",
+              "value": "צרו איתנו קשר",
+              "help": ""
+            },
+            {
+              "key": "hero.sub",
+              "label": "פסקה",
+              "type": "text",
+              "value": "נשמח לשמוע מכם ולבדוק איך נוכל לעזור.",
+              "help": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "glossary",
       "label": "עמוד מילון מושגים",
       "file": "knowledge/glossary/index.html",
@@ -29,6 +108,15 @@
           "id": "hero",
           "label": "באנר ראשי",
           "fields": [
+            {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "",
+              "decorative": true
+            },
             {
               "key": "hero.title",
               "label": "כותרת ראשית (H1)",
@@ -302,6 +390,15 @@
               "value": "אישורי משרד הבריאות\nספקים אמינים\nחומרי גלם איכותיים",
               "help": "פריט בכל שורה. מספר הפריטים קבוע: 3.",
               "fixed": 3
+            },
+            {
+              "key": "hero.image",
+              "label": "תמונת הבאנר",
+              "type": "image",
+              "value": "assets/img/hero-macro.jpg\nצילום מאקרו של חומר גלם בוטני על רקע בהיר",
+              "help": "תמונה לאורך, לפחות 960 על 1200 פיקסלים. במובייל היא נחתכת לרוחב.",
+              "default": "assets/img/hero-macro.jpg",
+              "decorative": false
             }
           ]
         },
@@ -578,6 +675,15 @@
           "id": "hero",
           "label": "באנר ראשי",
           "fields": [
+            {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "assets/img/bg-import-botanical.jpg",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "assets/img/bg-import-botanical.jpg",
+              "decorative": true
+            },
             {
               "key": "hero.title",
               "label": "כותרת ראשית (H1)",
@@ -874,6 +980,15 @@
           "label": "באנר ראשי",
           "fields": [
             {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "",
+              "decorative": true
+            },
+            {
               "key": "hero.title",
               "label": "כותרת ראשית (H1)",
               "type": "text",
@@ -1058,6 +1173,15 @@
           "id": "hero",
           "label": "באנר ראשי",
           "fields": [
+            {
+              "key": "hero.image",
+              "label": "תמונת רקע לבאנר",
+              "type": "image",
+              "value": "assets/img/bg-import-botanical.jpg",
+              "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב. מוצגת בעמעום בצד הבאנר.",
+              "default": "assets/img/bg-import-botanical.jpg",
+              "decorative": true
+            },
             {
               "key": "hero.title",
               "label": "כותרת ראשית (H1)",
