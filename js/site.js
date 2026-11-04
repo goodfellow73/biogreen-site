@@ -318,6 +318,13 @@ const FORMS = {
         if (empty) empty.hidden = shown > 0;
       });
     });
+
+    // /products/#raw-materials opens on that category's tab, so other pages
+    // can link straight to it.
+    const wanted = decodeURIComponent(window.location.hash.slice(1));
+    filterTabs.forEach(function (tab) {
+      if (wanted && tab.getAttribute('data-filter') === wanted) tab.click();
+    });
   }
 
   /* ---------- glossary topic filter ---------- */

@@ -33,6 +33,7 @@ TARGETS = {
     'private-label/index.html': 'private-label/',
     'knowledge/index.html': 'knowledge/',
     'knowledge/guide-thanks/index.html': 'knowledge/',
+    'about/index.html': 'about/',
 }
 
 # block name -> (first line starts with, last line contains)

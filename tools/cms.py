@@ -30,6 +30,9 @@ Marking an element
   data-cms-default="assets/…"   images only: the page's own image, shown when the
                                 field is empty ("" = no image until one is set)
   data-cms-help="…"             a hint shown under the field in the editor
+  data-cms-inline-links         para and list fields: every link is written out
+                                as [[words|/address/]], so a paragraph can hold
+                                several, each with its own address
 
   <section data-cms-section="hero" data-cms-section-label="באנר ראשי">
                                 names a section in the editor
@@ -163,15 +166,20 @@ def plain(fragment):
     return re.sub(r'\s+', ' ', html.unescape(text)).strip()
 
 
-def para_value(fragment):
+def para_value(fragment, inline_links=False, page_dir=''):
     """Inner HTML -> the text the client edits: <br> as a new line, links
-    as [[words]], every other tag dropped."""
+    as [[words]] — or, where the field carries data-cms-inline-links, as
+    [[words|/address/]] — every other tag dropped."""
     # Only <br> is a line break. A line break in the source is just where the
     # code was wrapped — the browser shows it as a space — so it is collapsed
     # first; otherwise the field would show a break the page does not have,
     # and saving it unchanged would turn it into a real one.
     s = re.sub(r'\s+', ' ', fragment)
     s = re.sub(r'\s*<br\s*/?>\s*', '\n', s, flags=re.I)
+    if inline_links:
+        s = re.sub(r'<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a>',
+                   lambda m: '[[' + plain(m.group(2)) + '|' + site_url(html.unescape(m.group(1)), page_dir) + ']]',
+                   s, flags=re.S)
     s = re.sub(r'<a\b[^>]*>(.*?)</a>', lambda m: '[[' + plain(m.group(1)) + ']]', s, flags=re.S)
     s = html.unescape(re.sub(r'<[^>]+>', '', s))
     return '\n'.join(l.strip() for l in s.split('\n')).strip()
@@ -187,8 +195,10 @@ def ltr_ranges(escaped):
     return TIME_RANGE.sub(r'<span dir="ltr">\1</span>', escaped)
 
 
-def para_html(value, link_template=None):
-    """The client's text -> inner HTML."""
+def para_html(value, link_template=None, page_dir=''):
+    """The client's text -> inner HTML. [[words|/address/]] is a link to that
+    address (written relative to the page); plain [[words]] takes the
+    element's existing link, if it has one."""
     lines = [l.strip() for l in value.replace('\r\n', '\n').split('\n')]
     out = []
     for line in lines:
@@ -197,6 +207,11 @@ def para_html(value, link_template=None):
         for i, part in enumerate(parts):
             if i % 2 == 0:
                 buf.append(ltr_ranges(html.escape(part, quote=False)))
+            elif '|' in part:
+                words, _, url = part.rpartition('|')
+                href = page_href(url.strip(), page_dir) if url.strip() else None
+                words = html.escape(words.strip(), quote=False)
+                buf.append(f'<a href="{html.escape(href, quote=True)}">{words}</a>' if href else words)
             elif link_template:
                 buf.append(link_template[0] + html.escape(part, quote=False) + link_template[1])
             else:
@@ -214,13 +229,13 @@ def slot_spans(item):
     return out
 
 
-def fill_slots(item, values):
+def fill_slots(item, values, page_dir=''):
     for slot in sorted(values, key=int, reverse=False):
         spans = slot_spans(item)
         if slot not in spans:
             continue
         a, b = spans[slot]
-        item = item[:a] + para_html(values[slot]) + item[b:]
+        item = item[:a] + para_html(values[slot], None, page_dir) + item[b:]
     return item
 
 
@@ -450,14 +465,15 @@ def read_field(open_tag, inner, page_dir=''):
         return re.sub(r'\s+', ' ', attr(open_tag, target) or '').strip()
     if kind in ('text', 'long'):
         return plain(inner)
+    inline = has_attr(open_tag, 'data-cms-inline-links')
     if kind == 'para':
-        return para_value(inner)
+        return para_value(inner, inline, page_dir)
     items = [inner[a:b] for a, b in children(inner)]
     links = kind == 'pairs' and LINK_TEMPLATE.search(inner)
     rows = []
     for it in items:
         spans = slot_spans(it)
-        get = lambda k: para_value(it[spans[k][0]:spans[k][1]]) if k in spans else ''
+        get = lambda k: para_value(it[spans[k][0]:spans[k][1]], inline, page_dir) if k in spans else ''
         row = get('1') if kind == 'lines' else (get('1') + '\n' + get('2')).strip()
         link = read_link(it, page_dir) if links else ''
         rows.append(row + (f'\n{LINK_MARK} {link}' if link else ''))
@@ -480,7 +496,7 @@ def write_field(open_tag, inner, value, page_dir=''):
         return open_tag, ltr_ranges(html.escape(re.sub(r'\s+', ' ', value).strip(), quote=False))
     if kind == 'para':
         link = re.search(r'(<a\b[^>]*>).*?(</a>)', inner, re.S)
-        return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None)
+        return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None, page_dir)
 
     # lists, updated in place
     spans = children(inner)
@@ -505,7 +521,7 @@ def write_field(open_tag, inner, value, page_dir=''):
     link_tpl = LINK_TEMPLATE.search(inner) if kind == 'pairs' else None
 
     def fill(item, row):
-        item = fill_slots(item, {k: row[k] for k in ('1', '2') if k in row})
+        item = fill_slots(item, {k: row[k] for k in ('1', '2') if k in row}, page_dir)
         if link_tpl:
             item = set_link(item, row.get('link'), link_tpl.group(1), page_dir)
         return item
