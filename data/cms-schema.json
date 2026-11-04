@@ -56,7 +56,7 @@
         },
         {
           "id": "who",
-          "label": "who",
+          "label": "מי אנחנו",
           "fields": [
             {
               "key": "who.title",
@@ -76,7 +76,7 @@
         },
         {
           "id": "choose",
-          "label": "choose",
+          "label": "איך אנחנו בוחרים מוצרים",
           "fields": [
             {
               "key": "choose.title",
@@ -96,7 +96,7 @@
         },
         {
           "id": "quality",
-          "label": "quality",
+          "label": "איכות ושקיפות",
           "fields": [
             {
               "key": "quality.title",
