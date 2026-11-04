@@ -110,7 +110,8 @@ jobs:
         # before sync-shell copies index.html's shell out. build-glossary
         # straight after: a term added in WordPress needs its anchor.
         # build-articles after sync-shell, whose fresh shell it copies; FAQ
-        # schema after that, since it reads the article pages too. The field
+        # schema after that, since it reads the article pages too; the brand
+        # name's one spelling (brand-name) before it, so the schema has it. The field
         # list the plugin shows is read back once every page exists, so its
         # link picker already offers a product or article added in this build.
         run: |
@@ -120,6 +121,7 @@ jobs:
           python tools/build-products.py
           python tools/build-product-pages.py
           python tools/build-articles.py
+          python tools/brand-name.py
           python tools/build-faq-schema.py
           python tools/cms.py extract
           python tools/stamp-assets.py

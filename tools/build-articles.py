@@ -46,7 +46,7 @@ SITE_URL = 'https://www.biogreen.co.il/'
 SITE_HOSTS = {'www.biogreen.co.il', 'biogreen.co.il', 'www.bio-green.co.il', 'bio-green.co.il'}
 SITE_PREFIXES = ('https://goodfellow73.github.io/biogreen-site/',)
 WORDS_PER_MINUTE = 150      # Hebrew prose; 5 minutes for the first article, as its spec says
-ORG = 'ביוגרין מוצרים טבעיים בע״מ'
+ORG = 'ביו-גרין מוצרים טבעיים בע״מ'
 
 # Background colours a category may take: the site's own tints only. The
 # border is a shade darker, as on the site's other tinted cards.
@@ -282,7 +282,7 @@ def page(art, topic, pre, post):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {MARKER}
-<title>{e(art.get('seo_title') or title + ' | ביוגרין')}</title>
+<title>{e(art.get('seo_title') or title + ' | ביו-גרין')}</title>
 <meta name="description" content="{a(art.get('description'))}">
 <link rel="icon" href="../../assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/heebo-700-hebrew.woff2" crossorigin>

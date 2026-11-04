@@ -274,7 +274,7 @@ def basic_page(prod):
             'sub': 'השאירו פרטים ונחזור אליכם עם מידע נוסף והצעת מחיר.',
             'privacy': 'הפרטים שמסרת ישמשו לצורך טיפול בפנייתך וליצירת קשר בנושא הפנייה. '
                        'לפרטים נוספים ראו מדיניות הפרטיות.',
-            'consent': 'אני מעוניין/ת לקבל מביוגרין עדכונים, מידע מקצועי והצעות.',
+            'consent': 'אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות.',
         },
     }
 
@@ -307,7 +307,7 @@ def build(page, prod, cats, sprite, header, footer):
     hero_copy = '\n'.join(copy)
 
     description = (page.get('lede') or '').strip() or (
-        f"{prod['name']} — " + ' · '.join(prod.get('benefits') or []) + '. ביוגרין, יבוא ואספקה לעסקים.')
+        f"{prod['name']} — " + ' · '.join(prod.get('benefits') or []) + '. ביו-גרין, יבוא ואספקה לעסקים.')
     bar, panels = render_tabs(tabs)
 
     # With every tab empty there is nothing to switch between, so the bar and
@@ -336,7 +336,7 @@ def build(page, prod, cats, sprite, header, footer):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(prod['name'])} | ביוגרין</title>
+<title>{esc(prod['name'])} | ביו-גרין</title>
 <meta name="description" content="{esc(description)}">
 <link rel="icon" href="{UP}assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/heebo-700-hebrew.woff2" crossorigin>

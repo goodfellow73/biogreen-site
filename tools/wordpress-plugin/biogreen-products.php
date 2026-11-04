@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.9.1
+ * Version:      1.9.2
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,8 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.9.2  The company's name is spelled ביו-גרין, as the client asked: in the
+ *        article screen's SEO hint and the first article's seed.
  * 1.9.1  The article screen says what image to upload: landscape 16:9, at least
  *        1600 by 900, JPG, no text on it.
  * 1.9.0  Hero images in "תוכן העמודים": on the home, import, Private Label,
@@ -93,7 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.9.1';
+const BIOGREEN_VERSION = '1.9.2';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -1622,7 +1624,7 @@ function biogreen_article_fields() {
 	return [
 		'card_text'       => [ 'משפט לכרטיסייה', 'textarea', 'משפט אחד שמופיע בכרטיסייה של המאמר בעמוד ידע מקצועי.', 'main' ],
 		'faq'             => [ 'שאלות נפוצות', 'pairs', 'מהן נבנה אוטומטית ה-Schema של השאלות הנפוצות לגוגל.', 'main' ],
-		'seo_title'       => [ 'SEO Title', 'text', 'ריק = כותרת המאמר | ביוגרין.', 'seo' ],
+		'seo_title'       => [ 'SEO Title', 'text', 'ריק = כותרת המאמר | ביו-גרין.', 'seo' ],
 		'seo_description' => [ 'Meta Description', 'textarea', 'תיאור קצר שמופיע בתוצאות החיפוש.', 'seo' ],
 		'card_title'      => [ 'כותרת קצרה לכרטיסייה', 'text', 'ריק = כותרת המאמר.', 'more' ],
 		'lead'            => [ 'התשובה הקצרה', 'textarea', 'תיבה מודגשת בראש המאמר.', 'more' ],
