@@ -847,7 +847,7 @@
               "key": "hero.image",
               "label": "תמונת רקע לבאנר",
               "type": "image",
-              "value": "assets/img/bg-import-botanical.jpg",
+              "value": "assets/img/cms-import-hero-image-e6e67011.png",
               "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב, JPG, בלי טקסט. מוצגת מעומעמת בצד הבאנר, ובמובייל ברקע מאחורי הכותרת — עדיפה תמונה בהירה ושקטה, עם הנושא במרכז.",
               "default": "assets/img/bg-import-botanical.jpg",
               "decorative": true
