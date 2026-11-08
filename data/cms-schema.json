@@ -1754,11 +1754,6 @@
       ]
     },
     {
-      "url": "/knowledge/article-64/",
-      "label": "מאמר מה זה כורכומין בספיגה גבוהה ומה ההבדל מכורכומין רגיל",
-      "anchors": []
-    },
-    {
       "url": "/knowledge/glossary/",
       "label": "מילון מושגים",
       "anchors": [
@@ -1911,6 +1906,11 @@
     {
       "url": "/knowledge/guide-thanks/",
       "label": "תודה על הורדת המדריך",
+      "anchors": []
+    },
+    {
+      "url": "/knowledge/high-absorption-curcumin/",
+      "label": "מאמר מה זה כורכומין בספיגה גבוהה ומה ההבדל מכורכומין רגיל",
       "anchors": []
     },
     {
