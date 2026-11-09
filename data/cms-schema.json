@@ -563,7 +563,7 @@
               "key": "hero.image",
               "label": "תמונת הבאנר",
               "type": "image",
-              "value": "assets/img/hero-macro.jpg\nצילום מאקרו של חומר גלם בוטני על רקע בהיר",
+              "value": "assets/img/cms-home-hero-image-12226d34.png\nחומרי גלם טבעיים, ג׳ינג׳ר, כורכום ועשבי תיבול, וכמוסות בצנצנת זכוכית ליד מעבדה. התמונה להמחשה בלבד.",
               "help": "תמונה רוחבית ביחס 4:3, לפחות 1200 על 900 פיקסלים, JPG. הנושא במרכז: בצדדים ולמעלה ולמטה התמונה נחתכת מעט, ובמובייל קצת יותר.",
               "default": "assets/img/hero-macro.jpg",
               "decorative": false
