@@ -128,10 +128,24 @@
 .hero__trust { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
 
 .hero__media {
-  border-radius: var(--radius-card); overflow: hidden;
-  box-shadow: var(--shadow-lift); aspect-ratio: 4 / 3; background: var(--surface-soft);
+  /* The photo has no frame: it runs out to the edge of the screen and its
+     edges fade into the page (the client's request, 10.11.2026). The fade
+     is two masks, across and down, kept where both are opaque, so the
+     middle — the products — stays fully sharp. */
+  --hero-bleed: max(28px, calc((100vw - var(--container-max)) / 2 + 28px));
+  margin-inline-end: calc(-1 * var(--hero-bleed));
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
+          mask-composite: intersect;
 }
-.hero__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Shown whole, in the shape it is meant for (16:9): a landscape still-life
+   with the products across its width, which a narrower frame would cut. */
+.hero__media img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
 
 /* ==========================================================================
    Block 2 — Three doorways
@@ -571,7 +585,7 @@
 
   .hero { padding-block: 48px 40px; }
   .hero__grid { grid-template-columns: 1fr; gap: 32px; }
-  .hero__media { order: -1; aspect-ratio: 16 / 10; }
+  .hero__media { order: -1; --hero-bleed: 20px; margin-inline: -20px; }
   .hero__bg { width: 100%; opacity: 0.28; mask-image: none; -webkit-mask-image: none; }
 
   .doorways__grid { grid-template-columns: 1fr; }
