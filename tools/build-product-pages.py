@@ -72,6 +72,32 @@ def shell():
 
 # ------------------------------------------------------------- content blocks
 
+AUTOP_BLOCKS = r'(?:p|div|ul|ol|h[1-6]|table|blockquote|pre|hr|figure)'
+
+
+def autop(text):
+    """WordPress's editor saves paragraphs as blank lines and line breaks as
+    plain new lines, and adds the <p>/<br> only when WordPress itself shows
+    the page (wpautop). The site shows it instead, so it adds them here:
+    a blank line is a new paragraph, a single new line a <br>. Lists,
+    headings and the like stand on their own; text already in <p> passes
+    through unchanged."""
+    text = (text or '').replace('\r\n', '\n').replace('\r', '\n').strip()
+    # Block elements are paragraphs of their own, whatever spacing was typed.
+    text = re.sub(r'\s*(<%s\b)' % AUTOP_BLOCKS, r'\n\n\1', text, flags=re.I)
+    text = re.sub(r'(</%s>|<hr\s*/?>)\s*' % AUTOP_BLOCKS, r'\1\n\n', text, flags=re.I)
+    out = []
+    for chunk in re.split(r'\n\s*\n', text):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if re.match(r'<%s\b' % AUTOP_BLOCKS, chunk, re.I):
+            out.append(chunk)
+        else:
+            out.append('<p>' + re.sub(r'\s*\n\s*', '<br>\n', chunk) + '</p>')
+    return '\n'.join(out)
+
+
 def render_block(b):
     t = b.get('type')
 
@@ -82,7 +108,7 @@ def render_block(b):
         # Rendered HTML straight from a WordPress editor. Deliberately NOT
         # escaped — it is authored content, not user input — and wrapped so the
         # page's own typography applies to whatever tags the editor produced.
-        return f'      <div class="pp-prose">\n{b["value"].strip()}\n      </div>'
+        return f'      <div class="pp-prose">\n{autop(b["value"])}\n      </div>'
 
     if t == 'list':
         items = '\n'.join(
