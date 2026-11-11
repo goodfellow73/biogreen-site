@@ -131,16 +131,23 @@
   /* The photo has no frame: it runs out to the edge of the screen and its
      edges fade into the page (the client's request, 10.11.2026). The fade
      is two masks, across and down, kept where both are opaque, so the
-     middle — the products — stays fully sharp. */
+     middle — the products — stays fully sharp.
+     Each fade eases in and out rather than running straight: a linear ramp
+     leaves a visible line where it starts, which on a lighter page reads as
+     an edge or a shadow (client, 11.11.2026). The right and bottom fades
+     are the longer ones: there the photo meets the page, not the screen's
+     edge, and they stop short of the products at the jar and the capsules. */
   --hero-bleed: max(28px, calc((100vw - var(--container-max)) / 2 + 28px));
+  --hero-fade-x: linear-gradient(to right,
+    transparent 0%, rgba(0,0,0,.35) 2.5%, rgba(0,0,0,.7) 5%, rgba(0,0,0,.92) 7.5%, #000 10%,
+    #000 80%, rgba(0,0,0,.92) 85%, rgba(0,0,0,.7) 90%, rgba(0,0,0,.35) 95%, transparent 100%);
+  --hero-fade-y: linear-gradient(to bottom,
+    transparent 0%, rgba(0,0,0,.35) 3%, rgba(0,0,0,.7) 6%, rgba(0,0,0,.92) 9%, #000 12%,
+    #000 76%, rgba(0,0,0,.92) 82%, rgba(0,0,0,.7) 88%, rgba(0,0,0,.35) 94%, transparent 100%);
   margin-inline-end: calc(-1 * var(--hero-bleed));
-  -webkit-mask-image:
-    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent),
-    linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
+  -webkit-mask-image: var(--hero-fade-x), var(--hero-fade-y);
   -webkit-mask-composite: source-in;
-          mask-image:
-    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent),
-    linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
+          mask-image: var(--hero-fade-x), var(--hero-fade-y);
           mask-composite: intersect;
 }
 /* Shown whole, in the shape it is meant for (16:9): a landscape still-life
