@@ -298,32 +298,58 @@ const FORMS = {
     const cards = catalogGrid.querySelectorAll('.product');
     const empty = document.querySelector('.catalog__empty');
 
+    // Each category tab has an address of its own (/products/#raw-materials),
+    // so a link — the footer's, another page's, one shared by a client —
+    // opens the catalogue on that tab. Clicking a tab writes its address
+    // into the bar (replaced, not pushed, so Back still leaves the page).
+    const showCategory = function (want) {
+      let found = false;
+      filterTabs.forEach(function (t) {
+        const on = t.getAttribute('data-filter') === want;
+        if (on) found = true;
+        t.classList.toggle('bg-tab--active', on);
+        t.setAttribute('aria-selected', String(on));
+      });
+      if (!found) return false;
+
+      let shown = 0;
+      cards.forEach(function (c) {
+        const match = want === 'all' || c.getAttribute('data-category') === want;
+        c.hidden = !match;
+        if (match) shown++;
+      });
+      if (empty) empty.hidden = shown > 0;
+      return true;
+    };
+
+    const fromHash = function () {
+      return decodeURIComponent(window.location.hash.slice(1));
+    };
+
     filterTabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
         const want = tab.getAttribute('data-filter');
-
-        filterTabs.forEach(function (t) {
-          const on = t === tab;
-          t.classList.toggle('bg-tab--active', on);
-          t.setAttribute('aria-selected', String(on));
-        });
-
-        let shown = 0;
-        cards.forEach(function (c) {
-          const match = want === 'all' || c.getAttribute('data-category') === want;
-          c.hidden = !match;
-          if (match) shown++;
-        });
-
-        if (empty) empty.hidden = shown > 0;
+        showCategory(want);
+        history.replaceState(null, '', want === 'all'
+          ? window.location.pathname + window.location.search
+          : '#' + encodeURIComponent(want));
       });
     });
 
-    // /products/#raw-materials opens on that category's tab, so other pages
-    // can link straight to it.
-    const wanted = decodeURIComponent(window.location.hash.slice(1));
-    filterTabs.forEach(function (tab) {
-      if (wanted && tab.getAttribute('data-filter') === wanted) tab.click();
+    if (fromHash()) showCategory(fromHash());
+
+    // Already on the page (the footer link from the catalogue itself): the
+    // address changes without a reload, so switch the tab and bring the
+    // catalogue into view.
+    // To the catalogue's start, not to the tab bar: the bar is sticky, and
+    // scrolling to a stuck element lands wherever it is stuck.
+    window.addEventListener('hashchange', function () {
+      if (!showCategory(fromHash() || 'all')) return;
+      const catalog = document.getElementById('catalog');
+      const header = document.querySelector('.site-header');
+      const top = catalog.getBoundingClientRect().top + window.scrollY - (header ? header.offsetHeight : 0);
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: top, behavior: still ? 'auto' : 'smooth' });
     });
   }
 
