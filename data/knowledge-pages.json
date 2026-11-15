@@ -1,0 +1,20 @@
+{
+  "_readme": [
+    "Knowledge pages built by hand rather than as articles in WordPress (a page with",
+    "a table, photos or a form of its own). tools/build-articles.py gives each one a",
+    "card on /knowledge/, in its category (a category slug from data/articles.json),",
+    "among the articles of that category by date. The page itself is",
+    "knowledge/<slug>/index.html and is never generated or deleted by the build.",
+    "\"product_category\": the catalogue cards of that product category link their category line to the page."
+  ],
+  "pages": [
+    {
+      "slug": "detox-patches",
+      "topic": "products",
+      "product_category": "detox-patches",
+      "card_title": "פדים לניקוי רעלים: המדריך המלא",
+      "card_text": "מה ההבדל בין שלוש המהדורות, איך מדביקים שלב אחר שלב, ומה חשוב לדעת לפני השימוש.",
+      "published": "2026-11-15"
+    }
+  ]
+}

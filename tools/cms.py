@@ -186,13 +186,24 @@ def para_value(fragment, inline_links=False, page_dir=''):
 
 
 TIME_RANGE = re.compile(r'(?<![\d:])(\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2})(?![\d:])')
+# Sizes such as "9×12 ס״מ" (the pads): the same reversal turns them into 12×9.
+DIMENSIONS = re.compile(r'(?<![\d.,×])(\d+(?:[.,]\d+)?(?:\s*×\s*\d+(?:[.,]\d+)?)+)(?![\d.,×])')
 
 
 def ltr_ranges(escaped):
     """Hours typed as "9:00–17:00" read "17:00–9:00" in a right-to-left line:
-    the browser lays the two numbers out right to left around the dash. Kept
-    left to right; reading the text back strips the span, so it round-trips."""
-    return TIME_RANGE.sub(r'<span dir="ltr">\1</span>', escaped)
+    the browser lays the two numbers out right to left around the dash, and
+    "9×12" turns into "12×9" the same way. Both are kept left to right;
+    reading the text back strips the span, so it round-trips."""
+    escaped = TIME_RANGE.sub(r'<span dir="ltr">\1</span>', escaped)
+    return DIMENSIONS.sub(r'<span dir="ltr">\1</span>', escaped)
+
+
+def ltr_text(fragment):
+    """ltr_ranges() for HTML: only the text between tags, never inside a
+    tag, a script or a span already marked."""
+    parts = re.split(r'(<script\b.*?</script>|<span dir="ltr">.*?</span>|<[^>]+>)', fragment, flags=re.S)
+    return ''.join(p if i % 2 else ltr_ranges(p) for i, p in enumerate(parts))
 
 
 def para_html(value, link_template=None, page_dir=''):
@@ -211,7 +222,9 @@ def para_html(value, link_template=None, page_dir=''):
                 words, _, url = part.rpartition('|')
                 href = page_href(url.strip(), page_dir) if url.strip() else None
                 words = html.escape(words.strip(), quote=False)
-                buf.append(f'<a href="{html.escape(href, quote=True)}">{words}</a>' if href else words)
+                # Another site opens in a new tab, with no hold on this one.
+                away = ' target="_blank" rel="noopener"' if href and re.match(r'https?://', href) else ''
+                buf.append(f'<a href="{html.escape(href, quote=True)}"{away}>{words}</a>' if href else words)
             elif link_template:
                 buf.append(link_template[0] + html.escape(part, quote=False) + link_template[1])
             else:

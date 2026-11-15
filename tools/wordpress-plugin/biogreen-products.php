@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.9.2
+ * Version:      1.10.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,12 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.10.0 The three detox-patch products get the copy the client approved on
+ *        03/11/2026 (seed/products-pads.json), written once on the first
+ *        admin page load: hero, tabs, FAQ, quote form title, catalogue card
+ *        and image alt. Six new hero icons with the approved wording (פי 2
+ *        בגודל, תוצרת יפן, לשימוש בלילה, רשום באמ״ר, פטנט רשום, מנטה). A
+ *        product page has its own Google description ("תיאור בגוגל").
  * 1.9.2  The company's name is spelled ביו-גרין, as the client asked: in the
  *        article screen's SEO hint and the first article's seed.
  * 1.9.1  The article screen says what image to upload: landscape 16:9, at least
@@ -95,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.9.2';
+const BIOGREEN_VERSION = '1.10.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -121,6 +127,7 @@ function biogreen_fields() {
 		'page_subtitle' => [ 'תת-כותרת (למשל: 60 כמוסות רכות)', 'text' ],
 		'page_tagline'  => [ 'משפט פתיחה (מוצג גדול, מתחת לשם המוצר)', 'text' ],
 		'page_lede'     => [ 'פסקת פתיחה — ריק = עמוד בסיסי מנתוני הקטלוג (שם, תמונה, יתרונות וטופס)', 'textarea' ],
+		'page_meta_description' => [ 'תיאור בגוגל (Meta Description) — ריק = פסקת הפתיחה', 'textarea' ],
 	];
 	for ( $i = 1; $i <= 6; $i++ ) {
 		$page[ "hero_icon_$i" ]     = [ "אייקון $i", 'icon' ];
@@ -246,6 +253,12 @@ function biogreen_icons() {
 		'10_100_natural.svg'       => '100% רכיבים טבעיים',
 		'11_relief_pain.svg'       => 'הקלה על נפיחות וכאב',
 		'12_medical_quality.svg'   => 'דרגת איכות רפואית',
+		'13_size_x2.svg'           => 'פי 2 בגודל',
+		'14_made_in_japan_he.svg'  => 'תוצרת יפן',
+		'15_night_use.svg'         => 'לשימוש בלילה',
+		'16_registered_amr.svg'    => 'רשום באמ״ר',
+		'17_patent.svg'            => 'פטנט רשום',
+		'18_mint.svg'              => 'מנטה',
 	];
 }
 
@@ -1845,7 +1858,9 @@ add_action( 'save_post_bg_article', function ( $post_id, $post ) {
 		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bg_article_nonce'] ) ), 'bg_article_save' ) ) {
 		$slug = urldecode( sanitize_title( wp_unslash( $_POST['bg_article']['slug'] ) ) );
 	}
-	if ( ! preg_match( '/^[a-z0-9-]+$/', $slug ) || in_array( $slug, [ 'glossary', 'guide-thanks' ], true ) ) {
+	// Pages built by hand under /knowledge/ keep their address (the detox
+	// patches guide: data/knowledge-pages.json in the site).
+	if ( ! preg_match( '/^[a-z0-9-]+$/', $slug ) || in_array( $slug, [ 'glossary', 'guide-thanks', 'detox-patches' ], true ) ) {
 		$slug = 'article-' . $post_id;
 	}
 	if ( $slug === $current ) {
@@ -2073,4 +2088,47 @@ add_action( 'admin_init', function () {
 		}
 	}
 	biogreen_trigger_build();
+} );
+
+/**
+ * The detox patches' copy, approved by the client on 03/11/2026, written into
+ * the three products from seed/products-pads.json on the first admin page
+ * load of 1.10.0: hero, tabs, FAQ, quote form title, catalogue card, image
+ * alt. Only the fields the file names are touched, and an empty value clears
+ * one (the old card tags the client asked to remove). Once only: an option
+ * records it, so later edits made here are never overwritten.
+ */
+add_action( 'admin_init', function () {
+	if ( get_option( 'biogreen_pads_seeded' ) || ! current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+	$file = __DIR__ . '/seed/products-pads.json';
+	$seed = is_readable( $file ) ? json_decode( (string) file_get_contents( $file ), true ) : null;
+	if ( ! is_array( $seed ) ) {
+		return;
+	}
+	update_option( 'biogreen_pads_seeded', BIOGREEN_VERSION, false );
+
+	$fields = biogreen_all_fields();
+	$done   = 0;
+	foreach ( $seed['products'] ?? [] as $slug => $values ) {
+		$post = get_page_by_path( $slug, OBJECT, 'product' );
+		if ( ! $post ) {
+			continue;
+		}
+		foreach ( $values as $key => $value ) {
+			if ( ! isset( $fields[ $key ] ) ) {
+				continue;
+			}
+			// update_post_meta() unslashes, which would eat the backslash in
+			// any text that has one.
+			'' === $value
+				? delete_post_meta( $post->ID, $key )
+				: update_post_meta( $post->ID, $key, wp_slash( $value ) );
+		}
+		++$done;
+	}
+	if ( $done ) {
+		biogreen_trigger_build();
+	}
 } );

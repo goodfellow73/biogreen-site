@@ -14,7 +14,8 @@ Articles and their categories are edited in WordPress (plugin 1.8.0, menu
 Each article becomes knowledge/<slug>/index.html, marked as generated; a
 marked page whose article is gone is deleted. knowledge/index.html gets one
 card per article, in its category's colour, and one tab per category that has
-articles, in the categories' order.
+articles, in the categories' order. A page built by hand under knowledge/
+(data/knowledge-pages.json) gets a card the same way.
 
 The body is the editor's HTML cut down to what an article uses — headings,
 paragraphs, lists, quotes, bold, italic and links — so nothing pasted into
@@ -37,6 +38,7 @@ from cms import page_href  # noqa: E402  same link rules as the page texts
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data', 'articles.json')
+STATIC = os.path.join(ROOT, 'data', 'knowledge-pages.json')
 HUB = os.path.join(ROOT, 'knowledge', 'index.html')
 # A page at the articles' depth whose shell sync-shell keeps current.
 SHELL_FROM = os.path.join(ROOT, 'knowledge', 'guide-thanks', 'index.html')
@@ -386,12 +388,18 @@ def main():
     order = sorted(topics.values(), key=lambda t: (int(t.get('order') or 0), t['name']))
     pre, post = shell()
 
+    # Hand-built knowledge pages (data/knowledge-pages.json): read first, so
+    # an article can never be written over one.
+    static = (json.load(open(STATIC, encoding='utf-8')).get('pages', [])
+              if os.path.exists(STATIC) else [])
+    taken = {'glossary', 'guide-thanks'} | {pg.get('slug', '') for pg in static}
+
     written, placed = [], []
     for art in data.get('articles', []):
         slug = art.get('slug', '')
-        if not re.fullmatch(r'[a-z0-9-]+', slug) or slug in ('glossary', 'guide-thanks'):
+        if not re.fullmatch(r'[a-z0-9-]+', slug) or slug in taken:
             sys.exit(f'build-articles: article {art.get("id")} has the slug {slug!r}, '
-                     'which cannot be an address under /knowledge/')
+                     'which cannot be an address under /knowledge/ (another page has it)')
         topic = topics.get(art.get('topic'))
         if not topic:
             print(f"  note: '{art['title']}' has no category; it is published but gets no card")
@@ -406,6 +414,21 @@ def main():
             placed.append((order.index(topic), art.get('published') or '', art, topic))
 
     removed = prune(set(written))
+
+    # The hand-built pages get a card too. Their page is never written here;
+    # it has to exist, unmarked.
+    for pg in static:
+        slug = pg.get('slug', '')
+        path = os.path.join(ROOT, 'knowledge', slug, 'index.html')
+        if not os.path.exists(path) or MARKER in open(path, encoding='utf-8').read():
+            sys.exit(f'build-articles: data/knowledge-pages.json lists knowledge/{slug}/, '
+                     'which is missing or not a hand-built page')
+        topic = topics.get(pg.get('topic'))
+        if not topic:
+            print(f"  note: knowledge/{slug}/ has the category {pg.get('topic')!r}, "
+                  'which is not in WordPress; it gets no card')
+            continue
+        placed.append((order.index(topic), pg.get('published') or '', pg, topic))
 
     # Cards: by category order, newest first within a category.
     placed.sort(key=lambda p: p[1], reverse=True)

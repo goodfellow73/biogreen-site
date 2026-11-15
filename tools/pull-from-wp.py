@@ -392,15 +392,15 @@ def build_page(post, slug, name):
         'subtitle': clean(field(post, 'page_subtitle')),
         'tagline': clean(field(post, 'page_tagline')),
         'lede': clean(field(post, 'page_lede')),
+        'metaDescription': clean(field(post, 'page_meta_description')),
         'heroIcons': icons,
         'tabs': tabs,
         'quote': {
             'heading': clean(field(post, 'quote_heading')) or f'רוצים לקבל הצעת מחיר ל{name}?',
             'sub': clean(field(post, 'quote_sub'))
                    or 'השאירו פרטים ונחזור אליכם עם מידע נוסף והצעת מחיר.',
-            'privacy': 'הפרטים שמסרת ישמשו לצורך טיפול בפנייתך וליצירת קשר בנושא הפנייה. '
-                       'לפרטים נוספים ראו מדיניות הפרטיות.',
-            'consent': 'אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות.',
+            # The consent box, button and privacy line are the same on every
+            # product page: build-product-pages.py's FORM.
         },
     }
 

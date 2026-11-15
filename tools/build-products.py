@@ -22,8 +22,25 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cms import ltr_ranges  # noqa: E402  sizes like 9×12 stay left to right
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data', 'products.json')
+GUIDES = os.path.join(ROOT, 'data', 'knowledge-pages.json')
+
+
+def guides():
+    """product category -> its guide under knowledge/ (data/knowledge-pages.json).
+    A card in that category links its category line to the guide."""
+    if not os.path.exists(GUIDES):
+        return {}
+    with open(GUIDES, encoding='utf-8') as f:
+        return {g['product_category']: f"knowledge/{g['slug']}/"
+                for g in json.load(f).get('pages', []) if g.get('product_category')}
+
+
+GUIDE = guides()
 
 TONES = {'natural', 'reg', 'commercial', 'neutral', 'sand'}
 
@@ -78,8 +95,12 @@ def card(p, cats, prefix, indent='      '):
         for l in p.get('labels', [])[:3])
     benefits = '\n'.join(
         f'{i}      <li><svg class="icon" width="17" height="17">'
-        f'<use href="#i-check"></use></svg>{esc(b)}</li>'
+        f'<use href="#i-check"></use></svg>{ltr_ranges(esc(b))}</li>'
         for b in p.get('benefits', [])[:3])
+
+    cat_line = esc(cats[p['category']])
+    if p['category'] in GUIDE:
+        cat_line = f'<a class="product__guide" href="{prefix}{GUIDE[p["category"]]}">{cat_line}</a>'
 
     labels_block = (f'\n{i}    <div class="product__labels">\n{labels}\n{i}    </div>'
                     if labels else '')
@@ -102,7 +123,7 @@ def card(p, cats, prefix, indent='      '):
 {i}    <img src="{prefix}{esc(p['image'])}" alt="{esc(p.get('imageAlt', p['name']))}" loading="lazy">{labels_block}
 {i}  </div>
 {i}  <div class="product__body">
-{i}    <span class="bg-eyebrow" style="margin:0"><span class="bg-eyebrow__dot"></span>{esc(cats[p['category']])}</span>
+{i}    <span class="bg-eyebrow" style="margin:0"><span class="bg-eyebrow__dot"></span>{cat_line}</span>
 {i}    <h3>{title}</h3>
 {i}    <ul class="product__benefits">
 {benefits}

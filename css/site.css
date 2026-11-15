@@ -1615,3 +1615,78 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   .about-partners { grid-template-columns: 1fr; }
   .about-lead { font-size: 17px; }
 }
+
+/* ---- A page with a form of its own (product pages, the detox-patches
+   guide) leaves out the footer's quick-contact band: two forms in a row. */
+.no-quick-contact .quick-contact { display: none; }
+
+/* Product hero with four icons: one row on phones too, a little smaller. */
+@media (max-width: 900px) {
+  .pp-icons--4 { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .pp-icons--4 li { padding: 6px; }
+  .pp-icons--4 img { height: 62px; }
+}
+
+/* ---- Detox patches guide (knowledge/detox-patches/) ---------------- */
+
+.dp-hero__lead { font-size: var(--fs-subtitle); color: var(--text-muted); max-width: 680px; margin: 0 0 16px; }
+.dp-hero__points { margin: 0 0 26px; }
+.dp-part { scroll-margin-top: 96px; }
+.article__content .dp-note { font-size: 15px; color: var(--text-muted); }
+
+.dp-editions {
+  width: 100%; border-collapse: separate; border-spacing: 0; margin: 4px 0 12px;
+  background: #fff; border: 1px solid var(--border-card); border-radius: var(--radius-md);
+  overflow: hidden; font-size: 16px;
+}
+.dp-editions th, .dp-editions td {
+  padding: 12px 14px; text-align: start; vertical-align: top; line-height: 1.6;
+  border-bottom: 1px solid var(--border-card);
+}
+.dp-editions thead th { background: var(--surface-soft); color: var(--color-green-deep); font-weight: var(--fw-semibold); font-size: 15px; }
+.dp-editions tbody th { color: var(--color-green-deep); font-weight: var(--fw-bold); white-space: nowrap; }
+.dp-editions tbody tr:last-child > * { border-bottom: 0; }
+.dp-editions td:nth-child(3), .dp-editions td:last-child { white-space: nowrap; }
+
+.article__content .dp-steps {
+  list-style: none; margin: 4px 0 14px; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px;
+}
+.article__content .dp-step {
+  margin: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: #fff; border: 1px solid var(--border-card); border-radius: var(--radius-md);
+}
+.dp-step img { display: block; width: 100%; height: auto; aspect-ratio: 300 / 240; object-fit: cover; }
+.article__content .dp-step p {
+  margin: 0; padding: 10px 12px 12px; font-size: 15px; line-height: 1.55;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.dp-step__num {
+  flex: none; width: 24px; height: 24px; margin-top: 1px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-green); color: #fff; font-size: 13px; font-weight: var(--fw-bold);
+}
+
+@media (max-width: 640px) {
+  /* The table becomes one card per edition, each value with its label. */
+  .dp-editions, .dp-editions tbody, .dp-editions tr, .dp-editions th, .dp-editions td { display: block; }
+  .dp-editions thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .dp-editions { border: 0; border-radius: 0; background: none; overflow: visible; }
+  .dp-editions tbody tr {
+    background: #fff; border: 1px solid var(--border-card); border-radius: var(--radius-md);
+    padding: 12px 16px; margin-bottom: 12px;
+  }
+  .dp-editions tbody th { padding: 0 0 6px; border: 0; font-size: 18px; }
+  .dp-editions td { padding: 3px 0; border: 0; white-space: normal !important; }
+  .dp-editions td::before { content: attr(data-label) ": "; font-weight: var(--fw-semibold); color: var(--text-heading); }
+  .article__content .dp-steps { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .article__content .dp-step p { font-size: 14px; padding: 8px 10px 10px; }
+}
+
+/* A card's category line can lead to its guide (the detox patches'). It sits
+   above the card-wide link, like the buttons. */
+.product__guide {
+  position: relative; z-index: 1;
+  color: inherit; text-decoration: underline; text-underline-offset: 3px;
+}
+.product__guide:hover { color: var(--color-green); }

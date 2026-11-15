@@ -23,7 +23,9 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOCK = re.compile(r'<!-- faq:schema:start -->.*?<!-- faq:schema:end -->', re.S)
 ITEM = re.compile(r'<div class="bg-faq[^"]*">(.*?)<div class="bg-faq__a"[^>]*>(.*?)</div>', re.S)
-SLOT = '<[a-z0-9]+\\b[^>]*\\sdata-cms-slot="%s"[^>]*>(.*?)</[a-z0-9]+>'
+# Closed by the same tag it opened with: an answer may hold links, and the
+# first </a> is not where it ends.
+SLOT = '<([a-z0-9]+)\\b[^>]*\\sdata-cms-slot="%s"[^>]*>(.*?)</\\1>'
 
 
 def text(fragment):
@@ -36,8 +38,8 @@ def schema(src):
     for m in ITEM.finditer(src):
         q, a = re.search(SLOT % 1, m.group(1), re.S), re.search(SLOT % 2, m.group(2), re.S)
         if q and a:
-            questions.append({'@type': 'Question', 'name': text(q.group(1)),
-                              'acceptedAnswer': {'@type': 'Answer', 'text': text(a.group(1))}})
+            questions.append({'@type': 'Question', 'name': text(q.group(2)),
+                              'acceptedAnswer': {'@type': 'Answer', 'text': text(a.group(2))}})
     data = {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': questions}
     block = ('<!-- faq:schema:start -->\n<script type="application/ld+json">\n'
              + json.dumps(data, ensure_ascii=False, indent=2)

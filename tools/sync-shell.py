@@ -34,6 +34,7 @@ TARGETS = {
     'knowledge/index.html': 'knowledge/',
     'knowledge/guide-thanks/index.html': 'knowledge/',
     'about/index.html': 'about/',
+    'knowledge/detox-patches/index.html': 'knowledge/',
 }
 
 # block name -> (first line starts with, last line contains)

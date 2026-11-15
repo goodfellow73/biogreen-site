@@ -15,7 +15,7 @@ https://hook.eu1.make.com/8hnp4v23st7q95r8rmaqwq1qq8arabgm
 | `form_type` | הטופס |
 |---|---|
 | `quote_modal` | טופס הצעת המחיר הראשי (נפתח מכל כפתור באתר) |
-| `product_inquiry` | הטופס בתחתית עמוד מוצר |
+| `product_inquiry` | הטופס בתחתית עמוד מוצר, וגם בעמוד המדריך לפדים (/knowledge/detox-patches/): שם המוצר "פדים לניקוי רעלים", והמהדורה שנבחרה בשורה הראשונה של notes (`מהדורה מבוקשת: …`) |
 | `contact_page` | הטופס בעמוד צור קשר |
 | `quick_contact` | הטופס הקצר שמעל הפוטר, בכל עמוד |
 | `import_feasibility` | טופס בדיקת היתכנות ליבוא, בתוך עמוד שירותי יבוא ורגולציה |
