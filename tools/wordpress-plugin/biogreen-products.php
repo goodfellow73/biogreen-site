@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.10.0
+ * Version:      1.10.1
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,7 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.10.1 New kosher icon (05_kosher.svg) from the client.
  * 1.10.0 The three detox-patch products get the copy the client approved on
  *        03/11/2026 (seed/products-pads.json), written once on the first
  *        admin page load: hero, tabs, FAQ, quote form title, catalogue card
@@ -101,7 +102,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.10.0';
+const BIOGREEN_VERSION = '1.10.1';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
