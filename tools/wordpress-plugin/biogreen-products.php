@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.10.2
+ * Version:      1.10.3
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,7 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.10.3 Icons 13-18 as the client redrew them (one colour for the caption).
  * 1.10.2 A product page has its own Google title ("כותרת בגוגל"); curcumin's is
  *        filled in once from seed/products-seo.json.
  * 1.10.1 New kosher icon (05_kosher.svg) from the client.
@@ -104,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.10.2';
+const BIOGREEN_VERSION = '1.10.3';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',

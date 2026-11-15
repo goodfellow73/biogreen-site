@@ -14,12 +14,17 @@ Each icon it writes goes to both places the site reads icons from:
   tools/wordpress-plugin/icons/       the picker in the WordPress editor
 and has to be listed in biogreen_icons() in the plugin, with its caption.
 
+Icons 13-18 were redrawn by hand afterwards (15/11/2026: the caption in the
+same green as the glyph), so the files in the repo are the client's, not this
+script's output. It never overwrites an existing icon unless run with --force.
+
 Needs fontTools and brotli (pip install fonttools brotli). Not part of the
 build; run it by hand when a new icon is needed.
 """
 
 import os
 import re
+import sys
 
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -149,6 +154,9 @@ def write(name, caption_lines, glyph):
            f'  <!-- {" / ".join(caption_lines)} — made by tools/make-icon.py -->\n'
            f'  <g fill="{GREEN}" fill-rule="evenodd" clip-rule="evenodd" shape-rendering="geometricPrecision">\n'
            f'    {g}\n    ' + '\n    '.join(text) + '\n  </g>\n</svg>\n')
+    if not FORCE and any(os.path.exists(os.path.join(d, name)) for d in OUT_DIRS):
+        print(f'{name}  exists, left alone (--force to redraw)')
+        return
     for out in OUT_DIRS:
         with open(os.path.join(out, name), 'w', encoding='utf-8', newline='\n') as f:
             f.write(svg)
@@ -180,6 +188,8 @@ ICONS = [
     ('17_patent.svg',         ['פטנט רשום'],     ('borrow', '08_sporilife_patent.svg')),
     ('18_mint.svg',           ['מנטה'],          ('draw', MINT, 180, 180)),
 ]
+
+FORCE = '--force' in sys.argv
 
 if __name__ == '__main__':
     for name, caption, glyph in ICONS:
