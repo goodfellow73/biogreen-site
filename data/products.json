@@ -101,21 +101,21 @@
       "name": "פדים לניקוי רעלים מנטה",
       "category": "detox-patches",
       "image": "assets/img/product-detox-cool-mint.jpg",
-      "imageAlt": "פדים לניקוי רעלים מנטה",
+      "imageAlt": "אריזת פדים לניקוי רעלים מנטה מבית Kenrico, מארז 6 פדים",
       "labels": [
         {
-          "text": "Made in Japan",
-          "tone": "neutral"
+          "text": "צמחי מרפא",
+          "tone": "natural"
         },
         {
-          "text": "100% organic",
-          "tone": "natural"
+          "text": "תוצרת יפן",
+          "tone": "neutral"
         }
       ],
       "benefits": [
-        "מהדורת המנטה",
-        "תחושת רעננות",
-        "אריזה לפי דרישה"
+        "תערובת צמחי מרפא ומנטה.",
+        "לשימוש בלילה, על כף הרגל.",
+        "רשום באמ״ר."
       ],
       "featured": null,
       "published": true
@@ -125,21 +125,21 @@
       "name": "פדים לניקוי רעלים זהב",
       "category": "detox-patches",
       "image": "assets/img/product-detox-gold.jpg",
-      "imageAlt": "פדים לניקוי רעלים זהב — אריזת המוצר",
+      "imageAlt": "אריזת פדים לניקוי רעלים זהב מבית Kenrico, מארז 6 פדים",
       "labels": [
         {
-          "text": "Made in Japan",
-          "tone": "neutral"
+          "text": "פטנט רשום",
+          "tone": "natural"
         },
         {
-          "text": "100% רכיבים טבעיים",
-          "tone": "natural"
+          "text": "תוצרת יפן",
+          "tone": "neutral"
         }
       ],
       "benefits": [
-        "רכיבים פטנטיים",
-        "ניקוי רעלים בזמן שינה",
-        "רשום אמ״ר"
+        "מכיל ספורופולנין, פטנט רשום.",
+        "לשימוש בלילה, על כף הרגל.",
+        "רשום באמ״ר."
       ],
       "featured": null,
       "published": true
@@ -149,21 +149,21 @@
       "name": "פדים לניקוי רעלים מגה דיטוקס",
       "category": "detox-patches",
       "image": "assets/img/product-mega-detox.jpg",
-      "imageAlt": "פדים לניקוי רעלים מגה דיטוקס — אריזת המוצר",
+      "imageAlt": "אריזת פדים לניקוי רעלים מגה דיטוקס מבית Kenrico, מארז 6 פדים",
       "labels": [
         {
-          "text": "Made in Japan",
-          "tone": "neutral"
+          "text": "פי 2 בגודל",
+          "tone": "natural"
         },
         {
-          "text": "100% רכיבים טבעיים",
-          "tone": "natural"
+          "text": "תוצרת יפן",
+          "tone": "neutral"
         }
       ],
       "benefits": [
-        "רכיבים פטנטיים",
-        "ניקוי רעלים בזמן שינה",
-        "רשום באמ״ר"
+        "פד גדול: 9×12 ס״מ.",
+        "לשימוש בלילה, על כף הרגל.",
+        "רשום באמ״ר."
       ],
       "featured": 2,
       "published": true
