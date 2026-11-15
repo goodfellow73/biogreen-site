@@ -392,6 +392,7 @@ def build_page(post, slug, name):
         'subtitle': clean(field(post, 'page_subtitle')),
         'tagline': clean(field(post, 'page_tagline')),
         'lede': clean(field(post, 'page_lede')),
+        'seoTitle': clean(field(post, 'page_seo_title')),
         'metaDescription': clean(field(post, 'page_meta_description')),
         'heroIcons': icons,
         'tabs': tabs,

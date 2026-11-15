@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.10.1
+ * Version:      1.10.2
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,8 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.10.2 A product page has its own Google title ("כותרת בגוגל"); curcumin's is
+ *        filled in once from seed/products-seo.json.
  * 1.10.1 New kosher icon (05_kosher.svg) from the client.
  * 1.10.0 The three detox-patch products get the copy the client approved on
  *        03/11/2026 (seed/products-pads.json), written once on the first
@@ -102,7 +104,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.10.1';
+const BIOGREEN_VERSION = '1.10.2';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -128,6 +130,7 @@ function biogreen_fields() {
 		'page_subtitle' => [ 'תת-כותרת (למשל: 60 כמוסות רכות)', 'text' ],
 		'page_tagline'  => [ 'משפט פתיחה (מוצג גדול, מתחת לשם המוצר)', 'text' ],
 		'page_lede'     => [ 'פסקת פתיחה — ריק = עמוד בסיסי מנתוני הקטלוג (שם, תמונה, יתרונות וטופס)', 'textarea' ],
+		'page_seo_title'        => [ 'כותרת בגוגל (Title) — ריק = שם המוצר | ביו-גרין', 'text' ],
 		'page_meta_description' => [ 'תיאור בגוגל (Meta Description) — ריק = פסקת הפתיחה', 'textarea' ],
 	];
 	for ( $i = 1; $i <= 6; $i++ ) {
@@ -2092,23 +2095,26 @@ add_action( 'admin_init', function () {
 } );
 
 /**
- * The detox patches' copy, approved by the client on 03/11/2026, written into
- * the three products from seed/products-pads.json on the first admin page
- * load of 1.10.0: hero, tabs, FAQ, quote form title, catalogue card, image
- * alt. Only the fields the file names are touched, and an empty value clears
- * one (the old card tags the client asked to remove). Once only: an option
- * records it, so later edits made here are never overwritten.
+ * Field values written into existing products once, from a file in seed/:
+ * only the fields the file names, "" clears one, and an option records that
+ * the file was applied so later edits made here are never overwritten. Then
+ * the site is rebuilt.
+ *
+ *   products-pads.json  the detox patches' copy, approved by the client on
+ *                       03/11/2026: hero, tabs, FAQ, quote form title,
+ *                       catalogue card, image alt (1.10.0)
+ *   products-seo.json   Google titles the client set (1.10.2)
  */
-add_action( 'admin_init', function () {
-	if ( get_option( 'biogreen_pads_seeded' ) || ! current_user_can( 'edit_posts' ) ) {
-		return;
+function biogreen_seed_products( $file, $option ) {
+	if ( get_option( $option ) ) {
+		return 0;
 	}
-	$file = __DIR__ . '/seed/products-pads.json';
-	$seed = is_readable( $file ) ? json_decode( (string) file_get_contents( $file ), true ) : null;
+	$path = __DIR__ . '/seed/' . $file;
+	$seed = is_readable( $path ) ? json_decode( (string) file_get_contents( $path ), true ) : null;
 	if ( ! is_array( $seed ) ) {
-		return;
+		return 0;
 	}
-	update_option( 'biogreen_pads_seeded', BIOGREEN_VERSION, false );
+	update_option( $option, BIOGREEN_VERSION, false );
 
 	$fields = biogreen_all_fields();
 	$done   = 0;
@@ -2129,6 +2135,15 @@ add_action( 'admin_init', function () {
 		}
 		++$done;
 	}
+	return $done;
+}
+
+add_action( 'admin_init', function () {
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+	$done  = biogreen_seed_products( 'products-pads.json', 'biogreen_pads_seeded' );
+	$done += biogreen_seed_products( 'products-seo.json', 'biogreen_seo_seeded' );
 	if ( $done ) {
 		biogreen_trigger_build();
 	}

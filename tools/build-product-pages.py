@@ -395,7 +395,7 @@ def build(page, prod, cats, sprite, header, footer):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(prod['name'])} | ביו-גרין</title>
+<title>{esc((page.get('seoTitle') or '').strip() or prod['name'] + ' | ביו-גרין')}</title>
 <meta name="description" content="{esc(description)}">
 <link rel="icon" href="{UP}assets/logo/biogreen-logo-trim.png">
 <link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/heebo-700-hebrew.woff2" crossorigin>
