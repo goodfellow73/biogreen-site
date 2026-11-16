@@ -584,3 +584,81 @@ const FORMS = {
    the form in place. If the form later becomes its own page (or a CMS-managed
    page), swap them for <a href="/contact?intent=import"> — the data-intent
    values (import / products / raw) already match that query string. */
+
+/* ---------- cookie consent ----------
+   The site sets no cookies and loads no third-party trackers today; the
+   accessibility panel keeps the visitor's own settings in localStorage. The
+   bar asks once and remembers the answer (localStorage "bg-consent"), and
+   "הגדרות עוגיות" in the footer opens it again. Anything added later that
+   needs consent — analytics, an ad pixel — must start from
+   bgConsent.whenGranted(fn), so it runs only after "אישור", including when
+   the visitor changes their mind later. */
+(function () {
+  'use strict';
+
+  const KEY = 'bg-consent';
+  const TEXT = 'אנחנו משתמשים בעוגיות ובטכנולוגיות דומות כדי שהאתר יפעל כראוי. ' +
+               'באישורכם נשתמש בהן גם למדידת השימוש באתר ולשיפורו. ' +
+               'לפרטים נוספים ראו מדיניות הפרטיות.';
+  const waiting = [];
+  let state = read();
+  let bar = null;
+
+  function read() {
+    try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+  }
+
+  function save(choice) {
+    state = { choice: choice, at: new Date().toISOString() };
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode: asks again next visit */ }
+  }
+
+  function build() {
+    bar = document.createElement('section');
+    bar.className = 'cookie-bar';
+    bar.setAttribute('aria-label', 'הסכמה לעוגיות');
+    bar.hidden = true;
+    bar.innerHTML =
+      '<p class="cookie-bar__text"></p>' +
+      '<div class="cookie-bar__actions">' +
+      '<button class="bg-btn bg-btn--primary bg-btn--sm" type="button" data-consent="granted">אישור</button>' +
+      '<button class="bg-btn bg-btn--secondary bg-btn--sm" type="button" data-consent="denied">רק הכרחיות</button>' +
+      '</div>';
+    bar.querySelector('.cookie-bar__text').textContent = TEXT;
+    bar.querySelectorAll('[data-consent]').forEach(function (b) {
+      b.addEventListener('click', function () { decide(b.getAttribute('data-consent')); });
+    });
+    document.body.appendChild(bar);
+  }
+
+  function show(focus) {
+    if (!bar) build();
+    bar.hidden = false;
+    // Opened from the footer link: straight to the choice. On arrival it
+    // waits, so the page's own focus order is untouched.
+    if (focus) bar.querySelector('[data-consent]').focus();
+  }
+
+  function decide(choice) {
+    save(choice);
+    bar.hidden = true;
+    if (choice === 'granted') {
+      while (waiting.length) waiting.shift()();
+    }
+    document.dispatchEvent(new CustomEvent('bg:consent', { detail: choice }));
+  }
+
+  window.bgConsent = {
+    get: function () { return state ? state.choice : null; },
+    whenGranted: function (fn) {
+      if (state && state.choice === 'granted') fn(); else waiting.push(fn);
+    },
+    open: function () { show(true); }
+  };
+
+  document.querySelectorAll('[data-cookie-settings]').forEach(function (b) {
+    b.addEventListener('click', function () { show(true); });
+  });
+
+  if (!state) show(false);
+})();

@@ -1695,3 +1695,32 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   color: inherit; text-decoration: underline; text-underline-offset: 3px;
 }
 .product__guide:hover { color: var(--color-green); }
+
+/* ---- Cookie consent bar (js/site.js) ------------------------------------
+   Not a modal: the page stays usable behind it. Above the floating WhatsApp
+   button, and on phones above the sticky action bar. */
+.cookie-bar[hidden] { display: none !important; }
+.cookie-bar {
+  position: fixed; z-index: 90; inset-inline: 16px; bottom: 16px;
+  max-width: 680px; margin-inline: auto;
+  display: flex; align-items: center; gap: 18px;
+  background: var(--surface-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-lift);
+  padding: 14px 18px;
+}
+.cookie-bar__text { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-body); }
+.cookie-bar__actions { display: flex; gap: 8px; flex: none; }
+.site-footer__cookies {
+  background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
+  font-size: 13px; color: rgba(247, 248, 243, 0.78);
+}
+.site-footer__cookies:hover { color: #fff; }
+@media (max-width: 900px) {
+  .cookie-bar {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px;
+    /* The accessibility button sits over the bar's left edge here. */
+    padding-inline-end: 68px;
+  }
+  .cookie-bar__actions > .bg-btn { flex: 1; justify-content: center; }
+}
