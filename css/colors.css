@@ -8,9 +8,14 @@
   --color-logo-light-green:  #7FC241; /* the living "natural" symbol — used in measured doses */
   --color-logo-blue:         #2B78A3; /* Hebrew tagline */
   --color-logo-dark-green:   #066B45; /* small-size / high-contrast logo */
+  /* The light green as TEXT on the deep green: a touch lighter than the logo's,
+     4.55:1 instead of 4.43:1 (accessibility audit, 16/11/2026). */
+  --color-light-green-text:  #83C447;
 
   /* ---- Primary ---- */
-  --color-green:        #0B8F5A; /* botanical green: header, accents, icons, links, active states */
+  /* Darkened from #0B8F5A (accessibility audit, 16/11/2026): 4.85:1 on white,
+     4.55:1 on the paper background, as WCAG AA asks for text. */
+  --color-green:        #0A8252; /* botanical green: header, accents, icons, links, active states */
   --color-green-deep:   #064F3A; /* dark medical green: headings, footer, trust blocks, hover */
   --color-blue:         #2B78A3; /* professional blue: regulation, documents, B2B trust */
   --color-paper:        #F7F8F3; /* warm white site background */
@@ -30,7 +35,7 @@
   /* ---- Ink ---- */
   --color-ink:          #1E2B25; /* body text */
   --color-ink-soft:     #4A5852; /* secondary text, captions */
-  --color-ink-faint:    #8A9690; /* placeholders, disabled, hints (sage-ish) */
+  --color-ink-faint:    #666F6B; /* placeholders, disabled, hints — was #8A9690 (2.7:1), now 4.5:1+ */
   --color-white:        #FFFFFF;
 
   /* ---- Tints (derived, for fills & states) ---- */
@@ -60,6 +65,9 @@
   --border-card:         #E4EBE4;                   /* hairline card border */
   --border-reg:          #BCD9E8;                   /* regulatory block border */
   --border-focus:        var(--color-blue);         /* form focus ring */
+  /* Keyboard focus: a solid ring, 3:1 or more against the page and the
+     buttons (accessibility audit, 16/11/2026). On dark sections: --color-paper. */
+  --color-focus:         #1B5E80;
 
   --accent-natural:      var(--color-green);        /* underline under natural keywords */
   --accent-regulatory:   var(--color-blue);         /* underline under regulatory terms */

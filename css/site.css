@@ -12,6 +12,15 @@
    visibility with `el.hidden`, so this has to win. */
 [hidden] { display: none !important; }
 
+/* Keyboard focus, everywhere: a solid ring the eye cannot miss. Elements
+   that draw their own (inputs, cards, choice tiles) keep theirs; on the dark
+   sections the ring is light. */
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.site-footer :focus-visible, .why :focus-visible, .importer-band :focus-visible,
+.site-footer .bg-btn:focus-visible, .why .bg-btn:focus-visible, .importer-band .bg-btn:focus-visible {
+  outline-color: var(--color-paper);
+}
+
 .icon { flex: none; vertical-align: middle; }
 
 /* The sprite is markup only. `hidden` alone does not hide an <svg> — browsers
@@ -194,7 +203,7 @@
    the use of its mark, so the row is set in the brand display face. */
 .client__name {
   font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 17px;
-  color: var(--color-ink-soft); letter-spacing: -0.01em; opacity: 0.75;
+  color: #6A746F; letter-spacing: -0.01em;
   transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
 }
 .client:hover .client__name { opacity: 1; color: var(--color-green-deep); }
@@ -305,7 +314,7 @@
 .why .shell { position: relative; }
 .why h2 { color: var(--text-on-dark); }
 .why__head { text-align: center; max-width: 760px; margin-inline: auto; margin-bottom: 48px; }
-.why__eyebrow { color: var(--color-logo-light-green); }
+.why__eyebrow { color: var(--color-light-green-text); }
 .why__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 40px; }
 .why__item {
   display: flex; align-items: center; gap: 16px;
@@ -314,7 +323,7 @@
 .why__icon {
   display: inline-flex; align-items: center; justify-content: center;
   width: 46px; height: 46px; border-radius: var(--radius-sm); flex: none;
-  background: rgba(255, 255, 255, 0.10); color: var(--color-logo-light-green);
+  background: rgba(255, 255, 255, 0.10); color: var(--color-light-green-text);
 }
 .why__item span:last-child {
   font-family: var(--font-display); font-weight: var(--fw-medium); font-size: 18px;
@@ -449,21 +458,21 @@
 .footer-col { display: flex; flex-direction: column; gap: 10px; }
 .footer-col__title {
   font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: 15px;
-  color: var(--color-logo-light-green); margin-bottom: 4px;
+  color: var(--color-light-green-text); margin-bottom: 4px;
 }
 .footer-col a { font-size: 15px; color: rgba(247, 248, 243, 0.78); }
 .footer-col a:hover { color: #fff; }
 /* Medical disclaimer, centred above the legal row. */
 .site-footer__disclaimer {
   margin: 28px auto 0; max-width: 760px; text-align: center;
-  font-size: 13px; line-height: 1.7; color: rgba(247, 248, 243, 0.6);
+  font-size: 13px; line-height: 1.7; color: #9CB8AD;
 }
 
 .site-footer__bottom {
   display: flex; justify-content: space-between; align-items: center; gap: 16px;
   margin-top: 20px; padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 13px; color: rgba(247, 248, 243, 0.55); flex-wrap: wrap;
+  font-size: 13px; color: #9CB8AD; flex-wrap: wrap;
 }
 .site-footer__legal { display: inline-flex; align-items: center; gap: 10px; }
 .site-footer__legal a { color: rgba(247, 248, 243, 0.78); font-size: 13px; }
@@ -1005,10 +1014,10 @@
 .footer-contact [dir="ltr"] { unicode-bidi: isolate; }
 .footer-contact > .footer-contact__note {
   margin-top: -6px; padding-inline-start: 24px;
-  font-size: 13px; color: rgba(247, 248, 243, 0.6);
+  font-size: 13px; color: #9CB8AD;
 }
 .footer-contact__note a { font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
-.footer-contact__more { margin-top: 4px; font-size: 14px; color: var(--color-logo-light-green) !important; }
+.footer-contact__more { margin-top: 4px; font-size: 14px; color: var(--color-light-green-text) !important; }
 
 /* ==========================================================================
    Contact page
@@ -1165,10 +1174,10 @@
   width: 104px; height: 104px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
   background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.22);
-  color: var(--color-logo-light-green);
+  color: var(--color-light-green-text);
 }
 .importer-band__body { display: grid; gap: 14px; }
-.importer-band .bg-eyebrow { color: var(--color-logo-light-green); margin: 0; }
+.importer-band .bg-eyebrow { color: var(--color-light-green-text); margin: 0; }
 .importer-band h2 { color: #fff; margin: 0; }
 .importer-band__lead {
   font-family: var(--font-display); font-weight: var(--fw-bold);
@@ -1722,8 +1731,6 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
   .cookie-bar {
     bottom: calc(76px + env(safe-area-inset-bottom));
     flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px;
-    /* The accessibility button sits over the bar's left edge here. */
-    padding-inline-end: 68px;
   }
   .cookie-bar__actions > .bg-btn { flex: 1; justify-content: center; }
 }
@@ -1757,3 +1764,11 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 @media (max-width: 620px) {
   .cookie-dialog__actions > .bg-btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* Green text on the eucalyptus background needs a darker green: 4.55:1
+   (accessibility audit, 16/11/2026). */
+.feasibility .bg-eyebrow { color: #09774B; }
+
+/* Links inside running text in an FAQ answer are underlined, not only
+   coloured (WCAG 1.4.1, "link-in-text-block"). */
+.bg-faq__a p > a { color: var(--color-green-deep); text-decoration: underline; text-underline-offset: 3px; }

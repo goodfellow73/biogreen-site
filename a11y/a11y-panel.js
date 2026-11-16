@@ -10,6 +10,9 @@
  *      data-lang="he|en"            panel language (he)
  *      data-statement="/accessibility/"   link to the accessibility statement
  *      data-bottom="24"             px from the bottom, to clear a sticky bar
+ *   The page can lift the launcher and panel further with the CSS custom
+ *   property --a11y-lift on <html> (it crosses into the shadow root): the
+ *   site sets it while its cookie bar would sit under the launcher.
  *
  *  Portability notes:
  *   - No dependencies and no build step.
@@ -209,7 +212,7 @@
     ':host{all:initial;}' +
     '*{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;}' +
 
-    '.launcher{position:fixed;' + side + ':18px;bottom:' + CFG.bottom + 'px;z-index:2147483000;' +
+    '.launcher{position:fixed;' + side + ':18px;bottom:calc(' + CFG.bottom + 'px + var(--a11y-lift, 0px));z-index:2147483000;' +
     'width:' + BTN + 'px;height:' + BTN + 'px;border-radius:50%;border:0;cursor:pointer;' +
     'background:' + CFG.accent + ';color:#fff;display:flex;align-items:center;justify-content:center;' +
     'box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .15s ease;}' +
@@ -217,7 +220,7 @@
     '.launcher:focus-visible{outline:3px solid #ffdd33;outline-offset:3px;}' +
     '.launcher svg{width:' + ICO + 'px;height:' + ICO + 'px;}' +
 
-    '.panel{position:fixed;' + side + ':18px;bottom:' + (CFG.bottom + BTN + GAP) + 'px;z-index:2147483000;' +
+    '.panel{position:fixed;' + side + ':18px;bottom:calc(' + (CFG.bottom + BTN + GAP) + 'px + var(--a11y-lift, 0px));z-index:2147483000;' +
     'width:340px;max-width:calc(100vw - 36px);max-height:min(76vh,620px);overflow:auto;' +
     'background:#fff;color:#16211c;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.3);' +
     'direction:' + L.dir + ';text-align:' + (L.dir === 'rtl' ? 'right' : 'left') + ';}' +
@@ -260,7 +263,7 @@
     '.mask i{position:absolute;left:0;right:0;background:rgba(0,0,0,.62);display:block;}' +
 
     '@media (max-width:480px){.panel{width:calc(100vw - 24px);' + side + ':12px;' +
-    'bottom:' + (CFG.bottom + BTN + GAP) + 'px;}}';
+    'bottom:calc(' + (CFG.bottom + BTN + GAP) + 'px + var(--a11y-lift, 0px));}}';
 
   function ico(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true">' + paths + '</svg>';

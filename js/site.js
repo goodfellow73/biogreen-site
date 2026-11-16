@@ -576,6 +576,21 @@ const FORMS = {
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeModal();
+    // While the pop-up is open, Tab and Shift+Tab go round inside it rather
+    // than out to the page behind (accessibility audit, 16/11/2026).
+    if (e.key === 'Tab' && modal && !modal.hidden) {
+      const items = Array.prototype.filter.call(
+        modal.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+        function (el) { return !el.disabled && el.offsetParent !== null; });
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      const inside = modal.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault(); first.focus();
+      }
+    }
   });
 
   // Deep link: /?intent=import|products|raw|other opens the form on that type,
@@ -725,6 +740,7 @@ const FORMS = {
     const before = state;
     save(choice);
     if (bar) bar.hidden = true;
+    liftA11y();
     if (dialog && dialog.open) dialog.close();
     const withdrawn = before && KINDS.some(function (k) { return before[k] && !state[k]; });
     document.dispatchEvent(new CustomEvent('bg:consent', { detail: state }));
@@ -765,7 +781,11 @@ const FORMS = {
     actions.appendChild(button('bg-btn--ghost cookie-bar__settings', 'הגדרות', openSettings));
     bar.appendChild(p);
     bar.appendChild(actions);
-    document.body.appendChild(bar);
+    // First in the Tab order, right after "דילוג לתוכן הראשי", so a keyboard
+    // user meets it before the page rather than after all of it.
+    const skip = document.querySelector('.skip-link');
+    if (skip) skip.insertAdjacentElement('afterend', bar);
+    else document.body.insertBefore(bar, document.body.firstChild);
   }
 
   function row(kind, fixed) {
@@ -833,6 +853,18 @@ const FORMS = {
     }
   }
 
+  // The accessibility button sits at the bottom corner; while the bar is
+  // showing and under it (phones), lift the button above the bar.
+  function liftA11y() {
+    let lift = 0;
+    if (bar && !bar.hidden) {
+      const r = bar.getBoundingClientRect();
+      // The site places it on the left (data-position="left"), 18px in.
+      if (r.left < 70) lift = Math.max(0, window.innerHeight - r.top - 92 + 12);
+    }
+    document.documentElement.style.setProperty('--a11y-lift', lift + 'px');
+  }
+
   window.bgConsent = {
     get: function (kind) { return granted(kind); },
     whenGranted: function (kind, fn) {
@@ -852,5 +884,7 @@ const FORMS = {
   if (!state) {
     buildBar();
     bar.hidden = false;
+    liftA11y();
+    window.addEventListener('resize', liftA11y);
   }
 })();

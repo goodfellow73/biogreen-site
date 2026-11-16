@@ -2,6 +2,10 @@
    press states. Shipped to consumers via styles.css. JSX components emit these classNames. */
 
 /* ============================ Button ============================ */
+/* Accessibility audit, 16/11/2026: white on the amber (2.92:1) and on the
+   WhatsApp green (3.09:1) is below WCAG AA, so their label and icon are dark
+   ink (5.03:1 and 4.76:1); the colours themselves stay. On hover the
+   background darkens and the label turns white (4.63:1, 4.99:1). */
 .bg-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
   font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--fs-button);
@@ -13,12 +17,12 @@
     transform var(--dur-fast) var(--ease-out);
 }
 .bg-btn:active { transform: scale(0.98); }
-.bg-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.bg-btn:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
 .bg-btn--sm { padding: 9px 18px; font-size: var(--fs-small); }
 .bg-btn--lg { padding: 17px 34px; font-size: 19px; }
 .bg-btn--block { display: flex; width: 100%; }
 
-.bg-btn--primary { background: var(--action-primary); color: #fff; box-shadow: var(--shadow-air); }
+.bg-btn--primary { background: var(--action-primary); color: var(--color-ink); box-shadow: var(--shadow-air); }
 .bg-btn--primary:hover { background: var(--action-primary-hover); color: #fff; }
 
 .bg-btn--secondary { background: #fff; color: var(--color-green); border-color: var(--color-green); }
@@ -30,8 +34,8 @@
 .bg-btn--ghost { background: transparent; color: var(--color-green-deep); }
 .bg-btn--ghost:hover { background: var(--color-green-tint); }
 
-.bg-btn--whatsapp { background: #1FA855; color: #fff; }
-.bg-btn--whatsapp:hover { background: #178043; }
+.bg-btn--whatsapp { background: #1FA855; color: var(--color-ink); }
+.bg-btn--whatsapp:hover { background: #178043; color: #fff; }
 
 /* A WhatsApp link wearing the outline variant — the hero pairs one with the
    quote CTA, so it cannot be solid green at rest. On hover it fills with the
@@ -56,7 +60,7 @@
 }
 .bg-label--natural    { color: var(--color-green-deep); background: var(--color-green-tint); border-color: #BFE0CD; }
 .bg-label--reg        { color: #1B5E80; background: var(--color-sky); border-color: var(--border-reg); }
-.bg-label--commercial { color: var(--color-terracotta); background: var(--color-amber-tint); border-color: #EBC79B; }
+.bg-label--commercial { color: #AB5427; background: var(--color-amber-tint); border-color: #EBC79B; }
 .bg-label--neutral    { color: var(--color-ink-soft); background: #fff; border-color: var(--color-sage); }
 .bg-label--sand       { color: #7A5A2B; background: var(--color-sand); border-color: #E0D2B3; }
 
@@ -180,7 +184,7 @@
   background: #fff; border: 2px solid var(--color-sage); color: var(--color-sage); z-index: 1;
 }
 .bg-route__step--done .bg-route__node { background: var(--color-green); border-color: var(--color-green); color: #fff; }
-.bg-route__step--active .bg-route__node { border-color: var(--color-green); color: var(--color-green-deep); box-shadow: var(--shadow-focus); }
+.bg-route__step--active .bg-route__node { border-color: var(--color-green); color: var(--color-green-deep); box-shadow: var(--shadow-halo); }
 .bg-route__label { font-size: 14px; color: var(--text-muted); max-width: 120px; }
 .bg-route__line { position: absolute; top: 22px; height: 2px; background: var(--color-sage); inset-inline-start: 50%; width: 100%; z-index: 0; }
 .bg-route__step--done .bg-route__line { background: var(--color-green); }
