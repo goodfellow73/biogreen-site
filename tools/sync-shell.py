@@ -35,6 +35,7 @@ TARGETS = {
     'knowledge/guide-thanks/index.html': 'knowledge/',
     'about/index.html': 'about/',
     'knowledge/detox-patches/index.html': 'knowledge/',
+    'accessibility/index.html': None,      # in no menu: nothing marked current
 }
 
 # block name -> (first line starts with, last line contains)
@@ -89,6 +90,8 @@ def deepen(html, up):
 def set_current(header, href):
     """Move aria-current="page" onto the nav item for this page."""
     header = re.sub(r'(<a class="nav__link"[^>]*?) aria-current="page"', r'\1', header)
+    if href is None:
+        return header
     pat = f'<a class="nav__link" href="{href}">'
     if pat not in header:
         sys.exit(f'  no nav link for {href!r}')
@@ -117,7 +120,7 @@ def main():
             a, b = locate(lines, name)
             new = deepen(blocks[name], up)
             if name == 'header':
-                new = set_current(new, up + current)
+                new = set_current(new, None if current is None else up + current)
             text = '\n'.join(lines[:a] + new.split('\n') + lines[b + 1:])
 
         before = open(path, encoding='utf-8').read()
