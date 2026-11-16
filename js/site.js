@@ -488,7 +488,7 @@ const FORMS = {
   const productField = document.getElementById('q-product');
   const intro = modal && modal.querySelector('.modal__intro');
 
-  const INTENTS = ['import', 'products', 'raw'];
+  const INTENTS = ['import', 'products', 'raw', 'other'];
 
   let lastFocused = null;
 
@@ -554,7 +554,7 @@ const FORMS = {
     if (e.key === 'Escape') closeModal();
   });
 
-  // Deep link: /?intent=import|products|raw opens the form on that type,
+  // Deep link: /?intent=import|products|raw|other opens the form on that type,
   // so campaign and e-mail links can land straight on the right request.
   const deepIntent = new URLSearchParams(location.search).get('intent');
   if (deepIntent && INTENTS.indexOf(deepIntent) !== -1) {

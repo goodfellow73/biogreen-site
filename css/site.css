@@ -953,10 +953,15 @@
 }
 .quick-contact__title { font-size: var(--fs-h3); color: var(--color-green-deep); margin: 0 0 6px; }
 .quick-contact__head p { margin: 0; color: var(--text-muted); }
+/* Three fields in a row, then the consent box, the privacy note and the
+   button, each on its own line — the order every form on the site keeps. */
 .quick-contact__form {
-  display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: start;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: start;
 }
-.quick-contact__form .bg-btn { white-space: nowrap; }
+.quick-contact__form > .pp-consent,
+.quick-contact__form > .pp-privacy { grid-column: 1 / -1; }
+.quick-contact__form > .pp-privacy { text-align: start; }
+.quick-contact__form .bg-btn { white-space: nowrap; grid-column: 1 / -1; justify-self: start; }
 .quick-contact__form .form-error { grid-column: 1 / -1; }
 .quick-contact__done {
   grid-column: 2; margin: 0; display: flex; gap: 10px; align-items: center;
@@ -1060,7 +1065,7 @@
   .site-footer__top { grid-template-columns: 1fr 1fr; }
   .quick-contact__inner { grid-template-columns: 1fr; gap: 18px; }
   .quick-contact__form { grid-template-columns: 1fr 1fr; }
-  .quick-contact__form .bg-btn { grid-column: 1 / -1; }
+  .quick-contact__form .bg-btn { grid-column: 1 / -1; justify-self: stretch; }
   .quick-contact__done { grid-column: 1; }
   .contact-grid { grid-template-columns: 1fr; }
   .contact-hero { padding-block: 36px 28px; }

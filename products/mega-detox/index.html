@@ -10,7 +10,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../../css/site.css?v=49bb3f6b">
+<link rel="stylesheet" href="../../css/site.css?v=31d4afa8">
 </head>
 <body data-page-label="עמוד מוצר פדים לניקוי רעלים מגה דיטוקס" class="no-quick-contact">
 
@@ -427,12 +427,12 @@
           data-product-form data-product="פדים לניקוי רעלים מגה דיטוקס">
       <div class="form-grid">
         <div class="bg-field">
-          <label class="bg-field__label sr-only" for="pq-name">שם</label>
-          <input class="bg-input" id="pq-name" name="name" required placeholder="* שם">
+          <label class="bg-field__label sr-only" for="pq-name">שם מלא</label>
+          <input class="bg-input" id="pq-name" name="name" required placeholder="* שם מלא">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label sr-only" for="pq-company">חברה</label>
-          <input class="bg-input" id="pq-company" name="company" placeholder="חברה">
+          <label class="bg-field__label sr-only" for="pq-company">שם החברה</label>
+          <input class="bg-input" id="pq-company" name="company" placeholder="שם החברה">
         </div>
         <div class="bg-field">
           <label class="bg-field__label sr-only" for="pq-phone">טלפון</label>
@@ -443,26 +443,25 @@
           <input class="bg-input" id="pq-email" name="email" type="email" required placeholder="* אימייל">
         </div>
         <div class="bg-field">
-          <label class="bg-field__label sr-only" for="pq-qty">כמות מבוקשת</label>
-          <input class="bg-input" id="pq-qty" name="quantity" placeholder="כמות מבוקשת">
+          <label class="bg-field__label sr-only" for="pq-qty">כמות משוערת</label>
+          <input class="bg-input" id="pq-qty" name="quantity" placeholder="כמות משוערת">
         </div>
       </div>
 
       <div class="bg-field">
-        <label class="bg-field__label sr-only" for="pq-notes">הערות</label>
-        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="הערות"></textarea>
+        <label class="bg-field__label sr-only" for="pq-notes">פרטים נוספים</label>
+        <textarea class="bg-textarea" id="pq-notes" name="notes" rows="3" placeholder="פרטים נוספים"></textarea>
       </div>
 
       <label class="pp-consent">
         <input type="checkbox" name="newsletter_consent">
-        <span>אשמח לקבל מביו-גרין עדכונים, מידע מקצועי והצעות.</span>
+        <span>אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות באימייל, ב-SMS או בוואטסאפ. אפשר להסיר את ההרשמה בכל עת.</span>
       </label>
 
+      <p class="pp-privacy">הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.</p>
       <button class="bg-btn bg-btn--primary bg-btn--lg bg-btn--block" type="submit">
-        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שלחו את הפרטים</span>
+        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שליחת פנייה</span>
       </button>
-
-      <p class="pp-privacy">הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. לפרטים נוספים ראו מדיניות הפרטיות.</p>
     </form>
 
     <div class="pp-form__done" hidden>
@@ -488,8 +487,8 @@
     <form class="quick-contact__form" id="quick-contact-form" novalidate
           data-form-type="quick_contact" data-form-done="quick-contact-done">
       <div class="bg-field">
-        <label class="bg-field__label sr-only" for="qc-name">שם</label>
-        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="* שם">
+        <label class="bg-field__label sr-only" for="qc-name">שם מלא</label>
+        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="* שם מלא">
       </div>
       <div class="bg-field">
         <label class="bg-field__label sr-only" for="qc-phone">טלפון</label>
@@ -499,6 +498,11 @@
         <label class="bg-field__label sr-only" for="qc-email">אימייל</label>
         <input class="bg-input" id="qc-email" name="email" type="email" autocomplete="email" placeholder="אימייל">
       </div>
+      <label class="pp-consent">
+        <input type="checkbox" name="newsletter_consent">
+        <span>אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות באימייל, ב-SMS או בוואטסאפ. אפשר להסיר את ההרשמה בכל עת.</span>
+      </label>
+      <p class="pp-privacy">הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.</p>
       <button class="bg-btn bg-btn--primary" type="submit">
         <svg class="icon" width="19" height="19"><use href="#i-clipboard-pen"></use></svg><span>שליחת פנייה</span>
       </button>
@@ -610,7 +614,7 @@
   </a>
 </div>
 
-<script src="../../js/site.js?v=6b61ef65"></script>
+<script src="../../js/site.js?v=c5839896"></script>
 <script src="../../a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="../../accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">

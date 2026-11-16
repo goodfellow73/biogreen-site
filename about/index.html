@@ -9,7 +9,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../css/design-system.css?v=2d7fce0f">
-<link rel="stylesheet" href="../css/site.css?v=49bb3f6b">
+<link rel="stylesheet" href="../css/site.css?v=31d4afa8">
 </head>
 <body data-page-label="עמוד אודות" data-cms-page="about" class="sections-tight">
 
@@ -344,8 +344,8 @@
     <form class="quick-contact__form" id="quick-contact-form" novalidate
           data-form-type="quick_contact" data-form-done="quick-contact-done">
       <div class="bg-field">
-        <label class="bg-field__label sr-only" for="qc-name">שם</label>
-        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="* שם">
+        <label class="bg-field__label sr-only" for="qc-name">שם מלא</label>
+        <input class="bg-input" id="qc-name" name="name" required autocomplete="name" placeholder="* שם מלא">
       </div>
       <div class="bg-field">
         <label class="bg-field__label sr-only" for="qc-phone">טלפון</label>
@@ -355,6 +355,11 @@
         <label class="bg-field__label sr-only" for="qc-email">אימייל</label>
         <input class="bg-input" id="qc-email" name="email" type="email" autocomplete="email" placeholder="אימייל">
       </div>
+      <label class="pp-consent">
+        <input type="checkbox" name="newsletter_consent">
+        <span>אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות באימייל, ב-SMS או בוואטסאפ. אפשר להסיר את ההרשמה בכל עת.</span>
+      </label>
+      <p class="pp-privacy">הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.</p>
       <button class="bg-btn bg-btn--primary" type="submit">
         <svg class="icon" width="19" height="19"><use href="#i-clipboard-pen"></use></svg><span>שליחת פנייה</span>
       </button>
@@ -466,10 +471,11 @@
     <form class="modal__form" id="quote-form" novalidate data-form-type="quote_modal">
       <fieldset class="form-step" style="border:0;padding:0;margin:0">
         <legend class="form-step__title"><span class="form-step__num">1</span>סוג הפנייה</legend>
-        <div class="choice-row">
-          <label class="choice"><input type="radio" name="intent" value="import" checked>אני רוצה לייבא מוצר</label>
-          <label class="choice"><input type="radio" name="intent" value="products">אני מחפש מוצרים לעסק</label>
-          <label class="choice"><input type="radio" name="intent" value="raw">אני צריך חומרי גלם</label>
+        <div class="choice-row choice-row--4">
+          <label class="choice"><input type="radio" name="intent" value="import" checked>לייבא מוצר לישראל</label>
+          <label class="choice"><input type="radio" name="intent" value="products">למצוא מוצרים לעסק</label>
+          <label class="choice"><input type="radio" name="intent" value="raw">לרכוש חומרי גלם</label>
+          <label class="choice"><input type="radio" name="intent" value="other">משהו אחר</label>
         </div>
       </fieldset>
 
@@ -491,12 +497,12 @@
         <div class="form-step__title"><span class="form-step__num">3</span>פרטי העסק והלקוח</div>
         <div class="form-grid">
           <div class="bg-field">
-            <label class="bg-field__label sr-only" for="q-company">שם החברה / העסק</label>
-            <input class="bg-input" id="q-company" name="company" placeholder="שם החברה / העסק">
+            <label class="bg-field__label sr-only" for="q-company">שם החברה</label>
+            <input class="bg-input" id="q-company" name="company" placeholder="שם החברה">
           </div>
           <div class="bg-field">
-            <label class="bg-field__label sr-only" for="q-name">שם איש קשר</label>
-            <input class="bg-input" id="q-name" name="name" required placeholder="* שם איש קשר">
+            <label class="bg-field__label sr-only" for="q-name">שם מלא</label>
+            <input class="bg-input" id="q-name" name="name" required placeholder="* שם מלא">
           </div>
           <div class="bg-field">
             <label class="bg-field__label sr-only" for="q-phone">טלפון</label>
@@ -519,13 +525,13 @@
 
       <label class="pp-consent">
         <input type="checkbox" name="newsletter_consent">
-        <span>אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות.</span>
+        <span>אני מעוניין/ת לקבל מביו-גרין עדכונים, מידע מקצועי והצעות באימייל, ב-SMS או בוואטסאפ. אפשר להסיר את ההרשמה בכל עת.</span>
       </label>
 
+      <p class="pp-privacy">הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.</p>
       <button class="bg-btn bg-btn--primary bg-btn--block bg-btn--lg" type="submit">
-        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שלחו את הפרטים</span>
+        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>שליחת פנייה</span>
       </button>
-      <p class="modal__note">הפרטים משמשים אך ורק למענה לפנייה.</p>
     </form>
 
     <div class="modal__done" id="quote-done" hidden>
@@ -560,7 +566,7 @@
   </button>
 </div>
 
-<script src="../js/site.js?v=6b61ef65"></script>
+<script src="../js/site.js?v=c5839896"></script>
 <script src="../a11y/a11y-panel.js?v=c49c5775" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="../accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">
