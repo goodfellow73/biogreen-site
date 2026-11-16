@@ -1553,10 +1553,13 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 .article__summary .article__list { margin: 0; }
 .article .faq__list { margin-top: 16px; }
 
-.final-cta__more { margin: 14px 0 0 !important; font-size: 16px !important; }
+/* An article's closing buttons, and under them (import articles) one small
+   line to the import guide. */
+.final-cta__actions { display: grid; gap: 12px; justify-items: start; }
+.final-cta .final-cta__more { margin: 0; font-size: 15px; color: var(--text-muted); }
 .final-cta__more a {
-  display: inline-flex; align-items: center; gap: 8px;
-  color: var(--color-green-deep); font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px;
+  color: var(--color-green-deep); font-weight: var(--fw-semibold);
+  text-decoration: underline; text-underline-offset: 3px;
 }
 
 /* The guide's thank-you page */

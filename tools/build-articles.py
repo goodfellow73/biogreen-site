@@ -66,6 +66,8 @@ CTA = {
     'text': 'ספרו לנו מה אתם מחפשים, מוצר מוגמר, חומר גלם או ליווי ביבוא, ונחזור אליכם עם מענה מקצועי.',
     'button': 'לקבלת הצעת מחיר',
 }
+# Categories whose articles close with the line to the import guide.
+GUIDE_TOPICS = {'import'}
 ICONS = {'file-check', 'shield-check', 'flask-conical', 'stamp', 'microscope', 'droplets',
          'heart-pulse', 'boxes', 'truck', 'book-open', 'handshake', 'building-2'}
 
@@ -264,8 +266,14 @@ def page(art, topic, pre, post):
     button_label = e(art.get('cta_button') or CTA['button'])
     button = (f'<a class="bg-btn bg-btn--primary bg-btn--lg" href="{a(cta_href)}">' if cta_href
               else '<button class="bg-btn bg-btn--primary bg-btn--lg" type="button" data-quote>')
-    button += (f'\n        <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg>'
-               f'<span>{button_label}</span>\n      ' + ('</a>' if cta_href else '</button>'))
+    button += (f'\n          <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg>'
+               f'<span>{button_label}</span>\n        ' + ('</a>' if cta_href else '</button>'))
+
+    # The import guide (the PDF behind the form on /knowledge/) belongs under
+    # import articles only; elsewhere it is off topic (the client, 16/11/2026).
+    guide_line = ('\n      <p class="final-cta__more">עדיין בשלב הבדיקה? '
+                  '<a href="../#guide">הורידו חינם את המדריך: יבוא תוסף תזונה לישראל</a>.</p>'
+                  if topic.get('slug') in GUIDE_TOPICS else '')
 
     schema = {
         '@context': 'https://schema.org', '@type': 'Article',
@@ -318,13 +326,14 @@ def page(art, topic, pre, post):
     <div>
       <h2>{e(art.get('cta_title') or CTA['title'])}</h2>
       <p>{e(art.get('cta_text') or CTA['text'])}</p>
-      <p class="final-cta__more"><a href="../#guide"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-download"></use></svg><span>להורדת המדריך המלא ב-PDF</span></a></p>
     </div>
-    <div class="btn-row">
-      {button}
-      <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="https://wa.me/972722503833">
-        <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו</span>
-      </a>
+    <div class="final-cta__actions">
+      <div class="btn-row">
+        {button}
+        <a class="bg-btn bg-btn--secondary bg-btn--lg" data-wa href="https://wa.me/972722503833">
+          <svg class="icon" width="22" height="22"><use href="#i-message-circle"></use></svg><span>דברו איתנו</span>
+        </a>
+      </div>{guide_line}
     </div>
   </div>
 </section>
