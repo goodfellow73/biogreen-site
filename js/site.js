@@ -586,79 +586,247 @@ const FORMS = {
    values (import / products / raw) already match that query string. */
 
 /* ---------- cookie consent ----------
-   The site sets no cookies and loads no third-party trackers today; the
-   accessibility panel keeps the visitor's own settings in localStorage. The
-   bar asks once and remembers the answer (localStorage "bg-consent"), and
-   "הגדרות עוגיות" in the footer opens it again. Anything added later that
-   needs consent — analytics, an ad pixel — must start from
-   bgConsent.whenGranted(fn), so it runs only after "אישור", including when
-   the visitor changes their mind later. */
+   Three kinds of cookies, and nothing optional runs before the visitor says
+   so:
+     necessary  always on — this choice itself, the accessibility settings
+     analytics  Google Analytics 4
+     marketing  the Meta (Facebook / Instagram) pixel
+   The bar offers "accept all", "reject" and "settings" (one switch per kind);
+   "הגדרות עוגיות" in the footer opens the settings again at any time. The
+   choice is kept in localStorage "bg-consent".
+
+   Adding the tools is a matter of filling in TRACKING below: each loads only
+   once its kind is accepted, on this page view or a later one. Anything else
+   that needs consent goes through bgConsent.whenGranted('analytics' |
+   'marketing', fn). Withdrawing consent deletes the tools' cookies and
+   reloads the page, since a script already running cannot be unloaded. */
 (function () {
   'use strict';
 
+  const TRACKING = {
+    ga4: '',          // Measurement ID, e.g. 'G-XXXXXXXXXX'
+    metaPixel: '',    // Pixel ID, digits only
+  };
+
   const KEY = 'bg-consent';
-  const TEXT = 'אנחנו משתמשים בעוגיות ובטכנולוגיות דומות כדי שהאתר יפעל כראוי. ' +
-               'באישורכם נשתמש בהן גם למדידת השימוש באתר ולשיפורו. ' +
-               'לפרטים נוספים ראו מדיניות הפרטיות.';
-  const waiting = [];
+  const KINDS = ['analytics', 'marketing'];
+  const TEXT = {
+    bar: 'אנחנו משתמשים בעוגיות הכרחיות כדי שהאתר יפעל כראוי. באישורכם נשתמש גם בעוגיות ' +
+         'סטטיסטיקה ושיווק, כדי להבין איך משתמשים באתר ולהציג מודעות רלוונטיות. ' +
+         'אפשר לשנות את הבחירה בכל עת ב"הגדרות עוגיות" בתחתית האתר. ' +
+         'לפרטים נוספים ראו מדיניות הפרטיות.',
+    necessary: ['עוגיות הכרחיות', 'נדרשות כדי שהאתר יפעל: שמירת הבחירה שלכם כאן והגדרות הנגישות. תמיד פעילות.'],
+    analytics: ['סטטיסטיקה', 'עוזרות לנו להבין איך משתמשים באתר ולשפר אותו (Google Analytics).'],
+    marketing: ['שיווק', 'מאפשרות להציג לכם מודעות רלוונטיות בפייסבוק ובאינסטגרם ולמדוד אותן (Meta Pixel).'],
+  };
+
+  const waiting = { analytics: [], marketing: [] };
   let state = read();
   let bar = null;
+  let dialog = null;
 
   function read() {
-    try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+    let v = null;
+    try { v = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+    if (v && v.choice) {           // the first version kept one yes/no
+      const yes = v.choice === 'granted';
+      v = { analytics: yes, marketing: yes, at: v.at };
+    }
+    return v && typeof v.analytics === 'boolean' ? v : null;
   }
 
   function save(choice) {
-    state = { choice: choice, at: new Date().toISOString() };
+    state = { analytics: !!choice.analytics, marketing: !!choice.marketing, at: new Date().toISOString() };
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode: asks again next visit */ }
   }
 
-  function build() {
+  function granted(kind) { return !!(state && state[kind]); }
+
+  // ---- the tools, loaded only once their kind is accepted
+
+  function addScript(src) {
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = src;
+    document.head.appendChild(s);
+  }
+
+  function loadAnalytics() {
+    if (!TRACKING.ga4 || window.gtag) return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('consent', 'default', {
+      analytics_storage: 'granted', ad_storage: 'denied',
+      ad_user_data: 'denied', ad_personalization: 'denied',
+    });
+    window.gtag('js', new Date());
+    window.gtag('config', TRACKING.ga4, { anonymize_ip: true });
+    addScript('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(TRACKING.ga4));
+  }
+
+  function loadPixel() {
+    if (!TRACKING.metaPixel || window.fbq) return;
+    const fbq = window.fbq = function () {
+      fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
+    };
+    if (!window._fbq) window._fbq = fbq;
+    fbq.push = fbq; fbq.loaded = true; fbq.version = '2.0'; fbq.queue = [];
+    addScript('https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', TRACKING.metaPixel);
+    fbq('track', 'PageView');
+  }
+
+  function run() {
+    KINDS.forEach(function (k) {
+      if (!granted(k)) return;
+      while (waiting[k].length) waiting[k].shift()();
+    });
+  }
+
+  // Cookies the two tools set, on this host and its parent domains.
+  function dropCookies(kind) {
+    const names = document.cookie.split(';').map(function (c) { return c.split('=')[0].trim(); });
+    const match = kind === 'analytics' ? /^(_ga|_gid|_gat)/ : /^(_fbp|_fbc)$/;
+    const parts = location.hostname.split('.');
+    names.filter(function (n) { return match.test(n); }).forEach(function (n) {
+      for (let i = 0; i < parts.length; i++) {
+        const domain = parts.slice(i).join('.');
+        document.cookie = n + '=; Max-Age=0; path=/; domain=' + domain;
+      }
+      document.cookie = n + '=; Max-Age=0; path=/';
+    });
+  }
+
+  function decide(choice) {
+    const before = state;
+    save(choice);
+    if (bar) bar.hidden = true;
+    if (dialog && dialog.open) dialog.close();
+    const withdrawn = before && KINDS.some(function (k) { return before[k] && !state[k]; });
+    document.dispatchEvent(new CustomEvent('bg:consent', { detail: state }));
+    if (withdrawn) {
+      KINDS.forEach(function (k) { if (!state[k]) dropCookies(k); });
+      location.reload();
+      return;
+    }
+    run();
+  }
+
+  // ---- the bar and the settings
+
+  function button(cls, label, onClick) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'bg-btn bg-btn--sm ' + cls;
+    b.textContent = label;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  const all = function () { decide({ analytics: true, marketing: true }); };
+  const none = function () { decide({ analytics: false, marketing: false }); };
+
+  function buildBar() {
     bar = document.createElement('section');
     bar.className = 'cookie-bar';
     bar.setAttribute('aria-label', 'הסכמה לעוגיות');
     bar.hidden = true;
-    bar.innerHTML =
-      '<p class="cookie-bar__text"></p>' +
-      '<div class="cookie-bar__actions">' +
-      '<button class="bg-btn bg-btn--primary bg-btn--sm" type="button" data-consent="granted">אישור</button>' +
-      '<button class="bg-btn bg-btn--secondary bg-btn--sm" type="button" data-consent="denied">רק הכרחיות</button>' +
-      '</div>';
-    bar.querySelector('.cookie-bar__text').textContent = TEXT;
-    bar.querySelectorAll('[data-consent]').forEach(function (b) {
-      b.addEventListener('click', function () { decide(b.getAttribute('data-consent')); });
-    });
+    const p = document.createElement('p');
+    p.className = 'cookie-bar__text';
+    p.textContent = TEXT.bar;
+    const actions = document.createElement('div');
+    actions.className = 'cookie-bar__actions';
+    actions.appendChild(button('bg-btn--primary', 'אישור הכל', all));
+    actions.appendChild(button('bg-btn--secondary', 'דחייה', none));
+    actions.appendChild(button('bg-btn--ghost cookie-bar__settings', 'הגדרות', openSettings));
+    bar.appendChild(p);
+    bar.appendChild(actions);
     document.body.appendChild(bar);
   }
 
-  function show(focus) {
-    if (!bar) build();
-    bar.hidden = false;
-    // Opened from the footer link: straight to the choice. On arrival it
-    // waits, so the page's own focus order is untouched.
-    if (focus) bar.querySelector('[data-consent]').focus();
+  function row(kind, fixed) {
+    const label = document.createElement('label');
+    label.className = 'cookie-kind';
+    const text = document.createElement('span');
+    text.className = 'cookie-kind__text';
+    const strong = document.createElement('strong');
+    strong.textContent = TEXT[kind][0];
+    const small = document.createElement('span');
+    small.textContent = TEXT[kind][1];
+    text.appendChild(strong);
+    text.appendChild(small);
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.className = 'cookie-kind__switch';
+    box.setAttribute('role', 'switch');
+    box.name = kind;
+    if (fixed) { box.checked = true; box.disabled = true; }
+    label.appendChild(text);
+    label.appendChild(box);
+    return label;
   }
 
-  function decide(choice) {
-    save(choice);
-    bar.hidden = true;
-    if (choice === 'granted') {
-      while (waiting.length) waiting.shift()();
+  function buildDialog() {
+    dialog = document.createElement('dialog');
+    dialog.className = 'info-dialog cookie-dialog';
+    dialog.setAttribute('aria-labelledby', 'cookie-dialog-title');
+    dialog.innerHTML =
+      '<div class="info-dialog__head"><button class="modal__close" type="button" aria-label="סגירה">' +
+      '<svg class="icon" width="24" height="24"><use href="#i-x"></use></svg></button></div>' +
+      '<div class="info-dialog__body"><h2 id="cookie-dialog-title">הגדרות עוגיות</h2>' +
+      '<p>בחרו אילו עוגיות להפעיל. אפשר לשנות את הבחירה בכל עת.</p>' +
+      '<div class="cookie-kinds"></div><div class="cookie-dialog__actions"></div></div>';
+    const kinds = dialog.querySelector('.cookie-kinds');
+    kinds.appendChild(row('necessary', true));
+    KINDS.forEach(function (k) { kinds.appendChild(row(k, false)); });
+    const actions = dialog.querySelector('.cookie-dialog__actions');
+    actions.appendChild(button('bg-btn--primary', 'שמירת הבחירה', function () {
+      decide({
+        analytics: dialog.querySelector('[name=analytics]').checked,
+        marketing: dialog.querySelector('[name=marketing]').checked,
+      });
+    }));
+    actions.appendChild(button('bg-btn--secondary', 'אישור הכל', all));
+    actions.appendChild(button('bg-btn--secondary', 'דחייה', none));
+    dialog.querySelector('.modal__close').addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('click', function (e) {
+      if (e.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    });
+    dialog.addEventListener('close', function () { document.body.style.overflow = ''; });
+    document.body.appendChild(dialog);
+  }
+
+  function openSettings() {
+    if (!dialog) buildDialog();
+    KINDS.forEach(function (k) { dialog.querySelector('[name=' + k + ']').checked = granted(k); });
+    if (typeof dialog.showModal === 'function') {
+      dialog.showModal();
+      document.body.style.overflow = 'hidden';
+    } else {
+      dialog.setAttribute('open', '');
     }
-    document.dispatchEvent(new CustomEvent('bg:consent', { detail: choice }));
   }
 
   window.bgConsent = {
-    get: function () { return state ? state.choice : null; },
-    whenGranted: function (fn) {
-      if (state && state.choice === 'granted') fn(); else waiting.push(fn);
+    get: function (kind) { return granted(kind); },
+    whenGranted: function (kind, fn) {
+      if (KINDS.indexOf(kind) === -1) return;
+      if (granted(kind)) fn(); else waiting[kind].push(fn);
     },
-    open: function () { show(true); }
+    open: openSettings,
   };
 
+  bgConsent.whenGranted('analytics', loadAnalytics);
+  bgConsent.whenGranted('marketing', loadPixel);
+
   document.querySelectorAll('[data-cookie-settings]').forEach(function (b) {
-    b.addEventListener('click', function () { show(true); });
+    b.addEventListener('click', openSettings);
   });
 
-  if (!state) show(false);
+  if (!state) {
+    buildBar();
+    bar.hidden = false;
+  }
 })();
