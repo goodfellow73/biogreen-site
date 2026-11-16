@@ -464,6 +464,29 @@ const FORMS = {
     });
   }
 
+  /* ---------- "משהו אחר" needs no product name ----------
+     In a form that asks for the request type and a product, choosing
+     "משהו אחר" (intent=other) makes the product optional, asterisk and all
+     (the client, 16/11/2026). Radios set from code — the quote pop-up's
+     doorways and ?intent= — announce it with a "bg:intent" event. */
+  document.querySelectorAll('form').forEach(function (form) {
+    const product = form.querySelector('input[name="product"][required]');
+    if (!product || !form.querySelector('input[name="intent"][value="other"]')) return;
+    const text = product.placeholder.replace(/^\*\s*/, '');
+    function sync() {
+      const other = !!form.querySelector('input[name="intent"][value="other"]:checked');
+      product.required = !other;
+      product.placeholder = (other ? '' : '* ') + text;
+      const field = product.closest('.bg-field');
+      if (other && field) field.classList.remove('bg-field--error');
+    }
+    form.addEventListener('change', function (e) {
+      if (e.target.name === 'intent') sync();
+    });
+    form.addEventListener('bg:intent', sync);
+    sync();
+  });
+
   /* ---------- product page quote form ---------- */
 
   const productForm = document.querySelector('[data-product-form]');
@@ -496,6 +519,7 @@ const FORMS = {
     if (INTENTS.indexOf(intent) === -1) intent = 'import';
     const radio = form.querySelector('input[name="intent"][value="' + intent + '"]');
     if (radio) radio.checked = true;
+    form.dispatchEvent(new Event('bg:intent'));
   }
 
   // The intro above the form and the thank-you below it name the same
