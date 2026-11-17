@@ -317,6 +317,14 @@ def page_href(url, page_dir):
     "#contact-form" for this very page); anywhere else it climbs to the site
     root first. Either way a page saved unchanged comes back unchanged."""
     url = url.strip()
+    # A full address pasted where a path was expected arrives as
+    # "/https://…" (a slash in front, from the editor); and the site's own
+    # full addresses must stay inside the site (16/11/2026 a FAQ link came out
+    # as "../../https://goodfellow73.github.io/…").
+    url = re.sub(r'^/+(?=https?:/)', '', url, flags=re.I)
+    own = re.match(r'^https?:/+(?:goodfellow73\.github\.io/biogreen-site|(?:www\.)?bio-?green\.co\.il)(/.*)?$', url, re.I)
+    if own:
+        url = own.group(1) or '/'
     if re.match(r'^(?:https?://|mailto:|tel:|#)', url, re.I):
         return url
     if re.match(r'^[a-z][a-z0-9+.-]*:', url, re.I):
