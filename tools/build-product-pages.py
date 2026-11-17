@@ -19,7 +19,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cms import ltr_text  # noqa: E402  sizes like 9×12 stay left to right
+from cms import ltr_text, para_html  # noqa: E402  sizes left to right; FAQ links
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAGES = os.path.join(ROOT, 'data', 'product-pages')
@@ -61,6 +61,19 @@ def site_links(html_text):
             return f'{m.group(1)}"{url}" target="_blank" rel="noopener"'
         return f'{m.group(1)}"{url}"'
     return re.sub(r'(<a\b(?![^>]*\starget=)[^>]*?\shref=)"([^"]*)"', fix, html_text)
+
+
+# The folder of the page being built, for the links in FAQ answers.
+PAGE_DIR = ['products']
+
+
+def plain_answer(text):
+    """An FAQ answer as the schema wants it: the words of its links
+    ([[words|/address/]]) without the addresses, on one line."""
+    def words(m):
+        inner = m.group(1)
+        return inner.rpartition('|')[0].strip() if '|' in inner else inner
+    return re.sub(r'\s+', ' ', re.sub(r'\[\[(.+?)\]\]', words, text or '')).strip()
 
 
 def esc(s):
@@ -218,7 +231,7 @@ def render_block(b):
                 f'<use href="#i-chevron-down"></use></svg></span>\n'
                 f'          </button>\n'
                 f'          <div class="bg-faq__a" id="pfaq-{n}"{"" if open_ else " hidden"}>\n'
-                f'            <p>{esc(qa["a"])}</p>\n'
+                f'            <p>{para_html(qa["a"], None, PAGE_DIR[0])}</p>\n'
                 f'          </div>\n'
                 f'        </div>')
         out.append('      </div>')
@@ -293,7 +306,7 @@ def faq_jsonld(tabs):
                     '@context': 'https://schema.org', '@type': 'FAQPage',
                     'mainEntity': [{
                         '@type': 'Question', 'name': qa['q'],
-                        'acceptedAnswer': {'@type': 'Answer', 'text': qa['a']},
+                        'acceptedAnswer': {'@type': 'Answer', 'text': plain_answer(qa['a'])},
                     } for qa in b['items']],
                 }
                 return ('<script type="application/ld+json">\n'
@@ -341,6 +354,7 @@ def basic_page(prod):
 def build(page, prod, cats, sprite, header, footer):
     slug = page['slug']
     cat_label = cats[prod['category']]
+    PAGE_DIR[0] = f'products/{slug}'
 
     icons = '\n'.join(
         f'        <li><img src="{UP}assets/icons/product/{esc(i["file"])}"'

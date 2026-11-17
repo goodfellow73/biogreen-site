@@ -631,6 +631,10 @@ def extract():
                 field['item_labels'] = [p.strip() for p in parts[:2]]
                 if LINK_TEMPLATE.search(inner):
                     field['links'] = True
+                # Links inside the texts (the FAQs): the editor shows an
+                # answer field with a link button (plugin 1.11.0).
+                if has_attr(open_tag, 'data-cms-inline-links'):
+                    field['rich'] = True
             if kind == 'image':
                 field['default'] = attr(open_tag, 'data-cms-default') or ''
                 field['decorative'] = attr(open_tag, 'aria-hidden') == 'true'

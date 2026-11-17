@@ -155,7 +155,8 @@
               "item_labels": [
                 "למי",
                 "טקסט"
-              ]
+              ],
+              "rich": true
             },
             {
               "key": "partners.whatsapp",
@@ -683,7 +684,8 @@
               "item_labels": [
                 "שאלה",
                 "תשובה"
-              ]
+              ],
+              "rich": true
             }
           ]
         }
@@ -1209,7 +1211,8 @@
               "item_labels": [
                 "שאלה",
                 "תשובה"
-              ]
+              ],
+              "rich": true
             },
             {
               "key": "faq.button",
@@ -1554,7 +1557,8 @@
               "item_labels": [
                 "שאלה",
                 "תשובה"
-              ]
+              ],
+              "rich": true
             }
           ]
         }
@@ -1714,7 +1718,8 @@
                 "שאלה",
                 "תשובה"
               ],
-              "links": true
+              "links": true,
+              "rich": true
             }
           ]
         },
@@ -2039,7 +2044,8 @@
                 "שאלה",
                 "תשובה"
               ],
-              "links": true
+              "links": true,
+              "rich": true
             }
           ]
         },

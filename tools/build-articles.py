@@ -34,7 +34,7 @@ from html.parser import HTMLParser
 from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cms import page_href  # noqa: E402  same link rules as the page texts
+from cms import page_href, para_html  # noqa: E402  same link rules as the page texts
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data', 'articles.json')
@@ -191,7 +191,7 @@ def faq_html(items, page_dir):
           </button>
         </h3>
         <div class="bg-faq__a" id="afaq-a{i}">
-          <p data-cms-slot="2">{e(ans)}</p>{more}
+          <p data-cms-slot="2">{para_html(ans, None, page_dir)}</p>{more}
         </div>
       </div>''')
     return '\n'.join(out)

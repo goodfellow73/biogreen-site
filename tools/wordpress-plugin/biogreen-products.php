@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.10.3
+ * Version:      1.11.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,11 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.11.0 FAQ answers take links: on product pages, articles and the pages in
+ *        "תוכן העמודים" the answer is a small editor with a "קישור" button
+ *        (select words, pick a page of the site or type an address). The
+ *        product FAQ moves to the row-per-question editor. Saved as
+ *        [[words|/address/]], so the FAQ schema keeps plain text.
  * 1.10.3 Icons 13-18 as the client redrew them (one colour for the caption).
  * 1.10.2 A product page has its own Google title ("כותרת בגוגל"); curcumin's is
  *        filled in once from seed/products-seo.json.
@@ -105,7 +110,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.10.3';
+const BIOGREEN_VERSION = '1.11.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -163,7 +168,7 @@ function biogreen_fields() {
 	$content['tab_label_image']   = [ 'תווית — תמונה', 'media' ];
 	$content['tab_label_alt']     = [ 'תווית — טקסט חלופי', 'text' ];
 	$content['tab_faq_heading']   = [ 'שאלות נפוצות — כותרת', 'text' ];
-	$content['tab_faq_items']     = [ 'שאלות — שאלה בשורה הראשונה, תשובה אחריה, מופרדות בשורה ריקה', 'textarea' ];
+	$content['tab_faq_items']     = [ 'שאלות נפוצות — שאלה ותשובה בכל שורה; בתשובה אפשר להוסיף קישור', 'textarea' ];
 	$content['quote_heading']     = [ 'טופס — כותרת (אופציונלי)', 'text' ];
 	$content['quote_sub']         = [ 'טופס — כותרת משנה (אופציונלי)', 'text' ];
 
@@ -390,6 +395,12 @@ function biogreen_render_box( $post, $meta ) {
 		echo '<tr><th style="width:260px"><label for="' . esc_attr( $key ) . '">'
 			. esc_html( $label ) . '</label></th><td>';
 
+		if ( 'tab_faq_items' === $key ) {
+			biogreen_faq_editor( $key, (string) $value );
+			echo '</td></tr>';
+			continue;
+		}
+
 		switch ( $type ) {
 			case 'wysiwyg':
 				wp_editor( $value, $key, [
@@ -485,6 +496,28 @@ function biogreen_render_box( $post, $meta ) {
 	}
 
 	echo '</tbody></table>';
+}
+
+/**
+ * The product FAQ in the list editor of "תוכן העמודים": a row per question,
+ * the answer in a small editor with a link button. The field keeps the format
+ * the build reads (question, answer, a blank line between), links written as
+ * [[words|/address/]]; the FAQ schema is built from the plain text.
+ */
+function biogreen_faq_editor( $key, $value ) {
+	$schema = biogreen_cms_schema();
+	$links  = is_wp_error( $schema ) ? [] : ( $schema['links'] ?? [] );
+	biogreen_cms_styles();
+	?>
+	<div class="bg-cms">
+		<div class="bg-rep" data-fixed="0" data-labels="שאלה|תשובה" data-rich>
+			<textarea id="<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( $key ); ?>" rows="12" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
+		</div>
+	</div>
+	<?php // wp_json_encode escapes "/", so no "</script>" can close this early. ?>
+	<script type="application/json" id="bg-cms-links"><?php echo wp_json_encode( $links ); ?></script>
+	<?php
+	biogreen_cms_repeater_script();
 }
 
 add_action( 'save_post_product', function ( $post_id ) {
@@ -1026,7 +1059,7 @@ function biogreen_cms_render() {
 								<td colspan="2" class="bg-rep-cell">
 									<label class="bg-rep__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 									<div class="bg-rep" data-fixed="<?php echo (int) ( $field['fixed'] ?? 0 ); ?>"
-										data-labels="<?php echo esc_attr( implode( '|', $labels ) ); ?>"<?php echo empty( $field['links'] ) ? '' : ' data-links'; ?>>
+										data-labels="<?php echo esc_attr( implode( '|', $labels ) ); ?>"<?php echo empty( $field['links'] ) ? '' : ' data-links'; ?><?php echo empty( $field['rich'] ) ? '' : ' data-rich'; ?>>
 										<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
 											rows="<?php echo (int) $rows; ?>"><?php echo esc_textarea( $value ); ?></textarea>
 										<?php if ( ! empty( $field['help'] ) ) : ?>
@@ -1260,11 +1293,253 @@ function biogreen_cms_repeater_script() {
 			};
 		}
 
+		// An answer with links in it (lists marked data-rich: the FAQs). A
+		// small editor whose only formatting is a link: select words, press
+		// "קישור", pick a page of the site or type an address. Saved in the
+		// build's own format — "[[words|/address/]]", a new line per line —
+		// so nothing downstream changes and the FAQ schema keeps plain text.
+		function escHtml( s ) {
+			return s.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ).replace( /"/g, '&quot;' );
+		}
+
+		function markupToHtml( text ) {
+			return ( text || '' ).split( '\n' ).map( function ( line ) {
+				var out = '', re = /\[\[(.+?)\]\]/g, last = 0, m;
+				while ( ( m = re.exec( line ) ) ) {
+					out += escHtml( line.slice( last, m.index ) );
+					var bar = m[1].lastIndexOf( '|' );
+					out += bar < 0 ? escHtml( m[1] )
+						: '<a href="' + escHtml( m[1].slice( bar + 1 ).trim() ) + '">' + escHtml( m[1].slice( 0, bar ).trim() ) + '</a>';
+					last = re.lastIndex;
+				}
+				return out + escHtml( line.slice( last ) );
+			} ).join( '<br>' );
+		}
+
+		function htmlToMarkup( root ) {
+			var out = '';
+			( function walk( node ) {
+				Array.prototype.forEach.call( node.childNodes, function ( c ) {
+					if ( c.nodeType === 3 ) {
+						out += c.nodeValue.replace( / /g, ' ' );
+						return;
+					}
+					if ( c.nodeType !== 1 ) {
+						return;
+					}
+					if ( c.tagName === 'BR' ) {
+						out += '\n';
+						return;
+					}
+					if ( c.tagName === 'A' ) {
+						var words = c.textContent.replace( /\s+/g, ' ' ).replace( /\[\[|\]\]/g, '' ).trim();
+						var href  = ( c.getAttribute( 'href' ) || '' ).replace( /\s+/g, '' );
+						out += words && href ? '[[' + words + '|' + href + ']]' : words;
+						return;
+					}
+					var block = /^(DIV|P|LI|H\d)$/.test( c.tagName );
+					if ( block && out && out.slice( -1 ) !== '\n' ) {
+						out += '\n';
+					}
+					walk( c );
+					if ( block && out.slice( -1 ) !== '\n' ) {
+						out += '\n';
+					}
+				} );
+			}( root ) );
+			return out.split( '\n' ).map( function ( l ) { return l.replace( /[ \t]+/g, ' ' ).trim(); } )
+				.filter( function ( l ) { return l; } ).join( '\n' );
+		}
+
+		// The pages of the site, as in the item link, and "another address".
+		function pagePicker() {
+			var pick = el( 'select', { 'class': 'bg-rich__pick', 'aria-label': 'לאן מוביל הקישור' } );
+			var url  = el( 'input', { type: 'text', 'class': 'bg-rich__url', dir: 'ltr', placeholder: 'https://…  או  /import-regulation/', 'aria-label': 'כתובת הקישור' } );
+			pick.appendChild( el( 'option', { value: '' }, 'לאן הקישור מוביל?' ) );
+			siteLinks.forEach( function ( page ) {
+				var group = el( 'optgroup', { label: page.label } );
+				group.appendChild( el( 'option', { value: page.url }, page.label + ' — ראש העמוד' ) );
+				( page.anchors || [] ).forEach( function ( a ) {
+					group.appendChild( el( 'option', { value: a.url }, page.label + ' › ' + a.label ) );
+				} );
+				pick.appendChild( group );
+			} );
+			pick.appendChild( el( 'option', { value: OTHER }, 'כתובת אחרת…' ) );
+			function sync() {
+				url.hidden = pick.value !== OTHER;
+			}
+			pick.addEventListener( 'change', function () {
+				sync();
+				if ( pick.value === OTHER ) {
+					url.focus();
+				}
+			} );
+			return {
+				pick: pick,
+				url: url,
+				set: function ( href ) {
+					var known = href && Array.prototype.some.call( pick.options, function ( o ) { return o.value === href; } );
+					pick.value = ! href ? '' : ( known ? href : OTHER );
+					url.value  = href && ! known ? href : '';
+					sync();
+				},
+				get: function () {
+					return ( pick.value === OTHER ? url.value : pick.value ).replace( /\s+/g, '' );
+				}
+			};
+		}
+
+		function richField( value, onChange ) {
+			var wrap   = el( 'div', { 'class': 'bg-rich' } );
+			var bar    = el( 'div', { 'class': 'bg-rich__bar' } );
+			var link   = el( 'button', { type: 'button', 'class': 'button button-small' }, 'קישור' );
+			var unlink = el( 'button', { type: 'button', 'class': 'button button-small' }, 'הסרת קישור' );
+			var hint   = el( 'span', { 'class': 'bg-rich__hint' }, 'לקישור: סמנו מילים בתשובה ולחצו "קישור".' );
+			var area   = el( 'div', { 'class': 'bg-rich__area', contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true', dir: 'rtl' } );
+			var panel  = el( 'div', { 'class': 'bg-rich__panel' } );
+			var picker = pagePicker();
+			var ok     = el( 'button', { type: 'button', 'class': 'button button-primary button-small' }, 'הוספת הקישור' );
+			var cancel = el( 'button', { type: 'button', 'class': 'button-link' }, 'ביטול' );
+			var range  = null, editing = null;
+
+			panel.hidden = true;
+			area.innerHTML = markupToHtml( value );
+			bar.appendChild( link );
+			bar.appendChild( unlink );
+			bar.appendChild( hint );
+			panel.appendChild( picker.pick );
+			panel.appendChild( picker.url );
+			panel.appendChild( ok );
+			panel.appendChild( cancel );
+			wrap.appendChild( bar );
+			wrap.appendChild( area );
+			wrap.appendChild( panel );
+
+			function changed() {
+				// Only links and line breaks belong here: drop anything a
+				// browser added (a <div> per line, styles), keep the words.
+				Array.prototype.forEach.call( area.querySelectorAll( 'a' ), function ( a ) {
+					Array.prototype.slice.call( a.attributes ).forEach( function ( at ) {
+						if ( at.name !== 'href' ) {
+							a.removeAttribute( at.name );
+						}
+					} );
+				} );
+				onChange();
+			}
+
+			function linkAt( node ) {
+				while ( node && node !== area ) {
+					if ( node.nodeType === 1 && node.tagName === 'A' ) {
+						return node;
+					}
+					node = node.parentNode;
+				}
+				return null;
+			}
+
+			function selection() {
+				var sel = window.getSelection();
+				if ( ! sel.rangeCount || ! area.contains( sel.anchorNode ) ) {
+					return null;
+				}
+				return sel.getRangeAt( 0 );
+			}
+
+			// The buttons must not take the selection away from the text.
+			[ link, unlink ].forEach( function ( b ) {
+				b.addEventListener( 'mousedown', function ( e ) { e.preventDefault(); } );
+			} );
+
+			link.addEventListener( 'click', function () {
+				var r = selection();
+				editing = r ? linkAt( r.startContainer ) : null;
+				if ( ! r || ( r.collapsed && ! editing ) ) {
+					window.alert( 'סמנו קודם בתשובה את המילים שיהיו הקישור.' );
+					area.focus();
+					return;
+				}
+				range = r.cloneRange();
+				picker.set( editing ? editing.getAttribute( 'href' ) : '' );
+				ok.textContent = editing ? 'עדכון הקישור' : 'הוספת הקישור';
+				panel.hidden = false;
+				picker.pick.focus();
+			} );
+
+			ok.addEventListener( 'click', function () {
+				var href = picker.get();
+				if ( ! href ) {
+					window.alert( 'בחרו לאן הקישור מוביל, או כתבו כתובת.' );
+					return;
+				}
+				if ( editing ) {
+					editing.setAttribute( 'href', href );
+				} else if ( range ) {
+					var sel = window.getSelection();
+					area.focus();
+					sel.removeAllRanges();
+					sel.addRange( range );
+					document.execCommand( 'createLink', false, href );
+				}
+				panel.hidden = true;
+				range = editing = null;
+				changed();
+			} );
+
+			cancel.addEventListener( 'click', function () {
+				panel.hidden = true;
+				range = editing = null;
+				area.focus();
+			} );
+
+			unlink.addEventListener( 'click', function () {
+				var r = selection();
+				var a = r ? linkAt( r.startContainer ) : null;
+				if ( a ) {
+					while ( a.firstChild ) {
+						a.parentNode.insertBefore( a.firstChild, a );
+					}
+					a.remove();
+				} else if ( r && ! r.collapsed ) {
+					document.execCommand( 'unlink' );
+				} else {
+					window.alert( 'עמדו עם הסמן על הקישור שרוצים להסיר.' );
+					return;
+				}
+				changed();
+			} );
+
+			// A new line is a line break, never a new block; pasted text comes
+			// in as plain text, without the formatting of where it came from.
+			area.addEventListener( 'keydown', function ( e ) {
+				if ( e.key === 'Enter' ) {
+					e.preventDefault();
+					if ( ! document.execCommand( 'insertLineBreak' ) ) {
+						document.execCommand( 'insertHTML', false, '<br>' );
+					}
+				}
+			} );
+			area.addEventListener( 'paste', function ( e ) {
+				e.preventDefault();
+				var text = ( e.clipboardData || window.clipboardData ).getData( 'text/plain' );
+				document.execCommand( 'insertText', false, text );
+			} );
+			area.addEventListener( 'drop', function ( e ) { e.preventDefault(); } );
+			area.addEventListener( 'input', changed );
+
+			return {
+				wrap: wrap,
+				area: area,
+				get: function () { return htmlToMarkup( area ); }
+			};
+		}
+
 		document.querySelectorAll( '.bg-rep' ).forEach( function ( rep ) {
 			var source = rep.querySelector( 'textarea' );
 			var help   = rep.querySelector( '.bg-rep__help' );
 			var fixed  = parseInt( rep.getAttribute( 'data-fixed' ), 10 ) || 0;
 			var links  = rep.hasAttribute( 'data-links' );
+			var rich   = rep.hasAttribute( 'data-rich' );
 			var labels = ( rep.getAttribute( 'data-labels' ) || 'כותרת|טקסט' ).split( '|' );
 
 			function parse( value ) {
@@ -1319,6 +1594,9 @@ function biogreen_cms_repeater_script() {
 					r.querySelector( '.bg-rep__num' ).textContent = i + 1;
 					titleOf( r ).setAttribute( 'aria-label', labels[0] + ' ' + ( i + 1 ) );
 					textOf( r ).setAttribute( 'aria-label', labels[1] + ' ' + ( i + 1 ) );
+					if ( r.bgRich ) {
+						r.bgRich.area.setAttribute( 'aria-label', labels[1] + ' ' + ( i + 1 ) );
+					}
 					var title = titleOf( r ).value.replace( /\s+/g, ' ' ).trim();
 					var text  = textOf( r ).value.replace( /\r\n/g, '\n' )
 						.split( '\n' ).map( function ( l ) { return l.trim(); } )
@@ -1363,6 +1641,17 @@ function biogreen_cms_repeater_script() {
 				r.appendChild( num );
 				r.appendChild( title );
 				r.appendChild( text );
+				// With links in the answers, the plain field stays as the
+				// store and the editor writes into it.
+				if ( rich ) {
+					text.hidden = true;
+					r.bgRich = richField( item.text, function () {
+						text.value = r.bgRich.get();
+						r.classList.remove( 'bg-rep__item--error' );
+						save();
+					} );
+					r.appendChild( r.bgRich.wrap );
+				}
 				r.appendChild( acts );
 				if ( links ) {
 					r.bgLink = linkField( item.link || {}, function () {
@@ -1538,7 +1827,27 @@ function biogreen_cms_styles() {
 		.bg-cms .bg-rep__actions { display: flex; gap: 4px; }
 		.bg-cms .bg-rep__actions .button { min-width: 32px; padding: 0 6px; }
 		.bg-cms .bg-rep__actions .bg-rep__del { color: #b32d2e; border-color: #b32d2e; }
+		/* An answer with links (lists marked data-rich). */
+		.bg-cms .bg-rich { display: grid; gap: 6px; }
+		.bg-cms .bg-rich__bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+		.bg-cms .bg-rich__hint { color: #646970; font-size: 12px; }
+		.bg-cms .bg-rich__area {
+			min-height: 60px; padding: 6px 8px; background: #fff; direction: rtl; text-align: right;
+			border: 1px solid #8c8f94; border-radius: 4px; font-size: 14px; line-height: 1.6;
+			white-space: pre-wrap; overflow-wrap: anywhere;
+		}
+		.bg-cms .bg-rich__area:focus { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; outline: none; }
+		.bg-cms .bg-rich__area a { color: #2271b1; text-decoration: underline; }
+		.bg-cms .bg-rich__panel {
+			display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+			padding: 8px; background: #f0f6fc; border: 1px solid #c5d9ed; border-radius: 4px;
+		}
+		.bg-cms .bg-rich__panel[hidden], .bg-cms .bg-rich__url[hidden] { display: none; }
+		.bg-cms .bg-rich__panel select { max-width: 340px; }
+		.bg-cms .bg-rich__panel input.bg-rich__url { width: 260px; direction: ltr; text-align: left; }
 		@media (max-width: 782px) {
+			.bg-cms .bg-rich { grid-column: 2; }
+			.bg-cms .bg-rich__panel select, .bg-cms .bg-rich__panel input.bg-rich__url { width: 100%; max-width: none; }
 			.bg-cms .bg-rep__head { display: none; }
 			.bg-cms .bg-rep__item { grid-template-columns: 28px 1fr; }
 			.bg-cms .bg-rep__item textarea, .bg-cms .bg-rep__actions, .bg-cms .bg-rep__link { grid-column: 2; }
@@ -1801,7 +2110,7 @@ function biogreen_article_rows( $post, $fields ) {
 			<tr><td colspan="2" class="bg-rep-cell">
 				<label class="bg-rep__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label>
 				<?php if ( $hint ) : ?><p class="description"><?php echo esc_html( $hint ); ?></p><?php endif; ?>
-				<div class="bg-rep" data-fixed="0" data-labels="שאלה|תשובה" data-links>
+				<div class="bg-rep" data-fixed="0" data-labels="שאלה|תשובה" data-links data-rich>
 					<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="8"><?php echo esc_textarea( $value ); ?></textarea>
 				</div>
 			</td></tr>
