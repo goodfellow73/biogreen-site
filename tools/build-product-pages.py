@@ -414,7 +414,9 @@ def build(page, prod, cats, sprite, header, footer):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc((page.get('seoTitle') or '').strip() or prod['name'] + ' | ביו-גרין')}</title>
 <meta name="description" content="{esc(description)}">
-<link rel="icon" href="{UP}assets/logo/biogreen-logo-trim.png">
+<link rel="icon" href="{UP}assets/logo/favicon-32.png" sizes="32x32">
+<link rel="icon" href="{UP}assets/logo/favicon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="{UP}assets/logo/apple-touch-icon.png">
 <link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="{UP}assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="{UP}css/design-system.css">

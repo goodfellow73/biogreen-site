@@ -294,7 +294,9 @@ def page(art, topic, pre, post):
 {MARKER}
 <title>{e(art.get('seo_title') or title + ' | ביו-גרין')}</title>
 <meta name="description" content="{a(art.get('description'))}">
-<link rel="icon" href="../../assets/logo/biogreen-logo-trim.png">
+<link rel="icon" href="../../assets/logo/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../../assets/logo/favicon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="../../assets/logo/apple-touch-icon.png">
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="../../css/design-system.css">
