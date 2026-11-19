@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.11.0
+ * Version:      1.12.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,10 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.12.0 "מיקום בקטלוג" on every product: the catalogue lists the numbered
+ *        products first, 1 at the top, then the rest newest first, in every
+ *        filter tab. The home page gets "פסקה לטלפון" and "תמונה לטלפון" in
+ *        "תוכן העמודים" (fields come from the site's schema).
  * 1.11.0 FAQ answers take links: on product pages, articles and the pages in
  *        "תוכן העמודים" the answer is a small editor with a "קישור" button
  *        (select words, pick a page of the site or type an address). The
@@ -110,7 +114,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.11.0';
+const BIOGREEN_VERSION = '1.12.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -178,6 +182,7 @@ function biogreen_fields() {
 		'benefit_2'      => [ 'יתרון 2', 'text' ],
 		'benefit_3'      => [ 'יתרון 3', 'text' ],
 		'featured_order' => [ 'מיקום בדף הבית (1-3, ריק = לא מופיע)', 'number' ],
+		'catalog_order'  => [ 'מיקום בקטלוג (1 ראשון; ריק = אחרי הממוספרים, החדש קודם)', 'number' ],
 	];
 	for ( $i = 1; $i <= 3; $i++ ) {
 		$catalogue[ "label_{$i}_text" ] = [ "תגית $i — טקסט", 'text' ];
@@ -426,8 +431,10 @@ function biogreen_render_box( $post, $meta ) {
 
 			case 'number':
 				printf(
-					'<input type="number" id="%1$s" name="%1$s" value="%2$s" min="1" max="3">',
-					esc_attr( $key ), esc_attr( $value )
+					'<input type="number" id="%1$s" name="%1$s" value="%2$s" min="1"%3$s>',
+					esc_attr( $key ), esc_attr( $value ),
+					// The home page has three places; the catalogue as many as products.
+					'featured_order' === $key ? ' max="3"' : ' max="999"'
 				);
 				break;
 
@@ -543,7 +550,7 @@ add_action( 'save_post_product', function ( $post_id ) {
 				$value = sanitize_textarea_field( $raw );
 				break;
 			case 'number':
-				$value = $raw === '' ? '' : (string) max( 1, min( 3, (int) $raw ) );
+				$value = $raw === '' ? '' : (string) max( 1, min( 'featured_order' === $key ? 3 : 999, (int) $raw ) );
 				break;
 			case 'media':
 				$value = esc_url_raw( $raw );

@@ -487,6 +487,34 @@ const FORMS = {
     sync();
   });
 
+  /* ---------- the sticky phone bar ----------
+     On a page whose opening has the same buttons (data-bar-after on their
+     row), the bar stays out of the way while they are on screen or still
+     below it, and slides in once they have been scrolled past (the client,
+     19/11/2026). */
+  const barAfter = document.querySelector('[data-bar-after]');
+  if (barAfter && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      const e = entries[0];
+      document.body.classList.toggle('mobile-bar--away', e.isIntersecting || e.boundingClientRect.top > 0);
+    }).observe(barAfter);
+  }
+
+  /* ---------- the accessibility button on phones ----------
+     It sits in the sticky header, beside the menu button, instead of over
+     the page (a11y-panel.js reads these two values below 768px). */
+  function placeA11y() {
+    const toggle = document.querySelector('.nav-toggle');
+    if (!toggle || !window.matchMedia('(max-width: 768px)').matches) return;
+    const r = toggle.getBoundingClientRect();
+    if (!r.width) return;
+    const root = document.documentElement.style;
+    root.setProperty('--a11y-m-top', Math.round(r.top + (r.height - 38) / 2) + 'px');
+    root.setProperty('--a11y-m-left', Math.round(r.right + 10) + 'px');
+  }
+  placeA11y();
+  window.addEventListener('resize', placeA11y);
+
   /* ---------- product page quote form ---------- */
 
   const productForm = document.querySelector('[data-product-form]');
@@ -664,9 +692,27 @@ const FORMS = {
   let bar = null;
   let dialog = null;
 
+  // The choice is kept twice: in localStorage and in a first-party cookie
+  // (a year). A browser that clears one of them on exit, or blocks storage
+  // for scripts, still remembers the answer through the other; on the real
+  // domain the cookie also covers www and the bare domain alike (the client
+  // saw the bar come back, 19/11/2026).
+  const COOKIE = 'bg_consent';
+
+  function cookieDomain() {
+    const m = location.hostname.match(/(?:^|\.)(bio-?green\.co\.il)$/);
+    return m ? '; domain=' + m[1] : '';
+  }
+
+  function readCookie() {
+    const m = document.cookie.match(/(?:^|;\s*)bg_consent=([^;]*)/);
+    try { return m ? JSON.parse(decodeURIComponent(m[1])) : null; } catch (e) { return null; }
+  }
+
   function read() {
     let v = null;
-    try { v = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+    try { v = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { v = null; }
+    if (!v) v = readCookie();
     if (v && v.choice) {           // the first version kept one yes/no
       const yes = v.choice === 'granted';
       v = { analytics: yes, marketing: yes, at: v.at };
@@ -676,7 +722,9 @@ const FORMS = {
 
   function save(choice) {
     state = { analytics: !!choice.analytics, marketing: !!choice.marketing, at: new Date().toISOString() };
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode: asks again next visit */ }
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* blocked: the cookie below still holds it */ }
+    document.cookie = COOKIE + '=' + encodeURIComponent(JSON.stringify(state)) +
+      '; max-age=31536000; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '') + cookieDomain();
   }
 
   function granted(kind) { return !!(state && state[kind]); }

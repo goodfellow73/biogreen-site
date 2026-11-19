@@ -1772,3 +1772,157 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 /* Links inside running text in an FAQ answer are underlined, not only
    coloured (WCAG 1.4.1, "link-in-text-block"). */
 .bg-faq__a p > a { color: var(--color-green-deep); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ==========================================================================
+   Display fixes, 19/11/2026 (the client's brief and mock-ups): the home
+   hero on phones and on computers, centred openings on the inner pages, a
+   tighter catalogue, the sticky phone bar, the floating WhatsApp button.
+   ========================================================================== */
+
+/* ---- The floating WhatsApp button: the header already has one (computer);
+   on phones the action bar does the job. Hidden everywhere. ---- */
+.fab { display: none !important; }
+
+/* ---- The three tags under the home hero buttons: an icon in a pale green
+   circle and the words beside it (computer) or under it (phone). ---- */
+.hero__badge {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--font-display); font-weight: var(--fw-semibold);
+  font-size: 15px; line-height: 1.3; color: var(--color-green-deep);
+}
+.hero__badge-icon {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--color-green-tint); color: var(--color-green);
+}
+.hero__sub--mobile { display: none; }
+.hero__img--mobile { display: none; }
+
+/* ---- Home hero, computer: the photo is the background of the whole
+   opening, products at the bottom; the text sits centred over a light wash;
+   the tags run in a white strip along the bottom edge. ---- */
+@media (min-width: 769px) {
+  .hero { padding-block: 40px 400px; background-image: none; }
+  .hero__bg { display: none; }
+  .hero__grid {
+    position: static; display: block; max-width: 920px; margin-inline: auto; text-align: center;
+  }
+  /* Above the photo; the tag strip is left out so it is placed against the
+     whole opening (.hero), not against the text. */
+  .hero__grid > div:first-child > :not(.hero__trust) { position: relative; z-index: 1; }
+  .hero h1 { font-size: 54px; line-height: 1.15; margin-inline: auto; text-wrap: balance; }
+  .hero__lead, .hero__sub { max-width: 760px; margin-inline: auto; text-wrap: balance; }
+  .hero__sub { color: var(--color-green-deep); }
+  .hero .btn-row { justify-content: center; }
+  .hero__media {
+    position: absolute; inset: 0; z-index: 0; margin: 0;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .hero__media::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom,
+      rgba(247, 248, 243, 0.94) 0%, rgba(247, 248, 243, 0.86) 36%, rgba(247, 248, 243, 0) 72%);
+  }
+  .hero__media .hero__img {
+    width: 100%; height: 100%; aspect-ratio: auto;
+    object-fit: cover; object-position: center bottom;
+  }
+  .hero__trust {
+    position: absolute; z-index: 2; inset-inline: 0; bottom: 0; margin: 0;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 64px;
+    padding: 16px; background: rgba(255, 255, 255, 0.9); border-top: 1px solid #E1E3DE;
+  }
+}
+
+/* ---- Home hero, phone: a photo of its own, full width, nothing covering
+   it; plain page colour behind; everything centred and closer together;
+   the short paragraph instead of the long one; the tags in one row. ---- */
+@media (max-width: 768px) {
+  .hero { padding-block: 8px 40px; background-image: none; }
+  .hero__bg { display: none; }
+  .hero__grid { gap: 14px; }
+  .hero__grid > div:first-child { text-align: center; }
+  .hero h1 { margin-bottom: 22px; text-wrap: balance; }
+  .hero__lead { margin-inline: auto; margin-bottom: 30px; text-wrap: balance; }
+  .hero__sub { display: none; }
+  .hero__sub--mobile {
+    display: block; margin-inline: auto; color: var(--color-green-deep); font-weight: var(--fw-regular);
+  }
+  .hero .btn-row { flex-direction: column; align-items: stretch; }
+  .hero .btn-row .bg-btn { width: 100%; }
+  /* The phone photo, when there is one: whole (3:1), no fade, no crop. */
+  .hero__media:has(.hero__img--mobile:not([hidden])) {
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .hero__media:has(.hero__img--mobile:not([hidden])) .hero__img { display: none; }
+  .hero__img--mobile:not([hidden]) {
+    display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: contain;
+  }
+  .hero__trust {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 30px;
+  }
+  .hero__badge { flex-direction: column; gap: 8px; text-align: center; font-size: 14px; }
+  .hero__badge-icon { width: 44px; height: 44px; }
+}
+
+/* ---- The sticky phone bar on pages whose opening has the same buttons:
+   it waits until they have been scrolled past (js/site.js). ---- */
+.mobile-bar { transition: transform var(--dur-base, .25s) var(--ease-out, ease); }
+.mobile-bar--away .mobile-bar { transform: translateY(110%); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .mobile-bar { transition: none; } }
+
+/* ---- Inner pages: the opening's text centred. On a computer the block
+   keeps its place at the right, about 760px wide, and is centred inside it;
+   on a phone it is centred across the screen. ---- */
+.page-hero__inner {
+  display: grid; grid-template-columns: min(100%, 760px); justify-content: start;
+  justify-items: center; text-align: center;
+}
+.page-hero h1 { text-wrap: balance; }
+.page-hero__sub { max-width: 640px; text-wrap: balance; }
+.page-hero .btn-row { justify-content: center; }
+.article-hero .article__shell { display: grid; justify-items: center; text-align: center; }
+.article-hero .breadcrumb { justify-content: center; flex-wrap: wrap; }
+.article-hero h1 { text-wrap: balance; }
+.article-hero .pp-list { text-align: start; }
+.article-hero .btn-row { justify-content: center; }
+@media (max-width: 768px) {
+  .page-hero__inner { grid-template-columns: 1fr; }
+}
+
+/* ---- The catalogue (/products/) ---- */
+/* Its opening has no photo beside it: centred across the page, the heading
+   on one line. */
+.page-hero--catalog { padding-block: 40px 8px; }
+.page-hero--catalog .page-hero__inner { grid-template-columns: 1fr; }
+.page-hero--catalog h1 { max-width: none; margin-bottom: 6px; }
+.catalog__filters { padding-block: 8px; }
+.catalog__filters .bg-tabs { justify-content: safe center; }
+/* Three to a row; a last row that is not full sits in the middle. */
+.catalog__grid {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px;
+}
+.catalog__grid > .product { width: calc((100% - 2 * 20px) / 3); }
+/* The card: no fixed 4:3 frame, the photo whole in a 170px band, the tags
+   above it; less padding in the body. */
+.catalog .product__media { aspect-ratio: auto; padding: 44px 16px 0; }
+.catalog .product__media img { height: 170px; object-position: 50% 50%; }
+.catalog .product__body { padding: 14px var(--space-5) 18px; gap: 8px; }
+@media (max-width: 900px) {
+  .catalog__grid > .product { width: calc((100% - 20px) / 2); }
+}
+@media (max-width: 768px) {
+  .page-hero--catalog { padding-block: 24px 12px; }
+  .catalog__filters { padding-block: 6px; }
+  .catalog__grid { gap: 16px; margin-top: 14px; }
+  .catalog__grid > .product { width: calc((100% - 16px) / 2); }
+  .catalog .product__media { padding-top: 40px; }
+  .catalog .product__body { padding: 12px var(--space-5) 18px; }
+}
+@media (max-width: 620px) {
+  .catalog__grid > .product { width: 100%; }
+}
+
+/* The "יבואן נאות" link in the hero paragraphs: underlined, since the text
+   around it is dark green too (WCAG 1.4.1). */
+.hero__sub a { text-decoration: underline; text-underline-offset: 3px; }

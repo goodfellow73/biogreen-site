@@ -11,7 +11,7 @@
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/heebo-700-hebrew.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/assistant-400-hebrew.woff2" crossorigin>
 <link rel="stylesheet" href="css/design-system.css?v=4b040095">
-<link rel="stylesheet" href="css/site.css?v=db181cc3">
+<link rel="stylesheet" href="css/site.css?v=9241dead">
 </head>
 <body data-page-label="דף הבית" data-cms-page="home">
 
@@ -257,8 +257,9 @@
       <h1 data-cms="hero.title" data-cms-label="כותרת ראשית" data-cms-type="para">אנחנו מנהלים את היבוא והרגולציה<br>אתם מתמקדים בעסק</h1>
       <p class="hero__lead" data-cms="hero.lead" data-cms-label="פסקה מודגשת" data-cms-type="para">יבוא תוספי תזונה, חומרי גלם ומוצרים טבעיים  מרישום מוצר ועד רישיון יבוא.</p>
       <p class="hero__sub" data-cms="hero.sub" data-cms-label="פסקה" data-cms-type="para">ביו-גרין רשומה כ<a href="#importer" data-dialog="importer-dialog" aria-haspopup="dialog">יבואן נאות</a> מטעם משרד הבריאות, ומלווה חברות ועסקים בתהליכי יבוא, רגולציה ואספקה של תוספי תזונה, חומרי גלם ומוצרים טבעיים</p>
+      <p class="hero__sub hero__sub--mobile" data-cms="hero.sub_mobile" data-cms-label="פסקה לטלפון (מוצגת בטלפון במקום הפסקה המלאה)" data-cms-type="para">ביו-גרין רשומה כ<a href="#importer" data-dialog="importer-dialog" aria-haspopup="dialog">יבואן נאות</a> מטעם משרד הבריאות.</p>
 
-      <div class="btn-row">
+      <div class="btn-row" data-bar-after>
         <button class="bg-btn bg-btn--primary bg-btn--lg" data-quote>
           <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span data-cms="hero.button" data-cms-label="כפתור ראשי">לקבלת הצעת מחיר</span>
         </button>
@@ -266,20 +267,21 @@
       </div>
 
       <div class="hero__trust" data-cms="hero.badges" data-cms-label="תגיות" data-cms-type="lines" data-cms-fixed>
-        <span class="bg-badge bg-badge--reg">
-          <svg class="icon" width="16" height="16"><use href="#i-shield-check"></use></svg><span data-cms-slot="1">פועלת מאז 2003</span>
+        <span class="hero__badge">
+          <span class="hero__badge-icon"><svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-clock"></use></svg></span><span data-cms-slot="1">פועלת מאז 2003</span>
         </span>
-        <span class="bg-badge">
-          <svg class="icon" width="16" height="16"><use href="#i-handshake"></use></svg><span data-cms-slot="1">Private Label בהתאמה אישית</span>
+        <span class="hero__badge">
+          <span class="hero__badge-icon"><svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-boxes"></use></svg></span><span data-cms-slot="1">Private Label בהתאמה אישית</span>
         </span>
-        <span class="bg-badge">
-          <svg class="icon" width="16" height="16"><use href="#i-flask-conical"></use></svg><span data-cms-slot="1">ליווי אישי מקצה לקצה</span>
+        <span class="hero__badge">
+          <span class="hero__badge-icon"><svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-handshake"></use></svg></span><span data-cms-slot="1">ליווי אישי מקצה לקצה</span>
         </span>
       </div>
     </div>
 
     <div class="hero__media">
-      <img data-cms="hero.image" data-cms-label="תמונת הבאנר" data-cms-type="image" data-cms-default="assets/img/hero-macro.jpg" data-cms-help="תמונה רוחבית ביחס 16:9, לפחות 1600 על 900 פיקסלים, JPG. כל ארבעת הקצוות נמוגים לתוך רקע העמוד, לכן כדאי מעט רקע פנוי מסביב למוצרים, במיוחד מתחתם ובצד ימין, ורקע בהיר בגוון הרקע של האתר." src="assets/img/cms-home-hero-image-1198b037.png" alt="חומרי גלם טבעיים, ג׳ינג׳ר, כורכום ועשבי תיבול, וכמוסות בצנצנת זכוכית ליד מעבדה. התמונה להמחשה בלבד." width="1600" height="900">
+      <img class="hero__img" data-cms="hero.image" data-cms-label="תמונת הבאנר" data-cms-type="image" data-cms-default="assets/img/hero-macro.jpg" data-cms-help="במחשב מוצגת כרקע של כל אזור הפתיחה, ברוחב מלא, והמוצרים יושבים בתחתית; החלק העליון מובהר מאחורי הטקסט. רצוי JPG ברוחב 2400 פיקסלים לפחות, עם המוצרים בשליש התחתון ורקע בהיר ושקט מעליהם. בטלפון מוצגת "תמונה לטלפון", ואם היא ריקה, התמונה הזו." src="assets/img/cms-home-hero-image-1198b037.png" alt="חומרי גלם טבעיים, ג׳ינג׳ר, כורכום ועשבי תיבול, וכמוסות בצנצנת זכוכית ליד מעבדה. התמונה להמחשה בלבד." width="1600" height="900">
+      <img class="hero__img--mobile" data-cms="hero.image_mobile" data-cms-label="תמונה לטלפון" data-cms-type="image" data-cms-default="" data-cms-help="מוצגת בטלפון במקום תמונת הבאנר, ברוחב מלא ובלי חיתוך. רצוי ביחס 3:1 (למשל 2172 על 724), על רקע בצבע הרקע של האתר (#F7F8F3). ריק = בטלפון מוצגת תמונת הבאנר הרגילה." alt="" hidden loading="lazy">
     </div>
   </div>
 </section>
@@ -941,8 +943,8 @@
   </button>
 </div>
 
-<script src="js/site.js?v=461fc357"></script>
-<script src="a11y/a11y-panel.js?v=fb13328a" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="accessibility/" data-bottom="92" defer></script>
+<script src="js/site.js?v=54cac875"></script>
+<script src="a11y/a11y-panel.js?v=8031d550" data-position="left" data-accent="#0B8F5A" data-lang="he" data-statement="accessibility/" data-bottom="92" defer></script>
 
 <script type="application/ld+json">
 {

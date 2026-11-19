@@ -263,7 +263,15 @@
     '.mask i{position:absolute;left:0;right:0;background:rgba(0,0,0,.62);display:block;}' +
 
     '@media (max-width:480px){.panel{width:calc(100vw - 24px);' + side + ':12px;' +
-    'bottom:calc(' + (CFG.bottom + BTN + GAP) + 'px + var(--a11y-lift, 0px));}}';
+    'bottom:calc(' + (CFG.bottom + BTN + GAP) + 'px + var(--a11y-lift, 0px));}}' +
+
+    // Phones: in the page's sticky header, beside its menu button, where it
+    // covers nothing. The page sets --a11y-m-top / --a11y-m-left (site.js);
+    // the panel opens downwards from there.
+    '@media (max-width:768px){' +
+    '.launcher{top:var(--a11y-m-top,16px);left:var(--a11y-m-left,74px);right:auto;bottom:auto;box-shadow:none;}' +
+    '.panel{top:calc(var(--a11y-m-top,16px) + ' + (BTN + GAP) + 'px);bottom:auto;left:12px;right:auto;' +
+    'max-height:calc(100vh - var(--a11y-m-top,16px) - ' + (BTN + GAP + 16) + 'px);}}';
 
   function ico(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true">' + paths + '</svg>';

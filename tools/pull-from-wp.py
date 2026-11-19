@@ -426,6 +426,7 @@ def main():
             'if that is really intended.')
 
     products, pages = [], []
+    catalog_place = {}
     for p in posts:
         slug = urllib.parse.unquote(p.get('slug') or '')
         name = clean((p.get('title') or {}).get('rendered'))
@@ -480,6 +481,13 @@ def main():
         except ValueError:
             die(f"'{slug}' has a non-numeric featured_order: {order!r}")
 
+        # Place in the catalogue (plugin 1.12.0). 0 or empty: unnumbered.
+        try:
+            place = int(field(p, 'catalog_order') or 0) or None
+        except (TypeError, ValueError):
+            place = None
+        catalog_place[slug] = place
+
         products.append({
             'slug': slug, 'name': name, 'category': cat,
             'image': image, 'imageAlt': alt,
@@ -500,6 +508,12 @@ def main():
             print(f'  {"":24} page: {len(page["tabs"])} tabs, '
                   f'{len(page["heroIcons"])} icons')
             pages.append(slug)
+
+    # The client's order (19/11/2026): numbered products first, 1 at the top;
+    # the rest after them in WordPress's own order, newest first. Every filter
+    # tab shows this order, since the catalogue is built from this list.
+    products = [p for _, p in sorted(enumerate(products), key=lambda ip: (
+        catalog_place.get(ip[1]['slug']) is None, catalog_place.get(ip[1]['slug']) or 0, ip[0]))]
 
     seen = set()
     for p in products:
@@ -587,6 +601,10 @@ def pull_content():
 
 
 HERO_WIDTH = 1600     # a hero spans the page; product shots stop at MAX_IMAGE_WIDTH
+# Wider where the image fills the screen: the home hero is the background of
+# the whole opening on a computer (19/11/2026), sharp on wide screens too; the
+# phone version is shown at most ~430px wide, three times over.
+IMAGE_WIDTHS = {('home', 'hero.image'): 2400, ('home', 'hero.image_mobile'): 1400}
 
 
 def localise_images(data):
@@ -611,7 +629,7 @@ def localise_images(data):
             base = re.sub(r'[^a-z0-9]+', '-', f'{page}-{key}'.lower()).strip('-')
             if url.startswith('http'):
                 tag = hashlib.sha1(url.encode('utf-8')).hexdigest()[:8]
-                lines[0] = grab_image(url, f'{base}-{tag}', 'cms', max_width=HERO_WIDTH)
+                lines[0] = grab_image(url, f'{base}-{tag}', 'cms', max_width=IMAGE_WIDTHS.get((page, key), HERO_WIDTH))
                 values[key] = '\n'.join(lines)
             keep = os.path.basename(lines[0]) if lines[0] else None
             for name in os.listdir(IMG_DIR):
