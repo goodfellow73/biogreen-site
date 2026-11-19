@@ -1023,7 +1023,7 @@
               "key": "hero.image_mobile",
               "label": "תמונה לטלפון",
               "type": "image",
-              "value": "",
+              "value": "assets/img/cms-home-hero-image-mobile-ef052491.jpg",
               "help": "מוצגת בטלפון במקום תמונת הבאנר, ברוחב מלא ובלי חיתוך. רצוי ביחס 3:1 (למשל 2172 על 724), על רקע בצבע הרקע של האתר (#F7F8F3). ריק = בטלפון מוצגת תמונת הבאנר הרגילה.",
               "default": "",
               "decorative": false
