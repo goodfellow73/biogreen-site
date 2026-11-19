@@ -81,6 +81,26 @@
       "published": true
     },
     {
+      "slug": "lions-mane",
+      "name": "אבקת פטריה רעמת האריה הריסיום",
+      "category": "raw-materials",
+      "image": "assets/img/product-lions-mane.png",
+      "imageAlt": "אבקת פטריה רעמת האריה הריסיום",
+      "labels": [
+        {
+          "text": "חומר גלם",
+          "tone": "sand"
+        }
+      ],
+      "benefits": [
+        "לתעשית התוספים",
+        "אישורי איכות",
+        "אספקה בכמויות"
+      ],
+      "featured": null,
+      "published": true
+    },
+    {
       "slug": "pineapple-powder",
       "name": "אבקת אננס",
       "category": "raw-materials",
@@ -102,26 +122,6 @@
         "אישורי איכות"
       ],
       "featured": 3,
-      "published": true
-    },
-    {
-      "slug": "lions-mane",
-      "name": "אבקת פטריה רעמת האריה הרסיום",
-      "category": "raw-materials",
-      "image": "assets/img/product-lions-mane.png",
-      "imageAlt": "אבקת פטריה רעמת האריה הרסיום",
-      "labels": [
-        {
-          "text": "חומר גלם",
-          "tone": "sand"
-        }
-      ],
-      "benefits": [
-        "לתעשיית התוספים",
-        "אישורי איכות",
-        "אספקה בכמויות"
-      ],
-      "featured": null,
       "published": true
     },
     {
