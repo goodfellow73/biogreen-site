@@ -57,26 +57,6 @@
       "published": true
     },
     {
-      "slug": "plant-extracts",
-      "name": "תמציות צמחים מיובשות",
-      "category": "raw-materials",
-      "image": "assets/img/product-plant-extracts.jpg",
-      "imageAlt": "תמציות צמחים מיובשות — חומר גלם",
-      "labels": [
-        {
-          "text": "B2B",
-          "tone": "commercial"
-        }
-      ],
-      "benefits": [
-        "למוצרי טבע",
-        "מקור מבוקר",
-        "תיעוד מלא"
-      ],
-      "featured": null,
-      "published": true
-    },
-    {
       "slug": "lions-mane",
       "name": "אבקת פטריה רעמת האריה הרסיום",
       "category": "raw-materials",
