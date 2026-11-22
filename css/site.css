@@ -702,7 +702,7 @@
 }
 .pp-hero__grid {
   display: grid; grid-template-columns: 1.15fr 0.85fr;
-  gap: 48px; align-items: center;
+  gap: 48px; align-items: start;
 }
 .pp-hero h1 { margin-bottom: 4px; }
 .pp-hero__subtitle {
@@ -1926,3 +1926,87 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 /* The "יבואן נאות" link in the hero paragraphs: underlined, since the text
    around it is dark green too (WCAG 1.4.1). */
 .hero__sub a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ==========================================================================
+   Round 2b, 19/11/2026 (the client's brief and mock-ups)
+   ========================================================================== */
+
+/* "Private Label" stays on one line wherever WordPress text carries it
+   (tools/cms.py wraps it). */
+.nowrap { white-space: nowrap; }
+
+/* ---- Home, computer: six cards in the first screen. The three tags stay
+   in the hero's HTML (the phone shows them there, as before); on a
+   computer they become the first row of the doorway block: a white strip
+   along the hero's bottom edge, the same three columns as the doorways
+   below, 16px apart, 12px between the rows. The hero fills the screen
+   above the 170px card block (77px header), never below 560px. ---- */
+@media (min-width: 769px) {
+  .hero {
+    --tag-strip: 74px;               /* 16px above the row + the 58px row */
+    --strip-pad: max(28px, calc((100% - var(--container-max)) / 2 + 28px));
+    min-height: calc(max(560px, 100vh - 247px) + var(--tag-strip));
+    padding-block: 28px calc(var(--tag-strip) + 40px);
+  }
+  .hero h1 { font-size: 48px; }
+  .hero__media { inset: 0 0 var(--tag-strip) 0; }
+  .hero__media .hero__img { object-position: center 62%; }
+  .hero__trust {
+    height: var(--tag-strip); padding: 15px var(--strip-pad) 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    background: var(--surface-card); border-top: 1px solid #E1E3DE;
+  }
+  .hero__badge {
+    height: 58px; padding: 14px 24px; gap: var(--space-4);
+    border: 1px solid #E1E3DE; border-radius: 14px; background: #F7F8F3;
+    font-size: 18px; font-weight: 600; color: #064F3A; cursor: default;
+  }
+  .hero__badge-icon { width: auto; height: auto; border-radius: 0; background: none; }
+  .hero__badge-icon svg { width: 28px; height: 28px; }
+
+  .doorways { padding-block: 12px 25px; border-top: 0; }
+  .bg-doorway { height: 58px; padding: 14px 24px; border-radius: 14px; }
+}
+@media (min-width: 769px) and (max-width: 900px) {
+  .hero { --strip-pad: 20px; }       /* .shell's own padding at this width */
+}
+
+/* ---- The header logo, computer: the leaf and the line above "BioGreen"
+   pull the word below the menu's line; 5px up puts it on it. ---- */
+@media (min-width: 769px) {
+  .site-header__logo img { transform: translateY(-5px); }
+}
+
+/* ---- "Why BioGreen", computer: eight cards, four to a row, in the same
+   language as the cards at the top. The phone keeps the list. ---- */
+@media (min-width: 769px) {
+  .why__head { margin-bottom: 36px; }
+  .why__grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .why__item {
+    flex-direction: column; justify-content: flex-start; gap: 14px; text-align: center;
+    min-height: 150px; padding: 24px 18px; border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .why__icon { width: 48px; height: 48px; border-radius: 50%; }
+  .why__item span:last-child { font-size: 17px; line-height: 1.4; }
+}
+@media (min-width: 769px) and (max-width: 1023px) {
+  .why__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---- Home spacing (computer and phone): the inner pages' one grid cell
+   above each block (sections-tight on <body>); the two coloured blocks
+   even above and below; shorter client-name cards. ---- */
+[data-cms-page="home"] .section.route-section,
+[data-cms-page="home"] .section.why { padding-block: 56px; }
+[data-cms-page="home"] .client { min-height: 60px; padding: 12px 14px; }
+@media (max-width: 768px) {
+  [data-cms-page="home"] .section.route-section,
+  [data-cms-page="home"] .section.why { padding-block: 44px; }
+}
+
+/* ---- Product pages, phone: no big buttons in the opening; the sticky
+   bar (call, WhatsApp, quote) is there from the first screen instead. ---- */
+@media (max-width: 768px) {
+  .pp-hero__actions { display: none; }
+}

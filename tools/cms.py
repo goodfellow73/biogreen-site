@@ -94,7 +94,7 @@ SCHEMA = os.path.join(ROOT, 'data', 'cms-schema.json')
 CONTENT = os.path.join(ROOT, 'data', 'content.json')
 
 VOID = {'meta', 'input', 'img', 'br', 'link', 'hr', 'source'}
-SECTION_FALLBACK = {'seo': 'תוצאות חיפוש בגוגל (SEO)'}
+SECTION_FALLBACK = {'seo': 'תוצאות חיפוש בגוגל (SEO)', 'page': 'הגדרות העמוד'}
 TYPE_HELP = {
     'text': '',
     'long': '',
@@ -102,6 +102,7 @@ TYPE_HELP = {
     'lines': 'פריט בכל שורה.',
     'pairs': 'כותרת בשורה הראשונה והטקסט אחריה. שורה ריקה בין פריט לפריט.',
     'image': '',
+    'toggle': '',
 }
 
 MARK = re.compile(r'<([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?\sdata-cms="([^"]+)"[^>]*>')
@@ -196,14 +197,27 @@ def ltr_ranges(escaped):
     "9×12" turns into "12×9" the same way. Both are kept left to right;
     reading the text back strips the span, so it round-trips."""
     escaped = TIME_RANGE.sub(r'<span dir="ltr">\1</span>', escaped)
-    return DIMENSIONS.sub(r'<span dir="ltr">\1</span>', escaped)
+    escaped = DIMENSIONS.sub(r'<span dir="ltr">\1</span>', escaped)
+    # "Private Label" never breaks between its two words (the client,
+    # 19/11/2026). Same round trip: reading back drops the span.
+    return KEEP_TOGETHER.sub(r'<span class="nowrap">\1</span>', escaped)
+
+
+KEEP_TOGETHER = re.compile(r'(?<![\w-])(Private Label)(?![\w-])')
 
 
 def ltr_text(fragment):
     """ltr_ranges() for HTML: only the text between tags, never inside a
-    tag, a script or a span already marked."""
-    parts = re.split(r'(<script\b.*?</script>|<span dir="ltr">.*?</span>|<[^>]+>)', fragment, flags=re.S)
-    return ''.join(p if i % 2 else ltr_ranges(p) for i, p in enumerate(parts))
+    tag, a script, a title, a form option or a span already marked."""
+    skip = re.compile(r'<(script|title|option|textarea)\b.*?</\1>'
+                      r'|<span (?:dir="ltr"|class="nowrap")>.*?</span>|<[^>]+>', re.S)
+    out, pos = [], 0
+    for m in skip.finditer(fragment):
+        out.append(ltr_ranges(fragment[pos:m.start()]))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(ltr_ranges(fragment[pos:]))
+    return ''.join(out)
 
 
 def para_html(value, link_template=None, page_dir=''):
@@ -481,6 +495,8 @@ def read_field(open_tag, inner, page_dir=''):
     kind = attr(open_tag, 'data-cms-type') or 'text'
     if kind == 'image':
         return read_image(open_tag, page_dir)
+    if kind == 'toggle':
+        return '1' if attr(open_tag, 'data-cms-class') in (attr(open_tag, 'class') or '').split() else '0'
     target = attr(open_tag, 'data-cms-attr')
     if target:
         return re.sub(r'\s+', ' ', attr(open_tag, target) or '').strip()
@@ -501,6 +517,22 @@ def read_field(open_tag, inner, page_dir=''):
     return ('\n' if kind == 'lines' else '\n\n').join(rows)
 
 
+def write_toggle(open_tag, value):
+    """A yes/no setting (a checkbox in WordPress): '1' puts the element's
+    data-cms-class on it, anything else takes it off. The rest of the tag,
+    other classes included, is left as it is."""
+    flag = attr(open_tag, 'data-cms-class')
+    classes = [c for c in (attr(open_tag, 'class') or '').split() if c != flag]
+    if str(value).strip() == '1':
+        classes.append(flag)
+    new = html.escape(' '.join(classes), quote=True)
+    if re.search(r'\sclass="', open_tag):
+        if not new:
+            return re.sub(r'\sclass="[^"]*"', '', open_tag, count=1)
+        return re.sub(r'(\sclass=")[^"]*(")', lambda m: m.group(1) + new + m.group(2), open_tag, count=1)
+    return re.sub(r'\s*(/?>)$', lambda m: f' class="{new}"{m.group(1)}', open_tag, count=1) if new else open_tag
+
+
 def write_field(open_tag, inner, value, page_dir=''):
     """New (open_tag, inner) for the element, with `value` written in.
     page_dir is the page's folder from the site root ('' for the home page),
@@ -508,13 +540,19 @@ def write_field(open_tag, inner, value, page_dir=''):
     kind = attr(open_tag, 'data-cms-type') or 'text'
     if kind == 'image':
         return write_image(open_tag, value, page_dir), inner
+    if kind == 'toggle':
+        return write_toggle(open_tag, value), inner
     target = attr(open_tag, 'data-cms-attr')
     if target:
         new = html.escape(re.sub(r'\s+', ' ', value).strip(), quote=True)
         return re.sub(r'(\s%s=")[^"]*(")' % re.escape(target),
                       lambda m: m.group(1) + new + m.group(2), open_tag, count=1), inner
     if kind in ('text', 'long'):
-        return open_tag, ltr_ranges(html.escape(re.sub(r'\s+', ' ', value).strip(), quote=False))
+        text = html.escape(re.sub(r'\s+', ' ', value).strip(), quote=False)
+        # A <title> (and an <option>) shows tags as text: no spans there.
+        if re.match(r'<(?:title|option|textarea)\b', open_tag, re.I):
+            return open_tag, text
+        return open_tag, ltr_ranges(text)
     if kind == 'para':
         link = re.search(r'(<a\b[^>]*>).*?(</a>)', inner, re.S)
         return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None, page_dir)
@@ -642,9 +680,12 @@ def extract():
                 field['help'] = (field['help'] + ' ' + attr(open_tag, 'data-cms-help')).strip()
             sections.setdefault(sec, {'id': sec, 'label': labels.get(sec, sec), 'fields': []})
             sections[sec]['fields'].append(field)
+        # The page's own settings (on its <body>, so first in the HTML) go
+        # last in the editor, after the texts.
+        ordered = sorted(sections.values(), key=lambda s: s['id'] == 'page')
         doc['pages'].append({'id': page_id, 'label': page_label,
                              'file': os.path.relpath(path, ROOT).replace(os.sep, '/'),
-                             'sections': list(sections.values())})
+                             'sections': ordered})
     with open(SCHEMA, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
         f.write('\n')
@@ -673,6 +714,11 @@ def apply():
             if not value.strip() and kind != 'image':
                 continue            # an emptied field keeps the page's text
                                     # (an emptied image is the page's own one)
+            if kind == 'toggle':
+                # Only the opening tag: the element (the <body>) holds fields
+                # already written above, and its old inner would undo them.
+                src = src[:start] + write_toggle(open_tag, value) + src[start + len(open_tag):]
+                continue
             new_open, new_inner = write_field(open_tag, inner, value, page_dir(path))
             end = element_end(src, start)
             close = src[start + len(open_tag) + len(inner):end]

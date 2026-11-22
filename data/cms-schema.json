@@ -173,6 +173,19 @@
               "help": ""
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -340,6 +353,19 @@
               "help": "שורה חדשה = ירידת שורה. טקסט בתוך [[ ]] הוא הקישור. לעדכן את התאריך בכל שינוי בהצהרה."
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -376,6 +402,19 @@
               "help": ""
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -409,6 +448,19 @@
               "label": "פסקה",
               "type": "text",
               "value": "נשמח לשמוע מכם ולבדוק איך נוכל לעזור.",
+              "help": ""
+            }
+          ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "1",
               "help": ""
             }
           ]
@@ -688,6 +740,19 @@
               "rich": true
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "1",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -853,6 +918,19 @@
               "help": ""
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -918,6 +996,19 @@
               "label": "שורה תחתונה",
               "type": "text",
               "value": "לא קיבלתם מייל תוך כמה דקות? כדאי לבדוק בתיקיית הספאם, או לכתוב לנו בוואטסאפ 072-2503833.",
+              "help": ""
+            }
+          ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
               "help": ""
             }
           ]
@@ -1272,6 +1363,19 @@
               "help": ""
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -1577,6 +1681,19 @@
               "rich": true
             }
           ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
+              "help": ""
+            }
+          ]
         }
       ]
     },
@@ -1769,6 +1886,19 @@
               "label": "כפתור וואטסאפ",
               "type": "text",
               "value": "דברו איתנו",
+              "help": ""
+            }
+          ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "0",
               "help": ""
             }
           ]
@@ -2088,6 +2218,19 @@
               "label": "שורה מתחת לטופס",
               "type": "text",
               "value": "אפשר גם בוואטסאפ או בטלפון 072-2503833, א׳–ה׳ 9:00–17:00.",
+              "help": ""
+            }
+          ]
+        },
+        {
+          "id": "page",
+          "label": "הגדרות העמוד",
+          "fields": [
+            {
+              "key": "page.hide_quick_contact",
+              "label": "להסתיר את רצועת צרו קשר בעמוד הזה",
+              "type": "toggle",
+              "value": "1",
               "help": ""
             }
           ]

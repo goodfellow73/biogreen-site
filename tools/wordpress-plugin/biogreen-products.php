@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.12.0
+ * Version:      1.13.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,8 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.13.0 Page settings with a checkbox in "תוכן העמודים": "להסתיר את רצועת צרו
+ *        קשר בעמוד הזה" (on for Private Label and Contact).
  * 1.12.0 "מיקום בקטלוג" on every product: the catalogue lists the numbered
  *        products first, 1 at the top, then the rest newest first, in every
  *        filter tab. The home page gets "פסקה לטלפון" and "תמונה לטלפון" in
@@ -114,7 +116,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.12.0';
+const BIOGREEN_VERSION = '1.13.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -967,6 +969,11 @@ add_action( 'admin_post_biogreen_cms_save', function () {
 			$values[ $key ] = biogreen_cms_clean_image( $posted[ $key ] );
 			continue;
 		}
+		// A checkbox: '1' ticked, '0' not (a hidden field posts the '0').
+		if ( $field['type'] === 'toggle' ) {
+			$values[ $key ] = (string) $posted[ $key ] === '1' ? '1' : '0';
+			continue;
+		}
 		$values[ $key ] = $field['type'] === 'text'
 			? sanitize_text_field( $posted[ $key ] )
 			: sanitize_textarea_field( $posted[ $key ] );
@@ -1053,6 +1060,25 @@ function biogreen_cms_render() {
 						$id    = 'cms-' . preg_replace( '/[^a-z0-9_-]/i', '-', $key );
 						$name  = 'cms[' . $key . ']';
 						$value = array_key_exists( $key, $stored ) && $stored[ $key ] !== '' ? $stored[ $key ] : $field['value'];
+						// A setting with a checkbox: the whole row, the words beside the box.
+						if ( $field['type'] === 'toggle' ) :
+							?>
+							<tr>
+								<td colspan="2">
+									<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="0">
+									<label for="<?php echo esc_attr( $id ); ?>">
+										<input type="checkbox" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"
+											value="1" <?php checked( (string) $value, '1' ); ?>>
+										<?php echo esc_html( $field['label'] ); ?>
+									</label>
+									<?php if ( ! empty( $field['help'] ) ) : ?>
+										<p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+									<?php endif; ?>
+								</td>
+							</tr>
+							<?php
+							continue;
+						endif;
 						$rows  = [ 'long' => 3, 'para' => 3, 'pairs' => 12 ][ $field['type'] ] ?? 0;
 						if ( $field['type'] === 'lines' ) {
 							$rows = max( 4, substr_count( $value, "\n" ) + 2 );

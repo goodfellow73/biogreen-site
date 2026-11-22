@@ -444,7 +444,7 @@ def build(page, prod, cats, sprite, header, footer):
       <h1>{esc(prod['name'])}</h1>
 {hero_copy}
 
-      <div class="btn-row" data-bar-after>
+      <div class="btn-row pp-hero__actions">
         <a class="bg-btn bg-btn--primary bg-btn--lg" href="#quote">
           <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>לקבלת הצעת מחיר</span>
         </a>
