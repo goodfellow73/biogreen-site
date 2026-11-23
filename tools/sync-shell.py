@@ -36,6 +36,7 @@ TARGETS = {
     'about/index.html': 'about/',
     'knowledge/detox-patches/index.html': 'knowledge/',
     'accessibility/index.html': None,      # in no menu: nothing marked current
+    'privacy/index.html': None,
 }
 
 # block name -> (first line starts with, last line contains)

@@ -2010,3 +2010,19 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 @media (max-width: 768px) {
   .pp-hero__actions { display: none; }
 }
+
+/* ==========================================================================
+   Privacy policy (/privacy/, 23/11/2026) and the links to it
+   ========================================================================== */
+
+/* In the form notes and the cookie bar: underlined, in the note's own colour. */
+.pp-privacy a, .cookie-bar__text a, .cookie-dialog .info-dialog__body > p a {
+  color: inherit; text-decoration: underline; text-underline-offset: 2px;
+}
+.pp-privacy a:hover, .cookie-bar__text a:hover { color: var(--color-green-deep); }
+
+/* The policy: numbered paragraphs and lists as the lawyer wrote them; long
+   addresses (www…, e-mail) may wrap on a phone. */
+.legal .article__content p, .legal .article__content li { overflow-wrap: anywhere; }
+.legal-part h2 { margin-bottom: 14px; }
+.legal-updated { color: var(--text-muted); font-size: var(--fs-small); }

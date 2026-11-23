@@ -103,6 +103,7 @@ TYPE_HELP = {
     'pairs': 'כותרת בשורה הראשונה והטקסט אחריה. שורה ריקה בין פריט לפריט.',
     'image': '',
     'toggle': '',
+    'blocks': 'כל שורה היא פסקה. שורה שמתחילה ב־"- " היא סעיף ברשימה. קישור: [[המילים|כתובת]] (לאימייל mailto:..., לטלפון tel:+972...).',
 }
 
 MARK = re.compile(r'<([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?\sdata-cms="([^"]+)"[^>]*>')
@@ -220,7 +221,7 @@ def ltr_text(fragment):
     return ''.join(out)
 
 
-def para_html(value, link_template=None, page_dir=''):
+def para_html(value, link_template=None, page_dir='', new_tab=False):
     """The client's text -> inner HTML. [[words|/address/]] is a link to that
     address (written relative to the page); plain [[words]] takes the
     element's existing link, if it has one."""
@@ -237,7 +238,9 @@ def para_html(value, link_template=None, page_dir=''):
                 href = page_href(url.strip(), page_dir) if url.strip() else None
                 words = html.escape(words.strip(), quote=False)
                 # Another site opens in a new tab, with no hold on this one.
-                away = ' target="_blank" rel="noopener"' if href and re.match(r'https?://', href) else ''
+                # (or every link, where the field says so: the privacy note in a
+                # form, so the form is still there to finish)
+                away = ' target="_blank" rel="noopener"' if href and (new_tab or re.match(r'https?://', href)) else ''
                 buf.append(f'<a href="{html.escape(href, quote=True)}"{away}>{words}</a>' if href else words)
             elif link_template:
                 buf.append(link_template[0] + html.escape(part, quote=False) + link_template[1])
@@ -497,6 +500,8 @@ def read_field(open_tag, inner, page_dir=''):
         return read_image(open_tag, page_dir)
     if kind == 'toggle':
         return '1' if attr(open_tag, 'data-cms-class') in (attr(open_tag, 'class') or '').split() else '0'
+    if kind == 'blocks':
+        return read_blocks(inner, page_dir)
     target = attr(open_tag, 'data-cms-attr')
     if target:
         return re.sub(r'\s+', ' ', attr(open_tag, target) or '').strip()
@@ -515,6 +520,46 @@ def read_field(open_tag, inner, page_dir=''):
         link = read_link(it, page_dir) if links else ''
         rows.append(row + (f'\n{LINK_MARK} {link}' if link else ''))
     return ('\n' if kind == 'lines' else '\n\n').join(rows)
+
+
+def read_blocks(inner, page_dir=''):
+    """A run of paragraphs and bullet lists (a section of a legal page) ->
+    the text the client edits: one paragraph per line, "- " before each
+    bullet, a blank line between blocks; links as [[words|address]]."""
+    out = []
+    for a, b in children(inner):
+        el = inner[a:b]
+        tag, body, _, _ = split_element(el, 0)
+        if re.match(r'<ul\b', tag):
+            out.append('\n'.join('- ' + para_value(split_element(body[x:y], 0)[1], True, page_dir)
+                                 for x, y in children(body)))
+        else:
+            out.append(para_value(body, True, page_dir).replace('\n', ' '))
+    return '\n\n'.join(out)
+
+
+def write_blocks(value, page_dir=''):
+    """read_blocks() the other way: every line is a paragraph of its own,
+    and lines that start with "-" (or "•") make a bullet list."""
+    blocks, items = [], []
+
+    def close_list():
+        if items:
+            blocks.append('<ul>\n' + ''.join(f'      <li>{li}</li>\n' for li in items) + '    </ul>')
+            items.clear()
+
+    for line in value.replace('\r\n', '\n').split('\n'):
+        line = line.strip()
+        if not line:
+            continue
+        bullet = re.match(r'^[-•]\s*(.*)$', line)
+        if bullet:
+            items.append(para_html(bullet.group(1), None, page_dir))
+        else:
+            close_list()
+            blocks.append(f'<p>{para_html(line, None, page_dir)}</p>')
+    close_list()
+    return '\n    ' + '\n    '.join(blocks) + '\n  '
 
 
 def write_toggle(open_tag, value):
@@ -542,6 +587,8 @@ def write_field(open_tag, inner, value, page_dir=''):
         return write_image(open_tag, value, page_dir), inner
     if kind == 'toggle':
         return write_toggle(open_tag, value), inner
+    if kind == 'blocks':
+        return open_tag, write_blocks(value, page_dir)
     target = attr(open_tag, 'data-cms-attr')
     if target:
         new = html.escape(re.sub(r'\s+', ' ', value).strip(), quote=True)
@@ -555,7 +602,8 @@ def write_field(open_tag, inner, value, page_dir=''):
         return open_tag, ltr_ranges(text)
     if kind == 'para':
         link = re.search(r'(<a\b[^>]*>).*?(</a>)', inner, re.S)
-        return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None, page_dir)
+        return open_tag, para_html(value, (link.group(1), link.group(2)) if link else None, page_dir,
+                                   has_attr(open_tag, 'data-cms-new-tab'))
 
     # lists, updated in place
     spans = children(inner)

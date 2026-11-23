@@ -38,7 +38,7 @@ FORM = {
                'ב-SMS או בוואטסאפ. אפשר להסיר את ההרשמה בכל עת.',
     'button': 'שליחת פנייה',
     'privacy': 'הפרטים ישמשו לטיפול בפנייה וליצירת קשר בנושא. עדכונים יישלחו רק אם '
-               'סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.',
+               'סימנתם זאת. לפרטים נוספים ראו',   # + the link to the privacy policy
 }
 
 # Links typed in WordPress may give the site's full address, the GitHub Pages
@@ -506,7 +506,7 @@ def build(page, prod, cats, sprite, header, footer):
         <span>{esc(FORM['consent'])}</span>
       </label>
 
-      <p class="pp-privacy">{esc(FORM['privacy'])}</p>
+      <p class="pp-privacy">{esc(FORM['privacy'])} <a href="{UP}privacy/" target="_blank" rel="noopener">מדיניות הפרטיות</a>.</p>
       <button class="bg-btn bg-btn--primary bg-btn--lg bg-btn--block" type="submit">
         <svg class="icon" width="22" height="22"><use href="#i-clipboard-pen"></use></svg><span>{esc(FORM['button'])}</span>
       </button>

@@ -681,11 +681,27 @@ const FORMS = {
     bar: 'אנחנו משתמשים בעוגיות הכרחיות כדי שהאתר יפעל כראוי. באישורכם נשתמש גם בעוגיות ' +
          'סטטיסטיקה ושיווק, כדי להבין איך משתמשים באתר ולהציג מודעות רלוונטיות. ' +
          'אפשר לשנות את הבחירה בכל עת ב"הגדרות עוגיות" בתחתית האתר. ' +
-         'לפרטים נוספים ראו מדיניות הפרטיות.',
+         'לפרטים נוספים ראו ',            // + a link to the privacy policy
     necessary: ['עוגיות הכרחיות', 'נדרשות כדי שהאתר יפעל: שמירת הבחירה שלכם כאן והגדרות הנגישות. תמיד פעילות.'],
     analytics: ['סטטיסטיקה', 'עוזרות לנו להבין איך משתמשים באתר ולשפר אותו (Google Analytics).'],
     marketing: ['שיווק', 'מאפשרות להציג לכם מודעות רלוונטיות בפייסבוק ובאינסטגרם ולמדוד אותן (Meta Pixel).'],
   };
+
+  // The privacy policy, from this script's own address (js/site.js sits one
+  // level below the site root, whatever the page's depth).
+  const POLICY = (function () {
+    const s = document.currentScript;
+    try { return new URL('../privacy/', (s && s.src) || location.href).href; } catch (e) { return 'privacy/'; }
+  }());
+
+  function policyLink() {
+    const a = document.createElement('a');
+    a.href = POLICY;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'מדיניות הפרטיות';
+    return a;
+  }
 
   const waiting = { analytics: [], marketing: [] };
   let state = read();
@@ -822,6 +838,7 @@ const FORMS = {
     const p = document.createElement('p');
     p.className = 'cookie-bar__text';
     p.textContent = TEXT.bar;
+    p.append(policyLink(), '.');
     const actions = document.createElement('div');
     actions.className = 'cookie-bar__actions';
     actions.appendChild(button('bg-btn--primary', 'אישור הכל', all));
@@ -868,6 +885,7 @@ const FORMS = {
       '<div class="info-dialog__body"><h2 id="cookie-dialog-title">הגדרות עוגיות</h2>' +
       '<p>בחרו אילו עוגיות להפעיל. אפשר לשנות את הבחירה בכל עת.</p>' +
       '<div class="cookie-kinds"></div><div class="cookie-dialog__actions"></div></div>';
+    dialog.querySelector('.info-dialog__body > p').append(' לפרטים נוספים ראו ', policyLink(), '.');
     const kinds = dialog.querySelector('.cookie-kinds');
     kinds.appendChild(row('necessary', true));
     KINDS.forEach(function (k) { kinds.appendChild(row(k, false)); });

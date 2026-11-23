@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  BioGreen Products
  * Description:  Product catalogue for the BioGreen static site. Registers the product type, its fields, and rebuilds the site when a product is saved.
- * Version:      1.13.0
+ * Version:      1.14.0
  * Requires PHP: 7.4
  *
  * WordPress is the editor here, never the runtime. The published site is static
@@ -16,6 +16,9 @@
  * checked against the file that was sent.
  *
  * Changelog
+ * 1.14.0 The privacy policy page (/privacy/): sections edited as paragraphs and
+ *        "- " bullets in one field. The guide form's privacy note, if still
+ *        the original text, gets its link to the policy (once).
  * 1.13.0 Page settings with a checkbox in "תוכן העמודים": "להסתיר את רצועת צרו
  *        קשר בעמוד הזה" (on for Private Label and Contact).
  * 1.12.0 "מיקום בקטלוג" on every product: the catalogue lists the numbered
@@ -116,7 +119,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const BIOGREEN_VERSION = '1.13.0';
+const BIOGREEN_VERSION = '1.14.0';
 
 const BIOGREEN_TONES = [
 	'natural'    => 'ירוק — טבעי',
@@ -1079,7 +1082,7 @@ function biogreen_cms_render() {
 							<?php
 							continue;
 						endif;
-						$rows  = [ 'long' => 3, 'para' => 3, 'pairs' => 12 ][ $field['type'] ] ?? 0;
+						$rows  = [ 'long' => 3, 'para' => 3, 'pairs' => 12, 'blocks' => 14 ][ $field['type'] ] ?? 0;
 						if ( $field['type'] === 'lines' ) {
 							$rows = max( 4, substr_count( $value, "\n" ) + 2 );
 						}
@@ -2481,12 +2484,33 @@ function biogreen_seed_products( $file, $option ) {
 	return $done;
 }
 
+/**
+ * 1.14.0, once: the privacy note above the guide form ("ידע מקצועי") links to
+ * the new policy page. Only a note still saved with its original words is
+ * changed; one the client has edited is left alone.
+ */
+function biogreen_link_guide_note() {
+	if ( get_option( 'biogreen_guide_note_linked' ) ) {
+		return 0;
+	}
+	update_option( 'biogreen_guide_note_linked', BIOGREEN_VERSION, false );
+	$content = get_option( BIOGREEN_CMS_OPTION, [] );
+	$old     = 'המדריך יישלח לאימייל. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו מדיניות הפרטיות.';
+	if ( ! is_array( $content ) || ( $content['knowledge']['guide.note'] ?? '' ) !== $old ) {
+		return 0;
+	}
+	$content['knowledge']['guide.note'] = 'המדריך יישלח לאימייל. עדכונים יישלחו רק אם סימנתם זאת. לפרטים נוספים ראו [[מדיניות הפרטיות|/privacy/]].';
+	update_option( BIOGREEN_CMS_OPTION, $content, false );
+	return 1;
+}
+
 add_action( 'admin_init', function () {
 	if ( ! current_user_can( 'edit_posts' ) ) {
 		return;
 	}
 	$done  = biogreen_seed_products( 'products-pads.json', 'biogreen_pads_seeded' );
 	$done += biogreen_seed_products( 'products-seo.json', 'biogreen_seo_seeded' );
+	$done += biogreen_link_guide_note();
 	if ( $done ) {
 		biogreen_trigger_build();
 	}
