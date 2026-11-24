@@ -99,12 +99,16 @@ def live(base):
     report(code == 410, '/css/goods.php?name=… -> 410', f'got {code}')
     code, _, _, body = get(base, '/no-such-page-xyz/')
     report(code == 404 and 'העמוד לא נמצא' in body, 'missing page: 404 with the designed page', f'got {code}')
-    for path in ('/robots.txt', '/sitemap.xml'):
+    # A host's temporary preview address (e.g. *.hostingersite.com) serves its
+    # own robots.txt and rewrites the domain inside the pages: those two
+    # checks only mean something on the real domain.
+    real = origin.hostname == 'www.bio-green.co.il'
+    for path in ('/robots.txt', '/sitemap.xml') if real else ('/sitemap.xml',):
         code, _, _, body = get(base, path)
         report(code == 200 and 'bio-green.co.il' in body, path, f'got {code}')
     for path in ('/tools/cms.py', '/data/content.json', '/.git/config'):
         code, _, _, _ = get(base, path)
-        report(code == 404, f'not served: {path}', f'got {code}')
+        report(code in (403, 404), f'not served: {path}', f'got {code}')   # the host may refuse .git itself
     if origin.hostname == 'www.bio-green.co.il':
         for url in ('http://www.bio-green.co.il/about/', 'http://bio-green.co.il/about/', 'https://bio-green.co.il/about/'):
             code, loc, _, _ = get(url, '/about/')
@@ -114,7 +118,8 @@ def live(base):
         cookies = [v for k, v in headers if k.lower() == 'set-cookie']
         report(code == 200, f'{path} 200', f'got {code}')
         report(not cookies, f'{path} sets no cookie (privacy policy 8.1)', '; '.join(cookies))
-        report('<link rel="canonical" href="https://www.bio-green.co.il' in body, f'{path} canonical')
+        if real:
+            report('<link rel="canonical" href="https://www.bio-green.co.il' in body, f'{path} canonical')
 
 
 if __name__ == '__main__':
