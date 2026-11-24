@@ -114,6 +114,8 @@ jobs:
         # name's one spelling (brand-name) before it, so the schema has it. The field
         # list the plugin shows is read back once every page exists, so its
         # link picker already offers a product or article added in this build.
+        # build-seo last: canonical/OG tags, sitemap, robots and the 404 page,
+        # which copies index.html's freshly stamped asset links.
         run: |
           python tools/cms.py apply
           python tools/build-glossary.py
@@ -125,6 +127,8 @@ jobs:
           python tools/build-faq-schema.py
           python tools/cms.py extract
           python tools/stamp-assets.py
+          python tools/build-seo.py
+          python tools/build-redirects.py
 
       - name: Commit regenerated HTML
         if: steps.debounce.outputs.skip != 'true'

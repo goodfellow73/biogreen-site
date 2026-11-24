@@ -24,7 +24,7 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAGE = os.path.join(ROOT, 'knowledge', 'glossary', 'index.html')
-URL = 'https://www.biogreen.co.il/knowledge/glossary/'
+URL = 'https://www.bio-green.co.il/knowledge/glossary/'
 
 TERM = re.compile(r'(<h3 class="term__name"[^>]*?\sid=")([^"]*)("[^>]*>)(.*?)(</h3>)', re.S)
 DEF = re.compile(r'<p class="term__def"[^>]*>(.*?)</p>', re.S)

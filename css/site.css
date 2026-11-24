@@ -958,8 +958,9 @@
 }
 .quick-contact__inner {
   display: grid; grid-template-columns: minmax(220px, 0.8fr) 2fr;
-  gap: 32px; align-items: center;
+  gap: 32px; align-items: start;   /* heading level with the fields (24/11/2026) */
 }
+.quick-contact.is-sent .quick-contact__head p { display: none; }
 .quick-contact__title { font-size: var(--fs-h3); color: var(--color-green-deep); margin: 0 0 6px; }
 .quick-contact__head p { margin: 0; color: var(--text-muted); }
 /* Three fields in a row, then the consent box, the privacy note and the

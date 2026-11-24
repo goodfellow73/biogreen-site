@@ -157,7 +157,7 @@ def jsonld(products, cats):
             '@type': 'Product',
             'name': p['name'],
             'category': cats[p['category']],
-            'image': f"https://www.biogreen.co.il/{p['image']}",
+            'image': f"https://www.bio-green.co.il/{p['image']}",
             'description': ' · '.join(p.get('benefits', [])),
             'brand': {'@type': 'Brand', 'name': 'BioGreen'},
         },

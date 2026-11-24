@@ -197,6 +197,10 @@ const FORMS = {
         return;
       }
       form.hidden = true;
+      // The section knows it was sent: the contact band hides the line under
+      // its heading, which the thank-you repeats (the client, 24/11/2026).
+      const host = form.closest('section');
+      if (host) host.classList.add('is-sent');
       if (done) {
         done.hidden = false;
         if (done.focus) done.focus();

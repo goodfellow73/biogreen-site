@@ -320,7 +320,7 @@ def product_jsonld(prod, page, cat_label):
         'name': prod['name'],
         'category': cat_label,
         'description': page.get('lede', ''),
-        'image': f"https://www.biogreen.co.il/{prod['image']}",
+        'image': f"https://www.bio-green.co.il/{prod['image']}",
         'brand': {'@type': 'Brand', 'name': 'BioGreen'},
         'sku': prod['slug'],
     }

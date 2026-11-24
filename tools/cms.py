@@ -671,6 +671,16 @@ def pages():
     return sorted(found)
 
 
+# The shared shell (the contact band at the foot of every page) is edited on
+# the home page only: sync-shell copies it from index.html to every page, so
+# its fields (data-cms-shared) belong to that page and no other.
+SHELL_MASTER = 'home'
+
+
+def own_field(open_tag, page_id):
+    return page_id == SHELL_MASTER or not has_attr(open_tag, 'data-cms-shared')
+
+
 def fields(src):
     """(key, label, type, fixed, start, open_tag, inner) for each marked element."""
     out = []
@@ -705,6 +715,8 @@ def extract():
         labels = section_labels(src)
         sections = {}
         for key, label, kind, fixed, _, open_tag, inner in fields(src):
+            if not own_field(open_tag, page_id):
+                continue
             sec = key.split('.', 1)[0]
             field = {'key': key, 'label': label, 'type': kind,
                      'value': read_field(open_tag, inner, page_dir(path)), 'help': TYPE_HELP.get(kind, '')}
@@ -756,7 +768,7 @@ def apply():
         before = src
         # Back to front, so earlier offsets stay valid as later ones change.
         for key, _, kind, _, start, open_tag, inner in reversed(fields(src)):
-            if key not in values or values[key] is None:
+            if key not in values or values[key] is None or not own_field(open_tag, page_id):
                 continue
             value = str(values[key])
             if not value.strip() and kind != 'image':
