@@ -150,7 +150,9 @@ def main():
 
         def replace(m):
             rel = m.group('path')
-            target = os.path.normpath(os.path.join(os.path.dirname(page), rel))
+            # "/css/…" starts at the site root (the 404 page, served at any depth).
+            base = ROOT if rel.startswith('/') else os.path.dirname(page)
+            target = os.path.normpath(os.path.join(base, rel.lstrip('/')))
             if not os.path.exists(target):
                 missing.append(f'{os.path.relpath(page, ROOT)} -> {rel}')
                 return m.group(0)
