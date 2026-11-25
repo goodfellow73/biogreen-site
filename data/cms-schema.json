@@ -1432,7 +1432,7 @@
               "key": "hero.image",
               "label": "תמונת רקע לבאנר",
               "type": "image",
-              "value": "assets/img/cms-import-hero-image-f7223ae7.png",
+              "value": "assets/img/cms-import-hero-image-b2328ba3.jpg",
               "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב, JPG, בלי טקסט. מוצגת מעומעמת בצד הבאנר, ובמובייל ברקע מאחורי הכותרת — עדיפה תמונה בהירה ושקטה, עם הנושא במרכז.",
               "default": "assets/img/bg-import-botanical.jpg",
               "decorative": true
@@ -1750,7 +1750,7 @@
               "key": "hero.image",
               "label": "תמונת רקע לבאנר",
               "type": "image",
-              "value": "assets/img/cms-knowledge-hero-image-dc892daf.png",
+              "value": "assets/img/cms-knowledge-hero-image-50b3297e.jpg",
               "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב, JPG, בלי טקסט. מוצגת מעומעמת בצד הבאנר, ובמובייל ברקע מאחורי הכותרת — עדיפה תמונה בהירה ושקטה, עם הנושא במרכז.",
               "default": "",
               "decorative": true
@@ -2264,7 +2264,7 @@
               "key": "hero.image",
               "label": "תמונת רקע לבאנר",
               "type": "image",
-              "value": "assets/img/cms-private-label-hero-image-e9829929.png",
+              "value": "assets/img/cms-private-label-hero-image-50268ae4.jpg",
               "help": "תמונה רוחבית, לפחות 1600 פיקסלים ברוחב, JPG, בלי טקסט. מוצגת מעומעמת בצד הבאנר, ובמובייל ברקע מאחורי הכותרת — עדיפה תמונה בהירה ושקטה, עם הנושא במרכז.",
               "default": "assets/img/bg-import-botanical.jpg",
               "decorative": true
