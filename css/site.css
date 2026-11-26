@@ -2027,3 +2027,28 @@ ol.bg-route { list-style: none; padding: 0; margin: 48px 0 0; }
 .legal .article__content p, .legal .article__content li { overflow-wrap: anywhere; }
 .legal-part h2 { margin-bottom: 14px; }
 .legal-updated { color: var(--text-muted); font-size: var(--fs-small); }
+
+/* ==========================================================================
+   26/11/2026 (the client): inner-page hero photo for phones; very small
+   phones on the home page
+   ========================================================================== */
+
+/* "תמונת רקע לטלפון (לא חובה)": when one is set, phones (up to 768px) show
+   it instead of the computer's photo; left empty, nothing changes. */
+.page-hero__bg--mobile { display: none; }
+@media (max-width: 768px) {
+  .page-hero:has(.page-hero__bg--mobile:not([hidden])) .page-hero__bg:not(.page-hero__bg--mobile) { display: none; }
+  .page-hero__bg--mobile:not([hidden]) { display: block; }
+}
+
+/* Home, phones up to 380px wide (iPhone mini / SE): the heading took four
+   lines and pushed the quote button out of the first screen. A smaller
+   heading and tighter gaps; wider phones and computers are unchanged. */
+@media (max-width: 380px) {
+  .hero { padding-top: 4px; }
+  .hero__grid { gap: 10px; }
+  .hero .bg-eyebrow { margin-bottom: 8px; }
+  .hero h1 { font-size: 34px; margin-bottom: 14px; }
+  .hero__lead { margin-bottom: 18px; }
+  .hero__sub--mobile { margin-bottom: 20px; }
+}
