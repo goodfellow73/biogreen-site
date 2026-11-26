@@ -2327,7 +2327,7 @@
               "key": "hero.image_mobile",
               "label": "תמונת רקע לטלפון (לא חובה)",
               "type": "image",
-              "value": "",
+              "value": "assets/img/cms-private-label-hero-image-mobile-2e11bcf4.jpg",
               "help": "מוצגת בטלפון (עד 768 פיקסלים ברוחב) במקום תמונת הרקע לבאנר. תמונה לאורך או ריבועית, בהירה ושקטה, בלי טקסט. ריק = בטלפון מוצגת תמונת הרקע הרגילה.",
               "default": "",
               "decorative": true
